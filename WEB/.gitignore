@@ -1,0 +1,39 @@
+# ====== DRONAI DASHBOARD ====== #
+/dronai-dashboard/node_modules
+/dronai-dashboard/build
+
+# dependencies
+/dronai-dashboard/node_modules
+/dronai-dashboard/.pnp
+/dronai-dashboard/.pnp.js
+
+# testing
+/dronai-dashboard/coverage
+
+# production
+/dronai-dashboard/build
+
+# misc
+/dronai-dashboard/.DS_Store
+/dronai-dashboard/.env.local
+/dronai-dashboard/.env.development.local
+/dronai-dashboard/.env.test.local
+/dronai-dashboard/.env.production.local
+
+/dronai-dashboard/npm-debug.log*
+/dronai-dashboard/yarn-debug.log*
+/dronai-dashboard/yarn-error.log*
+/dronai-dashboard/.idea/
+
+
+# ====== DRONAI API ====== #
+/dronai-api/node_modules
+/dronai-api/build
+
+# Logs
+*.log
+/dronai-api/npm-debug.log*
+/dronai-api/yarn-debug.log*
+/dronai-api/yarn-error.log*
+
+*.db
