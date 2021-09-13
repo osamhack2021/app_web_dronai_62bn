@@ -34,4 +34,8 @@ LICENSE text eol=lf
 *.woff binary
 *.woff2 binary
 *.zip binary
+<<<<<<< HEAD
 *.rar binary
+=======
+*.rar binary
+>>>>>>> a7dec5a03553298cc223744177464b7dfd84ea48
