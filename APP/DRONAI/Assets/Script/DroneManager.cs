@@ -106,6 +106,12 @@ public class DroneManager : SerializedMonoBehaviour
     #endregion
 
 
+    public void MoveSingleDrone(string id, Vector3 position)
+    {
+        drones[id].MoveTo(position);
+    }
+
+
     private IEnumerator IterateDroneRoutine(float delay)
     {
         foreach (Drone target in drones.Values)
@@ -162,10 +168,5 @@ public class DroneManager : SerializedMonoBehaviour
 
             yield return null;
         }
-    }
-
-
-    private void Test()
-    {
     }
 }
