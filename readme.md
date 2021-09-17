@@ -27,6 +27,7 @@
 ### Simulation (Client)
  - Language: C#
  - Tools: [Unity3d](https://unity.com)
+ - Library: [Priority Queue - MIT](https://github.com/BlueRaja/High-Speed-Priority-Queue-for-C-Sharp)
 
 
 ## 설치 안내 (Installation Process)
