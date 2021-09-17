@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
@@ -85,32 +84,16 @@ public class DroneManager : SerializedMonoBehaviour
 
     private void Initialize()
     {
-        StartCoroutine(IterateDroneRoutine(0.4f));
+        StartCoroutine(IterateDroneRoutine(0.1f));
         //StartCoroutine(CircleFirstRoutine(0.4f));
     }
     #endregion
 
-    #region Action and Events
-    public void OnDroneDestroy(string droneId)
-    {
-        try
-        {
-            // drones.Remove(droneId);
-        }
-        catch
-        {
-            print("Wrong drone id");
-        }
-
-    }
-    #endregion
-
-
+    #region Physics
     public void MoveSingleDrone(string id, Vector3 position)
     {
         drones[id].MoveTo(position);
     }
-
 
     private IEnumerator IterateDroneRoutine(float delay)
     {
@@ -121,7 +104,6 @@ public class DroneManager : SerializedMonoBehaviour
         }
         yield break;
     }
-
     private IEnumerator CircleFirstRoutine(float delay)
     {
         int index = 0;
@@ -164,9 +146,120 @@ public class DroneManager : SerializedMonoBehaviour
             }
             if (Mathf.Abs(angle) > 360) angle = 0;
 
-            
-
             yield return null;
         }
     }
+    #endregion
+
+    #region Formation
+
+    public void PickDrones(int n = 5)
+    {
+        print("PickDrones Call");
+
+        List<string> pickDronesList = new List<string>();
+        pickDronesList.Add("Drone_0");
+        pickDronesList.Add("Drone_7");
+        pickDronesList.Add("Drone_6");
+        pickDronesList.Add("Drone_20");
+        pickDronesList.Add("Drone_3");
+
+        foreach (string droneID in pickDronesList)
+        {
+            drones[droneID].MoveUp(2f);
+            InsertDroneFormation(droneID, drones[pickDronesList[0]]);
+        }
+
+        foreach (string droneID in pickDronesList) {
+            print(droneID + "의 부모는 " + drones[droneID].droneGroup.Parent?.name);
+        }
+    }
+
+    private void InsertDroneFormation(string droneID, Drone headDrone)
+    {
+        if (drones[droneID] == headDrone)
+        {
+            // head drone일 경우
+        }
+        else
+        {
+            bool isLeft = true;
+
+            while (headDrone)
+            {
+                // 부모 설정
+                drones[droneID].AssignParent(headDrone);
+
+                // Id of drones로 비교
+                if (NameCompare(drones[droneID].name, headDrone.name))
+                {
+                    //print("left : " + drones[droneID].name + " and " + headDrone.name);
+                    headDrone = headDrone.droneGroup.LeftChild;
+
+                    isLeft = true;
+                }
+                else
+                {
+                    //print("right : " + drones[droneID].name + " and " + headDrone.name);
+                    headDrone = headDrone.droneGroup.RightChild;
+
+                    isLeft = false;
+                }
+            }
+
+            // 부모의 자식 설정
+            if (isLeft) drones[droneID].droneGroup.Parent.droneGroup.LeftChild = drones[droneID];
+            else drones[droneID].droneGroup.Parent.droneGroup.RightChild = drones[droneID];
+        }
+    }
+
+    /// <summary>
+    /// 드론 이름 비교 함수
+    /// </summary>
+    /// <param name="name1"></param>
+    /// <param name="name2"></param>
+    /// <returns></returns>
+    private bool NameCompare(string name1, string name2)
+    {
+        int length1 = name1.Length, length2 = name2.Length;
+        if (length1 < length2) return true;
+        else if (length1 == length2)
+        {
+            for (int i = 0; i < length1; i++)
+            {
+                if (name1[i] < name2[i]) return true;
+                else if (name1[i] > name2[i]) break;
+            }
+            return false;
+        }
+        else return false;
+    }
+
+    #endregion
+
+    #region Getter and Setter
+    public bool ContainsDrone(string id)
+    {
+        return drones.ContainsKey(id);
+    }
+    public Vector3 GetDronePositionById(string id)
+    {
+        return drones[id].transform.position;
+    }
+    #endregion
+
+    #region Action and Events
+    public void OnDroneDestroy(string droneId)
+    {
+        try
+        {
+            // drones.Remove(droneId);
+        }
+        catch
+        {
+            print("Wrong drone id");
+        }
+
+    }
+    #endregion
 }

@@ -73,7 +73,32 @@ MonoBehaviour:
     SerializationNodes: []
   id: 60a5ac37-987d-4a6a-88b5-4214e46de1d8
   speed: 2
+  timeCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 2
+      outSlope: 2
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   droneManager: {fileID: 0}
+  rb: {fileID: 0}
   droneSensors: []
   explosionPrefab: {fileID: 4865135451303388, guid: 9bba9cf244c53c5439505dfc96fdd11c, type: 3}
 --- !u!1 &1378348486206103823
@@ -329,6 +354,7 @@ MonoBehaviour:
       Entry: 8
       Data: 
   drone: {fileID: 8666332529626117514}
+  additionalString: 
   OnTriggerEnterEvent:
     m_PersistentCalls:
       m_Calls:
@@ -431,6 +457,7 @@ MonoBehaviour:
       Entry: 8
       Data: 
   drone: {fileID: 8666332529626117514}
+  additionalString: Radar
   OnTriggerEnterEvent:
     m_PersistentCalls:
       m_Calls:

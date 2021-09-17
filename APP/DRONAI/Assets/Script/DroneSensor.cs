@@ -8,6 +8,7 @@ using Sirenix.OdinInspector;
 public class DroneSensor : SerializedMonoBehaviour, IDetectable
 {
     [SerializeField] private Drone drone = default;
+    [SerializeField, Tooltip("센서 이름")] private string additionalString = default;
     [SerializeField] private UnityEvent<GameObject> OnTriggerEnterEvent = default;
     [SerializeField, Tooltip("딕셔너리 : TARGET ID - NAME")] private Dictionary<string, string> whitelist = new Dictionary<string, string>();
 
@@ -40,6 +41,9 @@ public class DroneSensor : SerializedMonoBehaviour, IDetectable
         {
             whitelist.Add(creatorId, drone.name);
         }
+
+        // Change the object name
+        name = additionalString.Length > 0 ? drone.name + " - " + additionalString : drone.name + " - Sensor";
     }
 
     private void OnTriggerEnter(Collider other)
@@ -52,7 +56,7 @@ public class DroneSensor : SerializedMonoBehaviour, IDetectable
                 return;
             }
         }
-        if(other.tag.Equals("Ignore"))
+        if (other.tag.Equals("Ignore"))
         {
             return;
         }
