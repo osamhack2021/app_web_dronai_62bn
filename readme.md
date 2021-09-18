@@ -42,7 +42,7 @@ $ yarn dev
 ```bash
 $ cd .\dronai-dashboard\
 $ yarn
-$ yarn dev
+$ yarn start
 ```
 
 ## 팀 정보 (Team Information)
