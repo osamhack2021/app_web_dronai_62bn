@@ -34,7 +34,7 @@ public class Drone : Entity
 
     #region Variable
     [FoldoutGroup("Property"), ShowInInspector, ReadOnly] private bool isDead = false;
-    [FoldoutGroup("Property"), SerializeField] private float speed = 2f;
+    [FoldoutGroup("Property"), SerializeField] private float speed = 0.5f;
     [FoldoutGroup("Property"), SerializeField] private AnimationCurve timeCurve = default;
 
     [BoxGroup("Components"), SerializeField, ReadOnly] private DroneManager droneManager = default;
@@ -42,6 +42,7 @@ public class Drone : Entity
     [BoxGroup("Components"), SerializeField, ReadOnly] private List<DroneSensor> droneSensors = new List<DroneSensor>();
 
     [BoxGroup("Formation"), ReadOnly] public DroneGroup droneGroup = new DroneGroup();
+    [BoxGroup("Formation"), ReadOnly] public int ChildCount = 1;
 
     [BoxGroup("Resources"), SerializeField] private Transform explosionPrefab = default;
 
@@ -105,6 +106,11 @@ public class Drone : Entity
         }
     }
 
+    public void OnSensorDetected(GameObject other)
+    {
+        AvoidFromOther(ref other);
+    }
+
     public void OnDroneCollapsed(GameObject other)
     {
         if (!isDead)
@@ -123,11 +129,6 @@ public class Drone : Entity
             gameObject.SetActive(false);
         }
     }
-    public void OnSensorDetected(GameObject other)
-    {
-        AvoidFromOther(ref other);
-    }
-
 
     #endregion
 
@@ -183,10 +184,31 @@ public class Drone : Entity
             if (droneGroup.Parent == null) break;
 
             // Follow
-            if (Mathf.Abs(Vector3.Distance(droneGroup.Parent.Position, transform.position)) > gap)
+            Vector3 destinationVector3 = droneGroup.Parent.Position;
+            float destinationX = destinationVector3.x;
+            float destinationZ = destinationVector3.z;
+
+            // X좌표는 level로 결정 -> 부모와의 x좌표 차이는 1
+            destinationX -= 1;
+
+            // Z좌표는 자식 수로 결정
+            if (droneGroup.Parent.droneGroup.LeftChild == this) 
             {
-                transform.position = Vector3.Lerp(transform.position, droneGroup.Parent.Position, Time.deltaTime * speed);
+                // 왼쪽 자식이면 (오른쪽 자식 + 1) * gap
+                int cnt = 0;
+                if (droneGroup.RightChild) cnt += droneGroup.RightChild.ChildCount;
+                destinationZ += (cnt + 1) * gap;
             }
+            else 
+            {
+                // 오른쪽 자식이면 (왼쪽 자식 + 1) * gap
+                int cnt = 0;
+                if (droneGroup.LeftChild) cnt += droneGroup.LeftChild.ChildCount;
+                destinationZ -= (cnt + 1) * gap;
+            }
+            destinationVector3 = new Vector3(destinationX, destinationVector3.y, destinationZ);
+
+            transform.position = Vector3.Lerp(transform.position, destinationVector3, Time.deltaTime * speed);
 
             // Yield
             yield return null;
@@ -342,6 +364,9 @@ public class Drone : Entity
     {
         // Assign
         droneGroup.Parent = parent;
+
+        // Count the number of child
+        droneGroup.Parent.ChildCount++;
 
         // Start to following parent
         FollowParent();

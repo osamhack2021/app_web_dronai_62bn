@@ -41,7 +41,7 @@ public class DroneManager : SerializedMonoBehaviour
                 droneName = "Drone_" + (droneCnt++);
 
                 Drone drone = Instantiate(dronePrefab, new Vector3(x, spawningHeight, y), Quaternion.identity, dronesParent).GetComponent<Drone>();
-                drone.Initialize(droneName, 2, this);
+                drone.Initialize(droneName, 0.5f, this);
                 drones.Add(droneName, drone);
 
                 x += flip * spawningDistance;
@@ -166,7 +166,7 @@ public class DroneManager : SerializedMonoBehaviour
 
         foreach (string droneID in pickDronesList)
         {
-            drones[droneID].MoveUp(2f);
+            drones[droneID].MoveUp(4f);
             InsertDroneFormation(droneID, drones[pickDronesList[0]]);
         }
 
@@ -251,15 +251,31 @@ public class DroneManager : SerializedMonoBehaviour
     #region Action and Events
     public void OnDroneDestroy(string droneId)
     {
-        try
+        // 부모 드론의 자식 수를 모두 -1
+        Drone droneRoot = drones[droneId];
+        while (droneRoot)
         {
-            // drones.Remove(droneId);
-        }
-        catch
-        {
-            print("Wrong drone id");
+            droneRoot.ChildCount -= 1;
+            droneRoot = droneRoot.droneGroup.Parent;
         }
 
+        // 자식 정보로 구분
+        if (drones[droneId].droneGroup.LeftChild && drones[droneId].droneGroup.RightChild) 
+        {
+
+        }
+        else if (drones[droneId].droneGroup.LeftChild)
+        {
+
+        }
+        else if (drones[droneId].droneGroup.RightChild)
+        {
+
+        }
+        else
+        {
+            
+        }
     }
     #endregion
 }

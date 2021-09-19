@@ -72,7 +72,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   id: 60a5ac37-987d-4a6a-88b5-4214e46de1d8
-  speed: 2
+  speed: 1
   timeCurve:
     serializedVersion: 2
     m_Curve:
@@ -100,6 +100,10 @@ MonoBehaviour:
   droneManager: {fileID: 0}
   rb: {fileID: 0}
   droneSensors: []
+  droneGroup:
+    Parent: {fileID: 0}
+    LeftChild: {fileID: 0}
+    RightChild: {fileID: 0}
   explosionPrefab: {fileID: 4865135451303388, guid: 9bba9cf244c53c5439505dfc96fdd11c, type: 3}
 --- !u!1 &1378348486206103823
 GameObject:
