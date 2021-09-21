@@ -17,7 +17,7 @@ public class DroneSensor : SerializedMonoBehaviour, IDetectable
         get
         {
             if (drone == null) return string.Empty;
-            else return drone.ID;
+            else return drone.GetID();
         }
     }
 
@@ -34,7 +34,7 @@ public class DroneSensor : SerializedMonoBehaviour, IDetectable
         if (drone == null) drone = parent;
 
         // Assign id
-        string creatorId = drone.ID;
+        string creatorId = drone.GetID();
 
         // Checking the whitelist
         if (!whitelist.ContainsKey(creatorId))

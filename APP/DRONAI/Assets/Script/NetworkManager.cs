@@ -1,27 +1,29 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using WebSocketSharp;
 
-
-public class NetworkManager : MonoBehaviour
+namespace Dronai.Network
 {
-    WebSocket ws;
+    public class NetworkManager : MonoBehaviour
+    {
+        private WebSocket ws;
 
-    private void Start() {
-        ws = new WebSocket("ws://localhost:5000");
-        ws.OnMessage += (sender, e) =>
+        private void Start()
         {
-            Debug.Log("Message received from " + ((WebSocket)sender).Url + ", Data: " + e.Data);
-        };
-        ws.Connect();
-    }
+            ws = new WebSocket("ws://ds.linearjun.com");
+            ws.OnMessage += (sender, e) =>
+            {
+                Debug.Log("Message received from " + ((WebSocket)sender).Url + ", Data: " + e.Data);
+            };
+            ws.Connect();
+        }
 
-    private void Update() {
-        if(ws == null) return;
-        if(Input.GetKeyDown(KeyCode.Space))
+        private void Update()
         {
-            ws.Send("Hello");
+            if (ws == null) return;
+            if (Input.GetKeyDown(KeyCode.Space))
+            {
+                ws.Send("Hello");
+            }
         }
     }
 }

@@ -6,13 +6,65 @@ using UnityEngine;
 
 public class DroneManager : SerializedMonoBehaviour
 {
-    [SerializeField, BoxGroup("SPAWN SETTING")] private GameObject dronePrefab = default;
-    [SerializeField, BoxGroup("SPAWN SETTING")] private Transform dronesParent = default;
+    #region Class
+
+    [System.Serializable]
+    public class DronePool
+    {
+        [BoxGroup("Property"), ShowInInspector, ReadOnly] public int Workable => poolList.Count;
+        [BoxGroup("Pool"), Tooltip("작업 가능 드론"), SerializeField] private List<Drone> poolList = new List<Drone>();
+
+
+        public void PushToPool(Drone item)
+        {
+            item.IsWorking = false;
+            poolList.Add(item);
+        }
+
+        public Drone PopFromPool()
+        {
+            if (poolList.Count == 0)
+            {
+                print("작업 가능한 드론이 없습니다!");
+            }
+
+            Drone item = poolList[0];
+            item.IsWorking = true;
+            poolList.RemoveAt(0);
+
+            return item;
+        }
+
+        private Drone CreateItem(GameObject prefab, Transform parent = null)
+        {
+            Drone item = Object.Instantiate(prefab).GetComponent<Drone>();
+            item.transform.SetParent(parent);
+            item.IsWorking = false;
+
+            return item;
+        }
+
+        public void CleanUp()
+        {
+            // Releasing the list and variable
+            poolList.Clear();
+        }
+    }
+
+    #endregion
+
+
+    #region Variable
+
+    [SerializeField,BoxGroup("SPAWN SETTING")] private GameObject dronePrefab = default;
+    [SerializeField,BoxGroup("SPAWN SETTING")] private Transform droneParent = default;
     [SerializeField, BoxGroup("SPAWN SETTING")] private int spawningSize = 10;
     [SerializeField, BoxGroup("SPAWN SETTING"), Range(0, 10)] private float spawningHeight = 1f;
     [SerializeField, BoxGroup("SPAWN SETTING"), Range(1, 20)] private float spawningDistance = 2f;
-    [SerializeField] private Dictionary<string, Drone> drones = new Dictionary<string, Drone>();
+    [BoxGroup("Dictionary"), SerializeField] private Dictionary<string, Drone> droneDic = new Dictionary<string, Drone>();
+    [BoxGroup("Pulling"), SerializeField] private DronePool dronePool = new DronePool();
 
+    #endregion
 
 
     #region Editor 
@@ -20,30 +72,40 @@ public class DroneManager : SerializedMonoBehaviour
     [ButtonGroup("Drone Spawning"), Button(ButtonSizes.Medium)]
     private void InstantiateDrone()
     {
-        if (dronePrefab == null || dronesParent == null) return;
+        // Checking the resources
+        if (dronePrefab == null || droneParent == null) 
+        {
+            print("Inspector에서 Prefab과 Parent를 할당했는지 확인하세요.");
+            return;
+        }
 
         // Variable declare
         float x = -(spawningDistance * (spawningSize / 2) - (spawningSize % 2 == 0 ? (spawningDistance * 0.5f) : 0));
         float y = -(spawningDistance * (spawningSize / 2) - (spawningSize % 2 == 0 ? (spawningDistance * 0.5f) : 0));
 
         string droneName = string.Empty;
-        int droneCnt = 0;
+        int droneCnt = 0, flip = 1;
 
         // Clearing the drone list
         Cleanup();
 
-        int flip = 1;
-        // Assigning
+        // Instantiate using drone pool
         for (int i = 0; i < spawningSize; i++)
         {
             for (int j = 0; j < spawningSize; j++)
             {
+                // Use drone name as id (important!)
                 droneName = "Drone_" + (droneCnt++);
 
-                Drone drone = Instantiate(dronePrefab, new Vector3(x, spawningHeight, y), Quaternion.identity, dronesParent).GetComponent<Drone>();
-                drone.Initialize(droneName, 0.5f, this);
-                drones.Add(droneName, drone);
+                // Pulling a drone from pool
+                Drone target = Instantiate(dronePrefab, new Vector3(x, spawningHeight, y), Quaternion.identity, droneParent).GetComponent<Drone>();
+                target.Initialize(droneName, 0.5f, this);
 
+                // Adding a drone to dictionary and pool
+                droneDic.Add(droneName, target);
+                dronePool.PushToPool(target);
+
+                // Fliping the spawning position
                 x += flip * spawningDistance;
             }
             x = flip * (spawningDistance * (spawningSize / 2) - (spawningSize % 2 == 0 ? (spawningDistance * 0.5f) : 0));
@@ -56,48 +118,49 @@ public class DroneManager : SerializedMonoBehaviour
     private void Cleanup()
     {
         // Clearing the drone list
-        if (drones.Count > 0)
+        if (droneDic.Count > 0)
         {
-            foreach (Drone target in drones.Values)
+            foreach (Drone target in droneDic.Values)
             {
                 if (target == null) continue;
                 if (Application.isEditor) DestroyImmediate(target.gameObject);
                 else if (Application.isPlaying) Destroy(target.gameObject);
             }
-            drones.Clear();
+            droneDic.Clear();
         }
 
-        int until = dronesParent.childCount;
+        // Clearing the drone pool
+        dronePool.CleanUp();
+
+        // Removing actual objects
+        int until = droneParent.childCount;
         for (int i = 0; i < until; i++)
         {
-            if (Application.isEditor) DestroyImmediate(dronesParent.GetChild(i).gameObject);
-            else if (Application.isPlaying) Destroy(dronesParent.GetChild(i).gameObject);
+            if (Application.isEditor) DestroyImmediate(droneParent.GetChild(i).gameObject);
+            else if (Application.isPlaying) Destroy(droneParent.GetChild(i).gameObject);
         }
     }
     #endregion
 
-    #region Life cycle
-    private void Start()
-    {
-        Initialize();
-    }
 
-    private void Initialize()
+    #region Life cycle
+    public void Initialize()
     {
         StartCoroutine(IterateDroneRoutine(0.1f));
         //StartCoroutine(CircleFirstRoutine(0.4f));
     }
     #endregion
 
+
     #region Physics
     public void MoveSingleDrone(string id, Vector3 position)
     {
-        drones[id].MoveTo(position);
+        droneDic[id].MoveTo(position);
     }
 
     private IEnumerator IterateDroneRoutine(float delay)
     {
-        foreach (Drone target in drones.Values)
+        foreach (Drone target in droneDic.Values)
         {
             target.MoveUp(4f);
             yield return new WaitForSeconds(delay);
@@ -107,8 +170,8 @@ public class DroneManager : SerializedMonoBehaviour
     private IEnumerator CircleFirstRoutine(float delay)
     {
         int index = 0;
-        float divide = 360 / drones.Count;
-        foreach (Drone target in drones.Values)
+        float divide = 360 / droneDic.Count;
+        foreach (Drone target in droneDic.Values)
         {
             target.MoveUp(4f, delay);
 
@@ -151,33 +214,24 @@ public class DroneManager : SerializedMonoBehaviour
     }
     #endregion
 
+
     #region Formation
 
     public void PickDrones(int n = 5)
     {
-        print("PickDrones Call");
-
-        List<string> pickDronesList = new List<string>();
-        pickDronesList.Add("Drone_0");
-        pickDronesList.Add("Drone_7");
-        pickDronesList.Add("Drone_6");
-        pickDronesList.Add("Drone_20");
-        pickDronesList.Add("Drone_3");
-
-        foreach (string droneID in pickDronesList)
+        // 작업 가능한 드론을 가져오는 예제
+        Drone head = dronePool.PopFromPool();
+        for (int i = 0; i < n - 1; i++)
         {
-            drones[droneID].MoveUp(4f);
-            InsertDroneFormation(droneID, drones[pickDronesList[0]]);
-        }
-
-        foreach (string droneID in pickDronesList) {
-            print(droneID + "의 부모는 " + drones[droneID].droneGroup.Parent?.name);
+            Drone drone = dronePool.PopFromPool();
+            drone.MoveUp(4f);
+            InsertDroneFormation(drone.GetID(), head);
         }
     }
 
     private void InsertDroneFormation(string droneID, Drone headDrone)
     {
-        if (drones[droneID] == headDrone)
+        if (droneID.Equals(headDrone.GetID()))
         {
             // head drone일 경우
         }
@@ -188,10 +242,10 @@ public class DroneManager : SerializedMonoBehaviour
             while (headDrone)
             {
                 // 부모 설정
-                drones[droneID].AssignParent(headDrone);
+                droneDic[droneID].AssignParent(headDrone);
 
                 // Id of drones로 비교
-                if (NameCompare(drones[droneID].name, headDrone.name))
+                if (NameCompare(droneDic[droneID].name, headDrone.name))
                 {
                     //print("left : " + drones[droneID].name + " and " + headDrone.name);
                     headDrone = headDrone.droneGroup.LeftChild;
@@ -208,8 +262,8 @@ public class DroneManager : SerializedMonoBehaviour
             }
 
             // 부모의 자식 설정
-            if (isLeft) drones[droneID].droneGroup.Parent.droneGroup.LeftChild = drones[droneID];
-            else drones[droneID].droneGroup.Parent.droneGroup.RightChild = drones[droneID];
+            if (isLeft) droneDic[droneID].droneGroup.Parent.droneGroup.LeftChild = droneDic[droneID];
+            else droneDic[droneID].droneGroup.Parent.droneGroup.RightChild = droneDic[droneID];
         }
     }
 
@@ -237,45 +291,100 @@ public class DroneManager : SerializedMonoBehaviour
 
     #endregion
 
+
     #region Getter and Setter
     public bool ContainsDrone(string id)
     {
-        return drones.ContainsKey(id);
+        return droneDic.ContainsKey(id);
     }
     public Vector3 GetDronePositionById(string id)
     {
-        return drones[id].transform.position;
+        return droneDic[id].transform.position;
+    }
+    public List<string> GetDronesId()
+    {
+        List<string> result = new List<string>();
+        foreach (KeyValuePair<string, Drone> target in droneDic)
+        {
+            result.Add(target.Value.GetID());
+        }
+        return result;
     }
     #endregion
 
+
     #region Action and Events
+
+    // test용 폭파함수
+    public void DestroyNode(string droneId)
+    {
+        Drone target = droneDic[droneId];
+        target.OnDroneCollapsed(gameObject);
+    }
+
     public void OnDroneDestroy(string droneId)
     {
-        // 부모 드론의 자식 수를 모두 -1
-        Drone droneRoot = drones[droneId];
-        while (droneRoot)
+        // 루트부터 탐색해서 삭제할 name of drone과 비교
+
+        Drone root = droneDic[droneId];
+        while (root.droneGroup.Parent)
         {
-            droneRoot.ChildCount -= 1;
-            droneRoot = droneRoot.droneGroup.Parent;
+            root = root.droneGroup.Parent;
         }
 
-        // 자식 정보로 구분
-        if (drones[droneId].droneGroup.LeftChild && drones[droneId].droneGroup.RightChild) 
-        {
+        root = DeleteDrone(root, droneId);
+        ParentReassign(null, root);
+    }
 
+    private Drone DeleteDrone(Drone root, string droneID)
+    {
+        if (root == null) return root;
+
+        if (droneID.Equals(root.name)) // 삭제할 드론
+        {
+            if (root.droneGroup.LeftChild == null) return root.droneGroup.RightChild;
+            if (root.droneGroup.RightChild == null) return root.droneGroup.LeftChild;
+
+            Drone tempDrone = root.droneGroup.RightChild; // 현재 트리에서 루트가 됨
+            Drone leftDrone = root.droneGroup.LeftChild; // 루트의 왼쪽 자식노드
+            Drone rightDrone = DeleteDrone(root.droneGroup.RightChild, FindMinID(root.droneGroup.RightChild)); // 루트의 오른쪽 자식노드
+
+            root = tempDrone;
+            root.droneGroup.LeftChild = leftDrone; ParentReassign(root, root.droneGroup.LeftChild);
+            root.droneGroup.RightChild = rightDrone; ParentReassign(root, root.droneGroup.RightChild);
         }
-        else if (drones[droneId].droneGroup.LeftChild)
+        else if (NameCompare(droneID, root.name))
         {
-
-        }
-        else if (drones[droneId].droneGroup.RightChild)
-        {
-
+            root.droneGroup.LeftChild = DeleteDrone(root.droneGroup.LeftChild, droneID);
+            ParentReassign(root, root.droneGroup.LeftChild);
         }
         else
         {
-            
+            root.droneGroup.RightChild = DeleteDrone(root.droneGroup.RightChild, droneID);
+            ParentReassign(root, root.droneGroup.RightChild);
         }
+
+        root.CalulateChildCount();
+        return root;
     }
+
+    // 이진 트리에서 최솟값 찾기 -> DeleteDrone함수에서 사용
+    private string FindMinID(Drone root)
+    {
+        string retID = root.name;
+        while (root.droneGroup.LeftChild) // 제일 왼쪽으로 가면 됨
+        {
+            retID = root.droneGroup.LeftChild.name;
+            root = root.droneGroup.LeftChild;
+        }
+        return retID;
+    }
+
+    private void ParentReassign(Drone parentDrone, Drone childDrone)
+    {
+        if (childDrone == null) return;
+        childDrone.droneGroup.Parent = parentDrone;
+    }
+
     #endregion
 }

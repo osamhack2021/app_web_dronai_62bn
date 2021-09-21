@@ -2,9 +2,9 @@ using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using Sirenix.OdinInspector;
 using UnityEngine;
 using PriorityQueue;
+using Sirenix.OdinInspector;
 
 
 public class Drone : Entity
@@ -34,6 +34,7 @@ public class Drone : Entity
 
     #region Variable
     [FoldoutGroup("Property"), ShowInInspector, ReadOnly] private bool isDead = false;
+    [FoldoutGroup("Property"), ReadOnly] public bool IsWorking = false;
     [FoldoutGroup("Property"), SerializeField] private float speed = 0.5f;
     [FoldoutGroup("Property"), SerializeField] private AnimationCurve timeCurve = default;
 
@@ -82,10 +83,11 @@ public class Drone : Entity
     /// <param name="id">드론 아이디</param>
     /// <param name="speed">드론 고유 속도</param>
     /// <param name="droneManager">드론 생성자 및 매니저</param>
-    public void Initialize(string name, float speed, DroneManager droneManager)
+    public void Initialize(string id, float speed, DroneManager droneManager)
     {
         // Generate new id
-        GenerateNewID();
+        //GenerateNewID(); --> use drone name as id (important!)
+        this.id = id;
 
         // Assign variables
         this.speed = speed;
@@ -94,8 +96,8 @@ public class Drone : Entity
         // Assign components
         if (rb == null) rb = GetComponent<Rigidbody>();
 
-        // Change the object name
-        gameObject.name = name;
+        // Change the object name (using id)
+        gameObject.name = id;
 
         // Initialize sensors
         droneSensors.Clear();
@@ -122,7 +124,7 @@ public class Drone : Entity
             StopAllCoroutines();
 
             // Callback
-            droneManager.OnDroneDestroy(id);
+            droneManager.OnDroneDestroy(name);
 
             // Cleaning
             Destroy(Instantiate(explosionPrefab, transform.position, transform.rotation).gameObject, 2f);
@@ -174,14 +176,17 @@ public class Drone : Entity
     {
         for (; ; )
         {
+            // Check
+            if (droneGroup.Parent == null) {
+                routinesQueue.Dequeue();
+                break;
+            }
+
             if (priority > routinesQueue.FirstPriority)
             {
                 yield return null;
                 continue;
             }
-
-            // Check
-            if (droneGroup.Parent == null) break;
 
             // Follow
             Vector3 destinationVector3 = droneGroup.Parent.Position;
@@ -359,7 +364,7 @@ public class Drone : Entity
 
     #endregion
 
-    #region Assign
+    #region Formation
     public void AssignParent(Drone parent)
     {
         // Assign
@@ -370,6 +375,14 @@ public class Drone : Entity
 
         // Start to following parent
         FollowParent();
+    }
+
+    // ChildCount를 다시 계산해야 하는 시점이 있음 -> 자식 드론이 폭파할 때
+    public void CalulateChildCount()
+    {
+        ChildCount = 1;
+        if (droneGroup.LeftChild) ChildCount += droneGroup.LeftChild.ChildCount;
+        if (droneGroup.RightChild) ChildCount += droneGroup.RightChild.ChildCount;
     }
     #endregion
 }
