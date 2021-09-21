@@ -4,7 +4,7 @@ const config = {
     defaultPath: '/dashboard/default',
     fontFamily: `'Noto Sans KR', sans-serif`,
     borderRadius: 12,
-    API_SERVER: 'http://localhost:5000/api/'
+    API_SERVER: 'https://ds.linearjun.com/api/'
 };
 
 export default config;

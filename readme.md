@@ -3,6 +3,7 @@
 
 ## 프로잭트 소개
 - 드론 전투체계 관리 콘솔
+- [Live Demo](https://dronai.linearjun.com)
 
 
 ## 기능 설명
@@ -47,8 +48,10 @@ $ yarn start
 
 ## 팀 정보 (Team Information)
 - KIM JUN YOUNG (admin@linearjun.com), Github Id: linearjun
-- Github Id: gwsl
-- Github Id: kanggeongu
+- KANG GEON GU (kdr06006@naver.com), Github Id: kanggeongu
+- KO GEON WOO (coreax7@gmail.com), Github Id: gwsl 
+- HAN CHOONG HYUN (kd4aqqjr@naver.com), Github Id: keyboardsejong
+
 
 ## 저작권 및 사용권 정보 (Copyleft / End User License)
  * [MIT](https://github.com/osam2020-WEB/Sample-ProjectName-TeamName/blob/master/license.md)

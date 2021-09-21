@@ -6,6 +6,7 @@ import jwt from 'jsonwebtoken';
 import { checkToken } from '../config/safeRoutes';
 import ActiveSession from '../models/activeSession';
 import User from '../models/user';
+import File from '../models/file';
 import { connection } from '../server/database';
 
 // eslint-disable-next-line new-cap
@@ -160,9 +161,31 @@ router.post('/edit', checkToken, (req, res) => {
   });
 });
 
+const multer = require('multer');
+const upload = multer({dest:'uploads/'});
+router.post('/upload', upload.single('file'), function(req, res){
+  const {data} = req.body;
+  console.log(data);
+  const fileRepository = connection!.getRepository(File);
+  const query = {
+    data
+  };
+  fileRepository.save(query).then(()=>{
+    res.json({success:true, msg : 'file uploaded'})
+  })
+
+//  req.file  
+})
+
 // Used for tests (nothing functional)
 router.get('/testme', (_req, res) => {
-  res.status(200).json({ success: true, msg: 'all good' });
+  res.status(200).json({ success: true, msg: 'get all good' });
 });
+
+// Used for tests (nothing functional)
+router.post('/testme', (_req, res) => {
+  res.status(200).json({ success: true, msg: 'post all good' });
+});
+
 
 export default router;
