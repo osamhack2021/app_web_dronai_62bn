@@ -6,6 +6,7 @@ import express from 'express';
 import passport from 'passport';
 
 import initPassport from '../config/passport';
+import eventRoutes from '../routes/event';
 import userRoutes from '../routes/users';
 import { connect } from './database';
 
@@ -26,6 +27,7 @@ server.use(cors());
 server.use(express.json());
 
 // Initialize routes middleware
+server.use('/api/event', eventRoutes);
 server.use('/api/users', userRoutes);
 
 export default server;

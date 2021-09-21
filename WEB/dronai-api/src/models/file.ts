@@ -1,10 +1,10 @@
-import {Entity, Column, PrimaryGeneratedColumn} from "typeorm"
+import { Entity, Column, PrimaryGeneratedColumn } from "typeorm"
 
 @Entity()
-export default class File{
+export default class File {
 
     @PrimaryGeneratedColumn()
-    id!: number 
+    id!: number
 
     @Column()
     name!: string
@@ -15,5 +15,5 @@ export default class File{
     data!: Buffer
 
     @Column()
-    mimeType!:string
+    mimeType!: string
 }
