@@ -19,6 +19,9 @@ const UtilsTablerIcons = Loadable(lazy(() => import('../views/utilities/TablerIc
 // settings routing
 const SettingsConnection = Loadable(lazy(() => import('../views/settings/Connection')));
 
+// test list
+const TestList = Loadable(lazy(() => import('../views/pages/TestList')));
+
 //-----------------------|| MAIN ROUTING ||-----------------------//
 
 const MainRoutes = () => {
@@ -38,7 +41,10 @@ const MainRoutes = () => {
                 '/icons/material-icons',
 
                 // 세팅
-                '/settings/connection'
+                '/settings/connection',
+
+                // test list
+                '/views/pages/testlist'
             ]}
         >
             <MainLayout>
@@ -53,6 +59,8 @@ const MainRoutes = () => {
                         <Route path="/icons/material-icons" component={UtilsMaterialIcons} />
 
                         <Route path="/settings/connection" component={SettingsConnection} />
+
+                        <Route path="/views/pages/testlist" component={TestList} />
                     </AuthGuard>
                 </Switch>
             </MainLayout>
