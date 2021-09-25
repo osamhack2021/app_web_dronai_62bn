@@ -3,6 +3,7 @@ import sqlite3 from 'sqlite3';
 import { Connection, ConnectionOptions, createConnection } from 'typeorm';
 
 import ActiveSession from '../models/activeSession';
+import Drone from '../models/event';
 import User from '../models/user';
 
 if (!process.env.SQLITE_PATH) {
@@ -12,7 +13,7 @@ if (!process.env.SQLITE_PATH) {
 const options: ConnectionOptions = {
   type: 'sqlite',
   database: process.env.SQLITE_PATH,
-  entities: [User, ActiveSession],
+  entities: [User, Drone, ActiveSession],
   logging: true,
 };
 

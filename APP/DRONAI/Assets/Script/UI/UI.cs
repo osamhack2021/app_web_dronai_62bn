@@ -96,9 +96,19 @@ public class UI : MonoBehaviour
     }
     public void OnButtonDown()
     {
-        if (droneIdInput.text.Length == 0)
+        if (!droneIdInput.text.Contains("Drone"))
         {
-            droneManager.PickDrones();
+            string[] position = dronePosInput.text.Split(',');
+            if (position.Length != 3) 
+            {
+                print("Please re-enter");
+                return;
+            }
+
+            Vector3 pos = new Vector3(float.Parse(position[0]), float.Parse(position[1]), float.Parse(position[2]));
+            //droneManager.MoveSingleDrone(droneIdInput.text, pos);
+
+            droneManager.BuildDroneFormation(pos, int.Parse(droneIdInput.text.ToString()));
             return;
         }
 
@@ -108,9 +118,7 @@ public class UI : MonoBehaviour
             return;
         }
 
-        string[] position = dronePosInput.text.Split(',');
-        Vector3 pos = new Vector3(float.Parse(position[0]), float.Parse(position[1]), float.Parse(position[2]));
-        droneManager.MoveSingleDrone(droneIdInput.text, pos);
+        
     }
 
     #region Functions

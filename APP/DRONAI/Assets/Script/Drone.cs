@@ -44,9 +44,13 @@ public class Drone : Entity
 
     [BoxGroup("Formation"), ReadOnly] public DroneGroup droneGroup = new DroneGroup();
     [BoxGroup("Formation"), ReadOnly] public int ChildCount = 1;
+    [BoxGroup("Formation"), ReadOnly] public int FormationCode = default;
+
 
     [BoxGroup("Resources"), SerializeField] private Transform explosionPrefab = default;
 
+    [BoxGroup("Position"), SerializeField] private float startX = 1;
+    [BoxGroup("Position"), SerializeField] private float startZ = 1;
 
 
     public Vector3 Velocity
@@ -72,6 +76,7 @@ public class Drone : Entity
 
     // Routines
     private SimplePriorityQueue<Routine> routinesQueue = new SimplePriorityQueue<Routine>();
+    
 
     #endregion
 
@@ -92,6 +97,8 @@ public class Drone : Entity
         // Assign variables
         this.speed = speed;
         this.droneManager = droneManager;
+
+        startX = X; startZ = Z;
 
         // Assign components
         if (rb == null) rb = GetComponent<Rigidbody>();
@@ -119,6 +126,9 @@ public class Drone : Entity
         {
             // Change the state
             isDead = true;
+
+            // 리스트 안에 드론이 있다면 없애줘야함
+            if (droneManager.DronePool.IsItemInList(this.GetID())) droneManager.DronePool.DeleteItemInList(this);
 
             // Stop routines
             StopAllCoroutines();
@@ -221,6 +231,29 @@ public class Drone : Entity
         yield break;
     }
 
+    // reconnoiter : 정찰하다
+    // 정찰이 끝난 후
+    private void AfterReconnoiter()
+    {
+        // 부모 드론 해제
+        if (droneGroup.Parent) droneGroup.Parent = null;
+
+        // 제자리 and (Y좌표 = 9) 위치로 돌아가기
+        MoveTo(new Vector3(startX, 9, startZ), 300);
+
+        // 자식들이 있으면 일 끝났다고 알려줘야함
+        if (droneGroup.LeftChild) droneGroup.LeftChild.AfterReconnoiter();
+        if (droneGroup.RightChild) droneGroup.RightChild.AfterReconnoiter();
+
+        // 일 하는 중 아님 -> list에 넣기
+        // droneManager.DronePool.PushToPool(this);
+
+        // 초기화
+        droneGroup.LeftChild = null;
+        droneGroup.RightChild = null;
+        ChildCount = 1;
+    }
+
     #region Move
 
     /// <summary>
@@ -281,7 +314,15 @@ public class Drone : Entity
             if (Vector3.Distance(transform.position, destination) < 0.02f)
             {
                 transform.position = destination;
-                break;
+
+                // 처음 지점으로 가는 루틴 -> 안 죽는 루틴
+                if(priority < 1000) break;
+
+                // 일 끝났으면 다시 일 할수 있게 가동
+                if (IsWorking)
+                {
+                    droneManager.DronePool.PushToPool(this);
+                }
             }
             yield return null;
         }
@@ -289,6 +330,12 @@ public class Drone : Entity
         // Exit
         routinesQueue.Dequeue();
         // print(name + " | MVROUTINE 제거됨 --> " + priority + " 현재 FIRST --> " + routinesQueue.FirstPriority);
+
+        // 정찰 끝
+        if (priority == 100) 
+        {
+            AfterReconnoiter();
+        }
 
         // Call finished event
         OnFinished?.Invoke();
@@ -334,7 +381,7 @@ public class Drone : Entity
     /// <param name="distance">거리</param>
     /// <param name="duration">소요 시간</param>
     /// <param name="OnFinished">함수 완료시 호출</param>
-    public void MoveUp(float distance, float duration = -1f, int priority = 100, Action OnFinished = null)
+    public void MoveUp(float distance, float duration = -1f, int priority = 1000, Action OnFinished = null)
     {
         Vector3 result = transform.position;
         result.y += distance;

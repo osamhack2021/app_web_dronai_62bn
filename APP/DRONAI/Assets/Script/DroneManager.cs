@@ -1,43 +1,63 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using Sirenix.OdinInspector;
+using Sirenix.Serialization;
 using UnityEngine;
-
+using System.Linq;
 
 public class DroneManager : SerializedMonoBehaviour
 {
     #region Class
 
-    [System.Serializable]
-    public class DronePool
+    public class Pool
     {
         [BoxGroup("Property"), ShowInInspector, ReadOnly] public int Workable => poolList.Count;
-        [BoxGroup("Pool"), Tooltip("작업 가능 드론"), SerializeField] private List<Drone> poolList = new List<Drone>();
+        [BoxGroup("Pool"), Tooltip("작업 가능 드론"), SerializeField] private Dictionary<string, Drone> poolList = new Dictionary<string, Drone>();
+        
 
+
+        public int PoolListCount()
+        {
+            return poolList.Count;
+        }
+
+        // 리스트 안에 item이 있나?
+        public bool IsItemInList(string droneId)
+        {
+            return poolList.ContainsKey(droneId);
+        }
+
+        public void DeleteItemInList(Drone item)
+        {
+            poolList.Remove(item.GetID());
+        }
 
         public void PushToPool(Drone item)
         {
+            // 넣기 전에 item이 poolList에 있는지 확인
+            //if (IsItemInList(item.GetID())) return;
+
             item.IsWorking = false;
-            poolList.Add(item);
+            poolList.Add(item.GetID(), item);
+            print("push -> " + item.GetID());
         }
 
         public Drone PopFromPool()
         {
-            if (poolList.Count == 0)
-            {
-                print("작업 가능한 드론이 없습니다!");
-            }
+            int result = UnityEngine.Random.Range(0, PoolListCount());
 
-            Drone item = poolList[0];
+            Drone item = poolList.ElementAt(result).Value;
+            //poolList.TryGetValue("Drone_" + result, out Drone item);
             item.IsWorking = true;
-            poolList.RemoveAt(0);
+            poolList.Remove(item.GetID());
 
             return item;
         }
 
         private Drone CreateItem(GameObject prefab, Transform parent = null)
         {
-            Drone item = Object.Instantiate(prefab).GetComponent<Drone>();
+            Drone item = UnityEngine.Object.Instantiate(prefab).GetComponent<Drone>();
             item.transform.SetParent(parent);
             item.IsWorking = false;
 
@@ -62,7 +82,9 @@ public class DroneManager : SerializedMonoBehaviour
     [SerializeField, BoxGroup("SPAWN SETTING"), Range(0, 10)] private float spawningHeight = 1f;
     [SerializeField, BoxGroup("SPAWN SETTING"), Range(1, 20)] private float spawningDistance = 2f;
     [BoxGroup("Dictionary"), SerializeField] private Dictionary<string, Drone> droneDic = new Dictionary<string, Drone>();
-    [BoxGroup("Pulling"), SerializeField] private DronePool dronePool = new DronePool();
+    [BoxGroup("Pulling"), OdinSerialize] public Pool DronePool = new Pool();
+
+
 
     #endregion
 
@@ -73,7 +95,7 @@ public class DroneManager : SerializedMonoBehaviour
     private void InstantiateDrone()
     {
         // Checking the resources
-        if (dronePrefab == null || droneParent == null) 
+        if (dronePrefab == null || droneParent == null)
         {
             print("Inspector에서 Prefab과 Parent를 할당했는지 확인하세요.");
             return;
@@ -99,11 +121,12 @@ public class DroneManager : SerializedMonoBehaviour
 
                 // Pulling a drone from pool
                 Drone target = Instantiate(dronePrefab, new Vector3(x, spawningHeight, y), Quaternion.identity, droneParent).GetComponent<Drone>();
+
                 target.Initialize(droneName, 0.5f, this);
 
                 // Adding a drone to dictionary and pool
                 droneDic.Add(droneName, target);
-                dronePool.PushToPool(target);
+                DronePool.PushToPool(target);
 
                 // Fliping the spawning position
                 x += flip * spawningDistance;
@@ -130,7 +153,7 @@ public class DroneManager : SerializedMonoBehaviour
         }
 
         // Clearing the drone pool
-        dronePool.CleanUp();
+        DronePool.CleanUp();
 
         // Removing actual objects
         int until = droneParent.childCount;
@@ -217,19 +240,62 @@ public class DroneManager : SerializedMonoBehaviour
 
     #region Formation
 
-    public void PickDrones(int n = 5)
+    public void BuildDroneFormation(Vector3 destination, int n = 5)
     {
-        // 작업 가능한 드론을 가져오는 예제
-        Drone head = dronePool.PopFromPool();
-        for (int i = 0; i < n - 1; i++)
-        {
-            Drone drone = dronePool.PopFromPool();
-            drone.MoveUp(4f);
-            InsertDroneFormation(drone.GetID(), head);
-        }
+        StartCoroutine(BuildDroneFormationRoutine(destination, n));
     }
 
-    private void InsertDroneFormation(string droneID, Drone headDrone)
+    private IEnumerator BuildDroneFormationRoutine(Vector3 destination, int n = 5)
+    {
+        bool working = false;
+
+        // 작업 가능한 드론을 가져오는 예제
+        if (DronePool.PoolListCount() < n)
+        {
+            print("잔여 드론이 사용할 드론보다 적습니다. 잔여드론 : " + DronePool.PoolListCount());
+            yield break;
+        }
+
+        // 헤드 드론 및 자식 드론 선출
+        Drone head = DronePool.PopFromPool();
+        List<Drone> childs = new List<Drone>();
+        for (int i = 0; i < n - 1; i++)
+        {
+            childs.Add(DronePool.PopFromPool());
+        }
+
+
+        head.MoveUp(4f, -1f, 200);
+
+        working = true;
+        for (int i = 0; i < childs.Count; i++)
+        {
+            if (i == childs.Count - 1)
+            {
+                childs[i].MoveUp(4f, -1f, 200, () =>
+                {
+                    working = false;
+                });
+            }
+            else
+            {
+                childs[i].MoveUp(4f, -1f, 200);
+            }
+        }
+
+        // 이전 작업이 끝날때까지 기다립니다
+        while (working) yield return null;
+
+        for (int i=0; i< childs.Count; i++)
+        {
+            InsertDroneFormation(childs[i].GetID(), head);
+        }
+        
+        head.MoveTo(destination);
+        print("잔여 드론 : " + DronePool.PoolListCount());
+    }
+
+    private void InsertDroneFormation(string droneID, Drone headDrone, Action OnFinished = null)
     {
         if (droneID.Equals(headDrone.GetID()))
         {
@@ -265,6 +331,8 @@ public class DroneManager : SerializedMonoBehaviour
             if (isLeft) droneDic[droneID].droneGroup.Parent.droneGroup.LeftChild = droneDic[droneID];
             else droneDic[droneID].droneGroup.Parent.droneGroup.RightChild = droneDic[droneID];
         }
+
+        OnFinished?.Invoke();
     }
 
     /// <summary>
