@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
     // @ts-ignore
     destination: (req, file, callback) => {
         // console.log(req + "," + file);
-        callback(null, './data/images');
+        callback(null, './resouces/images');
     },
     // @ts-ignore
     filename: (req, file, callback) => {
@@ -60,7 +60,7 @@ router.post('/add', (req, res) => {
     let imgPath = req.body.ImgPath;
 
     const eventRepository = connection!.getRepository(Event);
-    
+
     const query = {
         droneId,
         detail,
