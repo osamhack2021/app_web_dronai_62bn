@@ -37,8 +37,8 @@
 /dronai-api/yarn-error.log*
 
 # Images
-/dronai-api/data/images/*.jpg
-/dronai-api/data/images/*.jpg
+/dronai-api/resources/images/*.jpg
+/dronai-api/resources/images/*.png
 
 # Database
 *.db
