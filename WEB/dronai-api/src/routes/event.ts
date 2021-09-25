@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
     // @ts-ignore
     destination: (req, file, callback) => {
         // console.log(req + "," + file);
-        callback(null, './resouces/images');
+        callback(null, './resources/images');
     },
     // @ts-ignore
     filename: (req, file, callback) => {
