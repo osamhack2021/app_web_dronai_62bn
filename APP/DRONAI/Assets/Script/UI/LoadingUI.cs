@@ -32,19 +32,22 @@ public class LoadingUI : MonoBehaviour
 
     private IEnumerator InitializeRoutine()
     {
+        float timer = 0;
+
         yield return new WaitForSeconds(0.6f);
 
         anim.Stop();
         anim.Play("LoadingUI_Intro");
 
 
-        // 씬 로딩 시작
+        // 씬 로딩 준비
         SetLoadingProgressBar(0);
-        detailText.text = "Getting simulation data...";
 
+        // 씬 로더 정의
         AsyncOperation asyncOperation = SceneManager.LoadSceneAsync("SampleScene");
         asyncOperation.allowSceneActivation = false;
 
+        // 씬 로딩 시작
         while (asyncOperation.progress >= 0.9f)
         {
             detailText.text = "Getting simulation data... " + (asyncOperation.progress * 100) + "%";
@@ -91,9 +94,19 @@ public class LoadingUI : MonoBehaviour
                 {
                     // 임시 로딩 완료
                     SetLoadingProgressBar(1f);
-                    detailText.text = "Unstable client, but you are free to go!";
-                    yield return new WaitForSeconds(3f);
 
+                    timer = 0;
+                    while (timer < 3)
+                    {
+                        detailText.text = "Fetching collections... " + ((timer / 3) * 100) + "%";
+                        timer += Time.deltaTime;
+                        yield return null;
+                    }
+
+                    detailText.text = "Unstable client, but you are free to go!";
+                    yield return new WaitForSeconds(1f);
+
+                    // Finalize
                     blackAnimation.Play("FadeIn_Canvas");
                     yield return new WaitForSeconds(1f);
 
@@ -106,9 +119,19 @@ public class LoadingUI : MonoBehaviour
 
         // 로딩 완료
         SetLoadingProgressBar(1f);
-        detailText.text = "Accepted, you are good to go!";
-        yield return new WaitForSeconds(3f);
 
+        timer = 0;
+        while (timer < 3)
+        {
+            detailText.text = "Fetching collections... " + ((timer / 3) * 100) + "%";
+            timer += Time.deltaTime;
+            yield return null;
+        }
+
+        detailText.text = "Accepted, you are good to go!";
+        yield return new WaitForSeconds(1f);
+
+        // Finalize
         blackAnimation.Play("FadeIn_Canvas");
         yield return new WaitForSeconds(1f);
 

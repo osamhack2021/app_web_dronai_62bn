@@ -152,7 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e563fba19387e9f42aef880b26d1c89f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  serverPath: ds.linearjun.comm
+  serverPath: ds.linearjun.com
 --- !u!4 &301640944
 Transform:
   m_ObjectHideFlags: 0
