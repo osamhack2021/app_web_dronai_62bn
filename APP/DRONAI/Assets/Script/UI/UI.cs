@@ -9,7 +9,15 @@ using Sirenix.OdinInspector;
 public class UI : MonoBehaviour
 {
     // Components
-    [SerializeField] private DroneManager droneManager = default;
+    [BoxGroup("Components"), SerializeField] private DroneManager droneManager = default;
+    [BoxGroup("Components"), SerializeField] private Animation anim = default;
+
+
+    // Windows
+    [BoxGroup("Window"), SerializeField] private GameObject[] windows = default;
+    private GameObject previousWindow = null;
+    
+    private int currentWindow = 0;
 
 
     // Input variables
@@ -25,7 +33,8 @@ public class UI : MonoBehaviour
 
 
     // Conditions
-    private int currentUI = 0;
+    private bool isWindowEnabled = false;
+    private bool isSelectionWindowEnabled = false;
 
 
 
@@ -37,6 +46,8 @@ public class UI : MonoBehaviour
 
     public void IntializeDroneSelection()
     {
+
+        // 드론 리스트 UI 생성자
         List<string> dronesId = droneManager.GetDronesId();
 
         foreach (string id in dronesId)
@@ -48,36 +59,87 @@ public class UI : MonoBehaviour
 
     private void Update()
     {
-
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            if (currentUI != 1)
-            {
-                CallSelectionWindow(true);
-            }
-            else
-            {
-                CallSelectionWindow(false);
-            }
+            ShowUI(isWindowEnabled);
+        }
+        if (Input.GetKeyDown(KeyCode.Tab))
+        {
+            CallSelectionWindow(!isSelectionWindowEnabled);
         }
     }
     #endregion
 
     #region Window
+    private void ShowUI(bool state)
+    {
+        if (!state)
+        {
+            // change state
+            isWindowEnabled = true;
+
+            // Call
+            UpdateWindow(currentWindow);
+
+            anim.Stop();
+            anim.Play("UI_Intro");
+        }
+        else
+        {
+            // change state
+            isWindowEnabled = false;
+
+            anim.Stop();
+            anim.Play("UI_Outro");
+        }
+    }
+
+    private void UpdateWindow(int code)
+    {
+        currentWindow = code;
+
+        Animation targetAnim;
+
+        if (previousWindow != null)
+        {
+            targetAnim = previousWindow.GetComponent<Animation>();
+
+            targetAnim.Stop();
+            targetAnim.Play("Area_Outro");
+        }
+
+        previousWindow = windows[code];
+
+        targetAnim = windows[code].GetComponent<Animation>();
+        targetAnim.Play("Area_Intro");
+    }
+
+    /// <summary>
+    /// 버튼으로부터 윈도우 변경 호출을 받는 함수 / 중복검사 함
+    /// </summary>
+    /// <param name="code">호출할 페이지 코드</param>
+    public void CallWindow(int code)
+    {
+        if (currentWindow == code) return;
+        else UpdateWindow(code);
+    }
+
+
     private void CallSelectionWindow(bool state)
     {
         if (state)
         {
-            currentUI = 1;
             Animation windowAnimation = selectionWindow.GetComponent<Animation>();
             PlayAnimationSafe(windowAnimation, "FadeIn_Canvas");
         }
         else
         {
-            currentUI = 0;
             Animation windowAnimation = selectionWindow.GetComponent<Animation>();
             PlayAnimationSafe(windowAnimation, "FadeOut_Canvas");
         }
+
+        // Change the state
+        isSelectionWindowEnabled = state;
     }
     #endregion
 
