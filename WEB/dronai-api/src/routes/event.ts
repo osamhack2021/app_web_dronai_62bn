@@ -39,13 +39,11 @@ const upload = multer({ storage: storage })
 // ==================================================
 router.post('/upload', upload.array('file', 100), (req, res) => {
     const files = req.files as Express.Multer.File[];
-    if(files==null) 
-    {
+    if (files == null) {
         res.send("[업로드 실패] Array is null");
         res.end();
     }
-    else
-    {
+    else {
         files.forEach(f => {
             res.send(f.destination + "/" + f.filename);
         });
@@ -71,6 +69,12 @@ router.post('/add', (req, res) => {
         res.send(u.droneId + '의 이벤트가 Database에 정상 등록되었습니다.');
     });
 });
+
+
+
+router.get('/get', (req, res)=> {
+
+})
 
 
 router.get('/test', (_req, res) => {

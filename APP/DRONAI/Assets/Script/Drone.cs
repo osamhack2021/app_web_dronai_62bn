@@ -52,6 +52,9 @@ public class Drone : Entity
     [BoxGroup("Position"), SerializeField] private float startX = 1;
     [BoxGroup("Position"), SerializeField] private float startZ = 1;
 
+    [BoxGroup("PathFind")] private int[] dx = new int[] {0,1,1,1,0,-1,-1,-1, 0,1,1,1,0,-1,-1,-1, 0,1,1,1,0,-1,-1,-1};
+    [BoxGroup("PathFind")] private int[] dy = new int[] {1,1,1,1,1,1,1,1, 0,0,0,0,0,0,0,0, -1,-1,-1,-1,-1,-1,-1,-1};
+    [BoxGroup("PathFind")] private int[] dz = new int[] {-1,-1,0,1,1,1,0,-1, -1,-1,0,1,1,1,0,-1, -1,-1,0,1,1,1,0,-1};
 
     public Vector3 Velocity
     {
@@ -412,6 +415,7 @@ public class Drone : Entity
     #endregion
 
     #region Formation
+    
     public void AssignParent(Drone parent)
     {
         // Assign
@@ -431,5 +435,102 @@ public class Drone : Entity
         if (droneGroup.LeftChild) ChildCount += droneGroup.LeftChild.ChildCount;
         if (droneGroup.RightChild) ChildCount += droneGroup.RightChild.ChildCount;
     }
+    #endregion
+
+    #region Path Find
+
+    public class PathFindNode
+    {
+        public Vector3 Position;
+
+        public PathFindNode PreviousPathFindNode;
+
+        public int GCost;
+
+        public PathFindNode(Vector3 Position, PathFindNode PreviousPathFindNode, int GCost)
+        {
+            this.Position = Position;
+            this.PreviousPathFindNode = PreviousPathFindNode;
+            this.GCost = GCost;
+        }
+    }
+
+    private void FindPath(Vector3 endPoint)
+    {
+        SimplePriorityQueue<PathFindNode> openPoints = new SimplePriorityQueue<PathFindNode>();
+        Dictionary<Vector3, PathFindNode> closedPoints = new Dictionary<Vector3, PathFindNode>();
+
+        float gridSize = droneManager.gridSize;
+
+        Vector3 currentVector3 = transform.position;
+        PathFindNode startNode = new PathFindNode(currentVector3, null, 0);
+        openPoints.Enqueue(startNode, 0);
+
+        while (openPoints.Count > 0)
+        {
+            PathFindNode currentNode = openPoints.Dequeue();
+            closedPoints.Add(currentNode.Position, currentNode);
+
+            if (Vector3.Distance(currentNode.Position, endPoint) < 0.02f) break;
+
+            for(int i=0; i<24; i++)
+            {
+                Vector3 neighborVector3 = currentNode.Position + new Vector3(gridSize*dx[i], gridSize*dy[i], gridSize*dz[i]);
+                PathFindNode nextNode = new PathFindNode(neighborVector3, currentNode, currentNode.GCost + 1);
+                float fCost = nextNode.GCost + GetDistance(neighborVector3, endPoint);
+
+                if (Physics.OverlapSphere(neighborVector3, 0.5f).Length > 0) continue;
+                
+                if (closedPoints.TryGetValue(neighborVector3, out PathFindNode node))
+                {
+                    if (fCost < node.GCost + GetDistance(neighborVector3, endPoint))
+                    {
+                        closedPoints.Add(neighborVector3, nextNode);
+                        if (!openPoints.Contains(nextNode)) openPoints.Enqueue(nextNode, fCost);
+                    }
+                }
+            }
+        }
+
+        return;
+    }
+
+    private float GetDistance(Vector3 node1, Vector3 node2)
+    {
+        return Vector3.Distance(node1, node2);
+    }
+
+    private Vector3[] RetracePath(PathFindNode startNode, PathFindNode endNode)
+    {
+        List<PathFindNode> path = new List<PathFindNode>();
+        PathFindNode currentNode = endNode;
+
+        while (currentNode != startNode)
+        {
+            path.Add(currentNode);
+            currentNode = currentNode.PreviousPathFindNode;
+        }
+
+        Vector3[] wayPoints = SimplifyPath(path);
+        Array.Reverse(wayPoints);
+        return wayPoints;
+    }
+
+    Vector3[] SimplifyPath(List<PathFindNode> path)
+    {
+        List<Vector3> wayPoints = new List<Vector3>();
+        Vector3 oldVector3 = wayPoints[0];
+        wayPoints.Add(oldVector3);
+
+        for(int i=1; i<wayPoints.Count; i++)
+        {
+            Vector3 newVector3 = path[i].Position;
+            if (oldVector3 != newVector3) wayPoints.Add(newVector3);
+            oldVector3 = newVector3;
+        }
+
+        return wayPoints.ToArray();
+    }
+
     #endregion
 }

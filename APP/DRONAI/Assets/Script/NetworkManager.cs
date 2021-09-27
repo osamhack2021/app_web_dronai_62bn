@@ -14,6 +14,7 @@ namespace Dronai.Network
 {
     public class NetworkManager : MonoBehaviour
     {
+        public static NetworkManager instance = null;
         private WebSocket ws;
 
 
@@ -21,8 +22,21 @@ namespace Dronai.Network
         [SerializeField] private string serverPath = "ds.linearjun.com";
 
 
+        private void Awake()
+        {
+            // 글로벌 오브젝트 중복성 확인
+            if (NetworkManager.instance != null) Destroy(gameObject);
+            
+            // 싱글톤 등록
+            instance = this;
 
-        private void Start()
+            // 글로벌 오브젝트
+            DontDestroyOnLoad(gameObject);
+
+            // 준비
+            Initialize();
+        }
+        private void Initialize(Action onFinished = null)
         {
             ws = new WebSocket("ws://" + serverPath);
             ws.OnMessage += (sender, e) =>
@@ -30,19 +44,57 @@ namespace Dronai.Network
                 Debug.Log("Message received from " + ((WebSocket)sender).Url + ", Data: " + e.Data);
             };
             ws.Connect();
-        }
 
+            onFinished?.Invoke();
+        }
         private void Update()
         {
-            if (ws == null) return;
-            if (Input.GetKeyDown(KeyCode.Space))
-            {
-                ws.Send("Hello");
-            }
             if (Input.GetKeyDown(KeyCode.U))
             {
                 StartCoroutine(AddEvent("Drone_Test", "ADD API 테스트입니다", Application.dataPath + "/Design/Images/Tile.png"));
             }
+        }
+
+        public void TestConnection(Action<bool> success)
+        {
+            StartCoroutine(TestConnectionRoutine(success));
+        }
+
+        private IEnumerator TestConnectionRoutine(Action<bool> success = null)
+        {
+            if (ws == null) {
+                success?.Invoke(false);
+                yield break;
+            }
+            
+            // 웹 Reqeust 시작
+            using (UnityWebRequest www = UnityWebRequest.Get(serverPath + "/api/event/test"))
+            {
+                // Request 요청
+                yield return www.SendWebRequest();
+
+
+                // Request 결과 출력
+                if (www.result == UnityWebRequest.Result.ConnectionError)
+                {
+                    print("[실패] " + www.error);
+                }
+                else
+                {
+                    if (www.isDone)
+                    {
+                        // print(www.downloadHandler.text);
+                        success?.Invoke(true);
+                        yield break;
+                    }
+                    else
+                    {
+                        print("[실패] 이벤트 삽입을 완료하지 못했습니다!");
+                    }
+                }
+            }
+            success?.Invoke(false);
+            yield break;
         }
 
         /// <summary>
@@ -102,7 +154,7 @@ namespace Dronai.Network
                     }
                     else
                     {
-                        print("[실페] 이벤트 삽입을 완료하지 못했습니다!");
+                        print("[실패] 이벤트 삽입을 완료하지 못했습니다!");
                     }
                 }
             }

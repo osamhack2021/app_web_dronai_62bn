@@ -84,6 +84,8 @@ public class DroneManager : SerializedMonoBehaviour
     [BoxGroup("Dictionary"), SerializeField] private Dictionary<string, Drone> droneDic = new Dictionary<string, Drone>();
     [BoxGroup("Pulling"), OdinSerialize] public Pool DronePool = new Pool();
 
+    [BoxGroup("Grid")] public float gridSize = 1;
+
 
 
     #endregion
