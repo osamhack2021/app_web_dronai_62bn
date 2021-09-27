@@ -70,13 +70,6 @@ router.post('/add', (req, res) => {
     });
 });
 
-
-
-router.get('/get', (req, res)=> {
-
-})
-
-
 router.get('/test', (_req, res) => {
     res.status(200).json({ success: true, msg: '이벤트 API 정상' });
 });
