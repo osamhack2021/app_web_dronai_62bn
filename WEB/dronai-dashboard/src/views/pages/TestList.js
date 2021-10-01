@@ -1,6 +1,7 @@
 import React from 'react';
 // material-ui
 import { Grid, Link, Pagination } from '@material-ui/core';
+import {DataGrid} from '@material-ui/data-grid';
 import MuiTypography from '@material-ui/core/Typography';
 
 // project imports
@@ -13,6 +14,26 @@ import imgA from './../../assets/images/logo.png';
 
 
 //==============================|| TYPOGRAPHY ||==============================//
+
+const columns = [
+    { field : 'image', headerName : 'Image', width : 300,
+    formatter : ({row}) => <ImageFormatter value = {row.image} /> },
+    { field : 'id', headerName : 'DRONE ID', width : 180},
+    { field : 'detail', headerName : 'Details', width : 800}
+]
+
+const rows = [
+    { image:'./../../assets/images/logo.png', id:1, detail:'Hello, world!'}
+]
+
+function ImageFormatter(value) {
+    return (
+        <div>
+            <img src={imgA} width="100" height="100" align="middle"/>
+            <img src={`url(${value})`} width="100" height="100" align="middle"/>
+        </div>
+    );
+  }
 
 const TestList = () => {
     return (
@@ -61,7 +82,11 @@ const TestList = () => {
                 </Grid>
             </Grid>
 
-            <Pagination count={10} color="primary" />
+            <div style ={{height:400, width:'100%'}}>
+                                <DataGrid rows={rows} columns={columns} pageSize={5} checkboxSelection/>
+                            </div>
+
+            {/* <Pagination count={10} color="primary" /> */}
 
         </MainCard>
     );
