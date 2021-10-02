@@ -12,9 +12,8 @@ using WebSocketSharp;
 
 namespace Dronai.Network
 {
-    public class NetworkManager : MonoBehaviour
+    public class NetworkManager : Singleton<NetworkManager>
     {
-        public static NetworkManager instance = null;
         private WebSocket ws;
 
 
@@ -24,15 +23,6 @@ namespace Dronai.Network
 
         private void Awake()
         {
-            // 글로벌 오브젝트 중복성 확인
-            if (NetworkManager.instance != null) Destroy(gameObject);
-            
-            // 싱글톤 등록
-            instance = this;
-
-            // 글로벌 오브젝트
-            DontDestroyOnLoad(gameObject);
-
             // 준비
             Initialize();
         }

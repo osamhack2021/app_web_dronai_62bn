@@ -31,6 +31,7 @@ Transform:
   m_Children:
   - {fileID: 5420010023230610976}
   - {fileID: 1449951857564184581}
+  - {fileID: 8811604182373490286}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 90.00001, z: 0}
@@ -70,8 +71,21 @@ MonoBehaviour:
     Prefab: {fileID: 0}
     PrefabModificationsReferencedUnityObjects: []
     PrefabModifications: []
-    SerializationNodes: []
+    SerializationNodes:
+    - Name: formationOrder
+      Entry: 7
+      Data: 0|System.Collections.Generic.Queue`1[[Drone, Assembly-CSharp]], System
+    - Name: 
+      Entry: 12
+      Data: 0
+    - Name: 
+      Entry: 13
+      Data: 
+    - Name: 
+      Entry: 8
+      Data: 
   id: 60a5ac37-987d-4a6a-88b5-4214e46de1d8
+  IsWorking: 0
   speed: 1
   timeCurve:
     serializedVersion: 2
@@ -100,10 +114,12 @@ MonoBehaviour:
   droneManager: {fileID: 0}
   rb: {fileID: 0}
   droneSensors: []
-  droneGroup:
-    Parent: {fileID: 0}
-    LeftChild: {fileID: 0}
-    RightChild: {fileID: 0}
+  startX: 1
+  startZ: 1
+  ReconnaissancePosition: {x: 0, y: 0, z: 0}
+  formationIndex: 1
+  lineRendererPrefab: {fileID: 7378745952638780769, guid: eec883c0956876340881b11eb992f386, type: 3}
+  lineRendererParent: {fileID: 8811604182373490286}
   explosionPrefab: {fileID: 4865135451303388, guid: 9bba9cf244c53c5439505dfc96fdd11c, type: 3}
 --- !u!1 &1378348486206103823
 GameObject:
@@ -314,7 +330,7 @@ BoxCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 0.5, z: 1}
+  m_Size: {x: 0.75, y: 0.5, z: 0.75}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &9201115912578464943
 MonoBehaviour:
@@ -417,7 +433,7 @@ SphereCollider:
   m_IsTrigger: 1
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 1
+  m_Radius: 0.8
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &7780896267971287367
 MonoBehaviour:
@@ -559,6 +575,36 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
+--- !u!1 &5150790890524532867
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8811604182373490286}
+  m_Layer: 6
+  m_Name: LR
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8811604182373490286
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5150790890524532867}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 7341894752857769161}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &5312964356895346177
 GameObject:
   m_ObjectHideFlags: 0

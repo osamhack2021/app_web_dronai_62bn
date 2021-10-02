@@ -69,7 +69,7 @@ public class LoadingUI : MonoBehaviour
         yield return new WaitForSeconds(1f);
 
         bool working = true, connection = false;
-        NetworkManager.instance.TestConnection((bool result) =>
+        NetworkManager.Instance.TestConnection((bool result) =>
         {
             connection = result;
             working = false;

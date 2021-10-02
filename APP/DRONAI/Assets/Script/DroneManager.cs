@@ -14,7 +14,7 @@ public class DroneManager : SerializedMonoBehaviour
     {
         [BoxGroup("Property"), ShowInInspector, ReadOnly] public int Workable => poolList.Count;
         [BoxGroup("Pool"), Tooltip("작업 가능 드론"), SerializeField] private Dictionary<string, Drone> poolList = new Dictionary<string, Drone>();
-        
+
 
 
         public int PoolListCount()
@@ -40,7 +40,6 @@ public class DroneManager : SerializedMonoBehaviour
 
             item.IsWorking = false;
             poolList.Add(item.GetID(), item);
-            print("push -> " + item.GetID());
         }
 
         public Drone PopFromPool()
@@ -76,16 +75,27 @@ public class DroneManager : SerializedMonoBehaviour
 
     #region Variable
 
-    [SerializeField,BoxGroup("SPAWN SETTING")] private GameObject dronePrefab = default;
-    [SerializeField,BoxGroup("SPAWN SETTING")] private Transform droneParent = default;
+    [SerializeField, BoxGroup("SPAWN SETTING")] private GameObject dronePrefab = default;
+    [SerializeField, BoxGroup("SPAWN SETTING")] private Transform droneParent = default;
     [SerializeField, BoxGroup("SPAWN SETTING")] private int spawningSize = 10;
     [SerializeField, BoxGroup("SPAWN SETTING"), Range(0, 10)] private float spawningHeight = 1f;
     [SerializeField, BoxGroup("SPAWN SETTING"), Range(1, 20)] private float spawningDistance = 2f;
-    [BoxGroup("Dictionary"), SerializeField] private Dictionary<string, Drone> droneDic = new Dictionary<string, Drone>();
-    [BoxGroup("Pulling"), OdinSerialize] public Pool DronePool = new Pool();
 
-    [BoxGroup("Grid")] public float gridSize = 1;
+    [SerializeField, BoxGroup("PATH FINDER SETTING")] private GameObject worldMap = default;
+    [SerializeField, BoxGroup("PATH FINDER SETTING")] private float mapSize = 16;
+    [SerializeField, BoxGroup("PATH FINDER SETTING")] private int octreeLevel = 8;
+    [SerializeField, BoxGroup("PATH FINDER SETTING")] private Vector3 worldCenter = Vector3.zero;
+    [SerializeField, BoxGroup("PATH FINDER SETTING")] private Graph.GraphType graphType = default;
+    [SerializeField, BoxGroup("PATH FINDER SETTING")] private bool progressive = true;
 
+    private Octree space = default;
+    private Graph spaceGraph = default;
+
+    [SerializeField, BoxGroup("DEBUG")] private LineRenderer lineRendererPrefab = default;
+    private List<LineRenderer> lineRenderers = new List<LineRenderer>();
+
+    [BoxGroup("OBJECTS"), SerializeField] private Dictionary<string, Drone> droneDic = new Dictionary<string, Drone>();
+    [BoxGroup("OBJECTS"), OdinSerialize] public Pool DronePool = new Pool();
 
 
     #endregion
@@ -171,9 +181,30 @@ public class DroneManager : SerializedMonoBehaviour
     #region Life cycle
     public void Initialize()
     {
-        StartCoroutine(IterateDroneRoutine(0.1f));
-        //StartCoroutine(CircleFirstRoutine(0.4f));
+        // 드론 초기화 시작
+        StartCoroutine(InitializeRoutine());
     }
+
+    private IEnumerator InitializeRoutine()
+    {
+        // 월드 초기화
+        space = progressive ? new ProgressiveOctree(mapSize, worldCenter - Vector3.one * mapSize / 2, octreeLevel) : new Octree(mapSize, worldCenter - Vector3.one * mapSize / 2, octreeLevel);
+        space.BuildFromGameObject(worldMap);
+        spaceGraph =
+            graphType == Graph.GraphType.CENTER ? space.ToCenterGraph() :
+            graphType == Graph.GraphType.CORNER ? space.ToCornerGraph() : space.ToCrossedGraph();
+
+
+        // 드론 부트 업 [대기 상태]
+        foreach (Drone target in droneDic.Values)
+        {
+            target.MoveUp(4f);
+            yield return new WaitForSeconds(0.1f);
+        }
+        yield break;
+    }
+
+
     #endregion
 
 
@@ -183,60 +214,6 @@ public class DroneManager : SerializedMonoBehaviour
         droneDic[id].MoveTo(position);
     }
 
-    private IEnumerator IterateDroneRoutine(float delay)
-    {
-        foreach (Drone target in droneDic.Values)
-        {
-            target.MoveUp(4f);
-            yield return new WaitForSeconds(delay);
-        }
-        yield break;
-    }
-    private IEnumerator CircleFirstRoutine(float delay)
-    {
-        int index = 0;
-        float divide = 360 / droneDic.Count;
-        foreach (Drone target in droneDic.Values)
-        {
-            target.MoveUp(4f, delay);
-
-            yield return new WaitForSeconds(delay);
-
-            StartCoroutine(CircleSecondRoutine(target, divide * index));
-            index++;
-        }
-        yield return new WaitForSeconds(2f);
-
-        yield break;
-    }
-    private IEnumerator CircleSecondRoutine(Drone target, float targetAngle)
-    {
-        Vector2 result = new Vector2(target.Z, target.X) - Vector2.zero;
-        float angle = Mathf.Atan2(result.y, result.x) * Mathf.Rad2Deg;
-
-        float radius = 4f;
-
-        for (; ; )
-        {
-            radius = Mathf.Lerp(radius, 10f, Time.deltaTime);
-
-            float x = Mathf.Cos(angle) * radius;
-            float z = Mathf.Sin(angle) * radius;
-
-
-            if (Mathf.Abs(angle) >= targetAngle)
-            {
-                target.MoveTo(new Vector3(x, 8f, z));
-            }
-            else
-            {
-                angle += Time.deltaTime * 0.5f;
-            }
-            if (Mathf.Abs(angle) > 360) angle = 0;
-
-            yield return null;
-        }
-    }
     #endregion
 
 
@@ -258,107 +235,104 @@ public class DroneManager : SerializedMonoBehaviour
             yield break;
         }
 
-        // 헤드 드론 및 자식 드론 선출
-        Drone head = DronePool.PopFromPool();
-        List<Drone> childs = new List<Drone>();
-        for (int i = 0; i < n - 1; i++)
+
+        List<Drone> drones = new List<Drone>();
+        for (int i = 0; i < n; i++)
         {
-            childs.Add(DronePool.PopFromPool());
+            drones.Add(DronePool.PopFromPool());
         }
 
-
-        head.MoveUp(4f, -1f, 200);
-
         working = true;
-        for (int i = 0; i < childs.Count; i++)
+        for (int i = 0; i < drones.Count; i++)
         {
-            if (i == childs.Count - 1)
+            if (i == drones.Count - 1)
             {
-                childs[i].MoveUp(4f, -1f, 200, () =>
+                drones[i].MoveUp(4f, -1f, 200, () =>
                 {
                     working = false;
                 });
             }
             else
             {
-                childs[i].MoveUp(4f, -1f, 200);
+                drones[i].MoveUp(4f, -1f, 200);
             }
         }
 
         // 이전 작업이 끝날때까지 기다립니다
         while (working) yield return null;
 
-        for (int i=0; i< childs.Count; i++)
+        Queue<Drone> q = new Queue<Drone>();
+        foreach (Drone drone in drones)
         {
-            InsertDroneFormation(childs[i].GetID(), head);
+            q.Enqueue(drone);
         }
-        
-        head.MoveTo(destination);
+        for (int i = 0; i < drones.Count; i++)
+        {
+            drones[i].DefineFormation(q, destination);
+            yield return new WaitForSeconds(1f);
+        }
+
         print("잔여 드론 : " + DronePool.PoolListCount());
     }
 
-    private void InsertDroneFormation(string droneID, Drone headDrone, Action OnFinished = null)
+
+    #endregion
+
+
+    #region Path finding
+    public List<Node> FindPath(Vector3 start, Vector3 destination)
     {
-        if (droneID.Equals(headDrone.GetID()))
-        {
-            // head drone일 경우
-        }
-        else
-        {
-            bool isLeft = true;
-
-            while (headDrone)
-            {
-                // 부모 설정
-                droneDic[droneID].AssignParent(headDrone);
-
-                // Id of drones로 비교
-                if (NameCompare(droneDic[droneID].name, headDrone.name))
-                {
-                    //print("left : " + drones[droneID].name + " and " + headDrone.name);
-                    headDrone = headDrone.droneGroup.LeftChild;
-
-                    isLeft = true;
-                }
-                else
-                {
-                    //print("right : " + drones[droneID].name + " and " + headDrone.name);
-                    headDrone = headDrone.droneGroup.RightChild;
-
-                    isLeft = false;
-                }
-            }
-
-            // 부모의 자식 설정
-            if (isLeft) droneDic[droneID].droneGroup.Parent.droneGroup.LeftChild = droneDic[droneID];
-            else droneDic[droneID].droneGroup.Parent.droneGroup.RightChild = droneDic[droneID];
-        }
-
-        OnFinished?.Invoke();
+        Graph.PathFindingMethod method = spaceGraph.ThetaStar;
+        List<Node> path = spaceGraph.FindPath(method, start, destination, space);
+        return path;
     }
+    #endregion
 
-    /// <summary>
-    /// 드론 이름 비교 함수
-    /// </summary>
-    /// <param name="name1"></param>
-    /// <param name="name2"></param>
-    /// <returns></returns>
-    private bool NameCompare(string name1, string name2)
+
+    #region Debug
+    private void DrawLine(List<Node> nodes, bool clear = true)
     {
-        int length1 = name1.Length, length2 = name2.Length;
-        if (length1 < length2) return true;
-        else if (length1 == length2)
+        // 경로 기록 삭제 요청
+        if (clear)
         {
-            for (int i = 0; i < length1; i++)
-            {
-                if (name1[i] < name2[i]) return true;
-                else if (name1[i] > name2[i]) break;
-            }
-            return false;
+            ClearLine();
         }
-        else return false;
-    }
 
+        // 경로 시각화
+        LineRenderer lr = Instantiate(lineRendererPrefab, transform);
+        lr.positionCount = nodes.Count;
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            lr.SetPosition(i, nodes[i].center);
+        }
+
+        // 경로 기록에 추가
+        lineRenderers.Add(lr);
+    }
+    private void DrawLine(List<Vector3> nodes, bool clear = true)
+    {
+        // 경로 기록 삭제 요청
+        if (clear)
+        {
+            ClearLine();
+        }
+
+        // 경로 시각화
+        LineRenderer lr = Instantiate(lineRendererPrefab, transform);
+        lr.positionCount = nodes.Count;
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            lr.SetPosition(i, nodes[i]);
+        }
+
+        // 경로 기록에 추가
+        lineRenderers.Add(lr);
+    }
+    private void ClearLine()
+    {
+        foreach (LineRenderer l in lineRenderers) Destroy(l.gameObject);
+        lineRenderers.Clear();
+    }
     #endregion
 
 
@@ -383,10 +357,13 @@ public class DroneManager : SerializedMonoBehaviour
     #endregion
 
 
-    #region Action and Events
+    #region Destory
 
-    // test용 폭파함수
-    public void DestroyNode(string droneId)
+    /// <summary>
+    /// 드론 단일 객체를 강제로 폭파시키는 실험용 함수
+    /// </summary>
+    /// <param name="droneId">드론 아이디</param>
+    public void DestroyDrone(string droneId)
     {
         Drone target = droneDic[droneId];
         target.OnDroneCollapsed(gameObject);
@@ -394,66 +371,6 @@ public class DroneManager : SerializedMonoBehaviour
 
     public void OnDroneDestroy(string droneId)
     {
-        // 루트부터 탐색해서 삭제할 name of drone과 비교
-
-        Drone root = droneDic[droneId];
-        while (root.droneGroup.Parent)
-        {
-            root = root.droneGroup.Parent;
-        }
-
-        root = DeleteDrone(root, droneId);
-        ParentReassign(null, root);
-    }
-
-    private Drone DeleteDrone(Drone root, string droneID)
-    {
-        if (root == null) return root;
-
-        if (droneID.Equals(root.name)) // 삭제할 드론
-        {
-            if (root.droneGroup.LeftChild == null) return root.droneGroup.RightChild;
-            if (root.droneGroup.RightChild == null) return root.droneGroup.LeftChild;
-
-            Drone tempDrone = root.droneGroup.RightChild; // 현재 트리에서 루트가 됨
-            Drone leftDrone = root.droneGroup.LeftChild; // 루트의 왼쪽 자식노드
-            Drone rightDrone = DeleteDrone(root.droneGroup.RightChild, FindMinID(root.droneGroup.RightChild)); // 루트의 오른쪽 자식노드
-
-            root = tempDrone;
-            root.droneGroup.LeftChild = leftDrone; ParentReassign(root, root.droneGroup.LeftChild);
-            root.droneGroup.RightChild = rightDrone; ParentReassign(root, root.droneGroup.RightChild);
-        }
-        else if (NameCompare(droneID, root.name))
-        {
-            root.droneGroup.LeftChild = DeleteDrone(root.droneGroup.LeftChild, droneID);
-            ParentReassign(root, root.droneGroup.LeftChild);
-        }
-        else
-        {
-            root.droneGroup.RightChild = DeleteDrone(root.droneGroup.RightChild, droneID);
-            ParentReassign(root, root.droneGroup.RightChild);
-        }
-
-        root.CalulateChildCount();
-        return root;
-    }
-
-    // 이진 트리에서 최솟값 찾기 -> DeleteDrone함수에서 사용
-    private string FindMinID(Drone root)
-    {
-        string retID = root.name;
-        while (root.droneGroup.LeftChild) // 제일 왼쪽으로 가면 됨
-        {
-            retID = root.droneGroup.LeftChild.name;
-            root = root.droneGroup.LeftChild;
-        }
-        return retID;
-    }
-
-    private void ParentReassign(Drone parentDrone, Drone childDrone)
-    {
-        if (childDrone == null) return;
-        childDrone.droneGroup.Parent = parentDrone;
     }
 
     #endregion

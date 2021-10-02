@@ -6,7 +6,7 @@ using Sirenix.OdinInspector;
 
 
 
-public class SimulationManager : SerializedSingleton<SimulationManager>
+public class SimulationManager : Singleton<SimulationManager>
 {
 
     // Components

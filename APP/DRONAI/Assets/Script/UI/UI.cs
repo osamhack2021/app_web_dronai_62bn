@@ -158,7 +158,7 @@ public class UI : MonoBehaviour
     }
     public void OnButtonDown()
     {
-        if (!droneIdInput.text.Contains("Drone"))
+        if (!droneIdInput.text.Contains("Drone")) // 편대 구축할 드론의 수 입력
         {
             string[] position = dronePosInput.text.Split(',');
             if (position.Length != 3) 
@@ -174,9 +174,9 @@ public class UI : MonoBehaviour
             return;
         }
 
-        if (dronePosInput.text.Length == 0)
+        if (dronePosInput.text.Length == 0) // 선택된 드론 폭파
         {
-            droneManager.DestroyNode(droneIdInput.text);
+            droneManager.DestroyDrone(droneIdInput.text);
             return;
         }
 

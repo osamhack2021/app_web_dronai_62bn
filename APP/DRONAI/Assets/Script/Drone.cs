@@ -22,14 +22,6 @@ public class Drone : Entity
         }
     }
 
-    [Serializable]
-    public class DroneGroup
-    {
-        public Drone Parent = null;
-        public Drone LeftChild = null;
-        public Drone RightChild = null;
-    }
-
     #endregion
 
     #region Variable
@@ -42,19 +34,30 @@ public class Drone : Entity
     [BoxGroup("Components"), SerializeField, ReadOnly] private Rigidbody rb = default;
     [BoxGroup("Components"), SerializeField, ReadOnly] private List<DroneSensor> droneSensors = new List<DroneSensor>();
 
-    [BoxGroup("Formation"), ReadOnly] public DroneGroup droneGroup = new DroneGroup();
-    [BoxGroup("Formation"), ReadOnly] public int ChildCount = 1;
-    [BoxGroup("Formation"), ReadOnly] public int FormationCode = default;
+
+    [BoxGroup("Formation"), SerializeField] private float startX = 1;
+    [BoxGroup("Formation"), SerializeField] private float startZ = 1;
+    [BoxGroup("Formation"), SerializeField] private Vector3 formationPosition = default;
+    public Vector3 HeadPosition 
+    {
+        get 
+        {
+            Vector3 result = transform.position;
+            result.y -= 2f;
+            return result;
+        }
+    }
+    [BoxGroup("Formation"), SerializeField, ReadOnly] private int formationIndex = 1;
+    [BoxGroup("Formation"), SerializeField] private Queue<Drone> formationOrder = new Queue<Drone>();
+
+    [SerializeField, BoxGroup("DEBUG")] private LineRenderer lineRendererPrefab = default;
+    private List<LineRenderer> lineRenderers = new List<LineRenderer>();
+    [SerializeField, BoxGroup("DEBUG")] private Transform lineRendererParent = default;
+
 
 
     [BoxGroup("Resources"), SerializeField] private Transform explosionPrefab = default;
 
-    [BoxGroup("Position"), SerializeField] private float startX = 1;
-    [BoxGroup("Position"), SerializeField] private float startZ = 1;
-
-    [BoxGroup("PathFind")] private int[] dx = new int[] {0,1,1,1,0,-1,-1,-1, 0,1,1,1,0,-1,-1,-1, 0,1,1,1,0,-1,-1,-1};
-    [BoxGroup("PathFind")] private int[] dy = new int[] {1,1,1,1,1,1,1,1, 0,0,0,0,0,0,0,0, -1,-1,-1,-1,-1,-1,-1,-1};
-    [BoxGroup("PathFind")] private int[] dz = new int[] {-1,-1,0,1,1,1,0,-1, -1,-1,0,1,1,1,0,-1, -1,-1,0,1,1,1,0,-1};
 
     public Vector3 Velocity
     {
@@ -79,7 +82,7 @@ public class Drone : Entity
 
     // Routines
     private SimplePriorityQueue<Routine> routinesQueue = new SimplePriorityQueue<Routine>();
-    
+
 
     #endregion
 
@@ -176,86 +179,6 @@ public class Drone : Entity
         MoveTo(directionVector + transform.position + ramdomVector, 0.5f, 0);
     }
 
-    /// <summary>
-    /// 부모 드론을 계속 따라가는 함수
-    /// </summary>
-    /// <param name="priority">작업 우선순위</param>
-    public void FollowParent(int priority = 10, float gap = 2f)
-    {
-        Coroutine routine = StartCoroutine(FollowParentRoutine(priority, gap));
-        routinesQueue.Enqueue(new Routine(routine, priority), priority);
-    }
-    private IEnumerator FollowParentRoutine(int priority, float gap)
-    {
-        for (; ; )
-        {
-            // Check
-            if (droneGroup.Parent == null) {
-                routinesQueue.Dequeue();
-                break;
-            }
-
-            if (priority > routinesQueue.FirstPriority)
-            {
-                yield return null;
-                continue;
-            }
-
-            // Follow
-            Vector3 destinationVector3 = droneGroup.Parent.Position;
-            float destinationX = destinationVector3.x;
-            float destinationZ = destinationVector3.z;
-
-            // X좌표는 level로 결정 -> 부모와의 x좌표 차이는 1
-            destinationX -= 1;
-
-            // Z좌표는 자식 수로 결정
-            if (droneGroup.Parent.droneGroup.LeftChild == this) 
-            {
-                // 왼쪽 자식이면 (오른쪽 자식 + 1) * gap
-                int cnt = 0;
-                if (droneGroup.RightChild) cnt += droneGroup.RightChild.ChildCount;
-                destinationZ += (cnt + 1) * gap;
-            }
-            else 
-            {
-                // 오른쪽 자식이면 (왼쪽 자식 + 1) * gap
-                int cnt = 0;
-                if (droneGroup.LeftChild) cnt += droneGroup.LeftChild.ChildCount;
-                destinationZ -= (cnt + 1) * gap;
-            }
-            destinationVector3 = new Vector3(destinationX, destinationVector3.y, destinationZ);
-
-            transform.position = Vector3.Lerp(transform.position, destinationVector3, Time.deltaTime * speed);
-
-            // Yield
-            yield return null;
-        }
-        yield break;
-    }
-
-    // reconnoiter : 정찰하다
-    // 정찰이 끝난 후
-    private void AfterReconnoiter()
-    {
-        // 부모 드론 해제
-        if (droneGroup.Parent) droneGroup.Parent = null;
-
-        // 제자리 and (Y좌표 = 9) 위치로 돌아가기
-        MoveTo(new Vector3(startX, 9, startZ), 300);
-
-        // 자식들이 있으면 일 끝났다고 알려줘야함
-        if (droneGroup.LeftChild) droneGroup.LeftChild.AfterReconnoiter();
-        if (droneGroup.RightChild) droneGroup.RightChild.AfterReconnoiter();
-
-        // 일 하는 중 아님 -> list에 넣기
-        // droneManager.DronePool.PushToPool(this);
-
-        // 초기화
-        droneGroup.LeftChild = null;
-        droneGroup.RightChild = null;
-        ChildCount = 1;
-    }
 
     #region Move
 
@@ -265,6 +188,7 @@ public class Drone : Entity
     /// <param name="destination">목표 지점 (3차원 벡터 값)</param>
     public void MoveTo(Vector3 destination)
     {
+        formationPosition = destination;
         MoveTo(destination, -1, 100, null);
     }
 
@@ -314,18 +238,11 @@ public class Drone : Entity
             }
 
             transform.position = Vector3.Lerp(transform.position, destination, Time.deltaTime * speed);
-            if (Vector3.Distance(transform.position, destination) < 0.02f)
+            if (Vector3.Distance(transform.position, destination) < 0.1f)
             {
                 transform.position = destination;
 
-                // 처음 지점으로 가는 루틴 -> 안 죽는 루틴
-                if(priority < 1000) break;
-
-                // 일 끝났으면 다시 일 할수 있게 가동
-                if (IsWorking)
-                {
-                    droneManager.DronePool.PushToPool(this);
-                }
+                break;
             }
             yield return null;
         }
@@ -334,16 +251,11 @@ public class Drone : Entity
         routinesQueue.Dequeue();
         // print(name + " | MVROUTINE 제거됨 --> " + priority + " 현재 FIRST --> " + routinesQueue.FirstPriority);
 
-        // 정찰 끝
-        if (priority == 100) 
-        {
-            AfterReconnoiter();
-        }
-
         // Call finished event
         OnFinished?.Invoke();
         yield break;
     }
+
     private IEnumerator MoveAsTimeRoutine(Vector3 destination, float duration, int priority, Action OnFinished)
     {
         // Variables
@@ -391,146 +303,262 @@ public class Drone : Entity
         MoveTo(result, duration, priority, OnFinished);
     }
 
-    public void MoveByDirection(Vector3 direction, float speed, int priority)
+    public void MoveViaPathFinder(Vector3 destination, int priority = 50, Action OnFinished = null)
     {
-        Coroutine routine = StartCoroutine(MoveByDirectionRoutine(direction, speed, priority));
-        routinesQueue.Enqueue(new Routine(routine, priority), priority);
+        if (gameObject.activeSelf)
+        {
+            Coroutine routine = StartCoroutine(MoveViaPathFinderRoutine(destination, priority, OnFinished));
+            routinesQueue.Enqueue(new Routine(routine, priority), priority);
+        }
     }
-    private IEnumerator MoveByDirectionRoutine(Vector3 direction, float speed, int priority)
+
+    private IEnumerator MoveViaPathFinderRoutine(Vector3 destination, int priority, Action OnFinished)
     {
         for (; ; )
         {
-            if (priority < routinesQueue.FirstPriority)
+            if (priority > routinesQueue.FirstPriority)
             {
                 yield return null;
                 continue;
             }
-            rb.MovePosition(direction * Time.deltaTime * speed);
+
+            transform.position = Vector3.Lerp(transform.position, destination, Time.deltaTime * speed);
+            if (Vector3.Distance(transform.position, destination) < .4f)
+            {
+                // transform.position = destination;
+                break;
+            }
             yield return null;
         }
+
+        // Fix the final position
+        transform.position = destination;
+
+        // Exit
+        routinesQueue.Dequeue();
+        // print(name + " | MVROUTINE 제거됨 --> " + priority + " 현재 FIRST --> " + routinesQueue.FirstPriority);
+
+        // Call finished event
+        OnFinished?.Invoke();
+        yield break;
     }
+
 
     #endregion
 
     #endregion
 
     #region Formation
-    
-    public void AssignParent(Drone parent)
+
+    /// <summary>
+    /// 드론 Formation의 Index를 계산해주는 함수
+    /// 계산을 많이 요하는 함수이므로 정말 필요한 상황이 아니면 호출하지 마시오!
+    /// </summary>
+    private void UpdateIndex()
     {
-        // Assign
-        droneGroup.Parent = parent;
-
-        // Count the number of child
-        droneGroup.Parent.ChildCount++;
-
-        // Start to following parent
-        FollowParent();
-    }
-
-    // ChildCount를 다시 계산해야 하는 시점이 있음 -> 자식 드론이 폭파할 때
-    public void CalulateChildCount()
-    {
-        ChildCount = 1;
-        if (droneGroup.LeftChild) ChildCount += droneGroup.LeftChild.ChildCount;
-        if (droneGroup.RightChild) ChildCount += droneGroup.RightChild.ChildCount;
-    }
-    #endregion
-
-    #region Path Find
-
-    public class PathFindNode
-    {
-        public Vector3 Position;
-
-        public PathFindNode PreviousPathFindNode;
-
-        public int GCost;
-
-        public PathFindNode(Vector3 Position, PathFindNode PreviousPathFindNode, int GCost)
+        if (formationOrder.Count > 0)
         {
-            this.Position = Position;
-            this.PreviousPathFindNode = PreviousPathFindNode;
-            this.GCost = GCost;
+            formationIndex = formationOrder.ToArray().ToList().IndexOf(this);
+            formationIndex--;
         }
-    }
-
-    private void FindPath(Vector3 endPoint)
-    {
-        SimplePriorityQueue<PathFindNode> openPoints = new SimplePriorityQueue<PathFindNode>();
-        Dictionary<Vector3, PathFindNode> closedPoints = new Dictionary<Vector3, PathFindNode>();
-
-        float gridSize = droneManager.gridSize;
-
-        Vector3 currentVector3 = transform.position;
-        PathFindNode startNode = new PathFindNode(currentVector3, null, 0);
-        openPoints.Enqueue(startNode, 0);
-
-        while (openPoints.Count > 0)
-        {
-            PathFindNode currentNode = openPoints.Dequeue();
-            closedPoints.Add(currentNode.Position, currentNode);
-
-            if (Vector3.Distance(currentNode.Position, endPoint) < 0.02f) break;
-
-            for(int i=0; i<24; i++)
-            {
-                Vector3 neighborVector3 = currentNode.Position + new Vector3(gridSize*dx[i], gridSize*dy[i], gridSize*dz[i]);
-                PathFindNode nextNode = new PathFindNode(neighborVector3, currentNode, currentNode.GCost + 1);
-                float fCost = nextNode.GCost + GetDistance(neighborVector3, endPoint);
-
-                if (Physics.OverlapSphere(neighborVector3, 0.5f).Length > 0) continue;
-                
-                if (closedPoints.TryGetValue(neighborVector3, out PathFindNode node))
-                {
-                    if (fCost < node.GCost + GetDistance(neighborVector3, endPoint))
-                    {
-                        closedPoints.Add(neighborVector3, nextNode);
-                        if (!openPoints.Contains(nextNode)) openPoints.Enqueue(nextNode, fCost);
-                    }
-                }
-            }
-        }
-
         return;
     }
 
-    private float GetDistance(Vector3 node1, Vector3 node2)
+    public void DefineFormation(Queue<Drone> formationOrder, Vector3 indexPosition)
     {
-        return Vector3.Distance(node1, node2);
-    }
+        // 변수 정의
+        int priority = 20;
+        this.formationOrder = formationOrder;
 
-    private Vector3[] RetracePath(PathFindNode startNode, PathFindNode endNode)
-    {
-        List<PathFindNode> path = new List<PathFindNode>();
-        PathFindNode currentNode = endNode;
 
-        while (currentNode != startNode)
+        if (formationOrder.Peek().id.Equals(id)) // 헤드 드론입니다
         {
-            path.Add(currentNode);
-            currentNode = currentNode.PreviousPathFindNode;
+            formationIndex = -1;
+
+            // Build Formation Routine [20] 생성 및 마무리
+            formationPosition = indexPosition;
+            Coroutine routine = StartCoroutine(BuildFormation(formationPosition, priority));
+            routinesQueue.Enqueue(new Routine(routine, priority), priority);
+        }
+        else // 자식 드론입니다
+        {
+            // =================================
+            //      Calculate formation pos
+            // =================================
+
+            // 인덱스 계산
+            UpdateIndex();
+
+            Vector3 destination = indexPosition;
+
+            // 각도 및 반지름 계산
+            float angle = 360f * formationIndex / (formationOrder.Count - 1);
+            float radius = 1.5f / (float)Math.Sin((360 / (formationOrder.Count - 1)) / 2);
+
+            // X좌표는 반지름 * cos(x), z좌표는 반지름 * sin(x)
+            destination.x += radius * (float)Math.Cos(angle * Math.PI / 180);
+            destination.z += radius * (float)Math.Sin(angle * Math.PI / 180);
+
+            // 고유 Y 좌표 부여
+            formationPosition = destination;
+            formationPosition.y += -(formationIndex * 1f);
+
+            // Build Formation Routine [20] 생성 및 마무리
+            Coroutine routine = StartCoroutine(BuildFormation(formationPosition, priority));
+            routinesQueue.Enqueue(new Routine(routine, priority), priority);
+        }
+    }
+    private IEnumerator BuildFormation(Vector3 position, int priority)
+    {
+        List<Node> nodes = droneManager.FindPath(Position, position);
+        DrawLine(nodes);
+
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            while (Vector3.Distance(Position, nodes[i].center) > 1f)
+            {
+                if (priority > routinesQueue.FirstPriority)
+                {
+                    yield return null;
+                    continue;
+                }
+
+                transform.position = Vector3.MoveTowards(transform.position, nodes[i].center, (Time.deltaTime * speed) * 10f);
+                // transform.position = Vector3.Lerp(transform.position, nodes[i].center, Time.deltaTime * speed);
+                yield return null;
+            }
         }
 
-        Vector3[] wayPoints = SimplifyPath(path);
-        Array.Reverse(wayPoints);
-        return wayPoints;
+        // Fomration Routine [+ 10] 생성 및 마무리 -> Formation Routine은 항상 Build Formation 보다 Priority 값이 높아야 한다
+        priority += 10;
+        Coroutine routine = StartCoroutine(FormationRoutine(priority));
+        routinesQueue.Enqueue(new Routine(routine, priority), priority);
+
+
+        // Exit
+        routinesQueue.Dequeue();
+        // print(name + " | MVROUTINE 제거됨 --> " + priority + " 현재 FIRST --> " + routinesQueue.FirstPriority);
+        yield break;
     }
 
-    Vector3[] SimplifyPath(List<PathFindNode> path)
+    private IEnumerator FormationRoutine(int priority)
     {
-        List<Vector3> wayPoints = new List<Vector3>();
-        Vector3 oldVector3 = wayPoints[0];
-        wayPoints.Add(oldVector3);
+        // 라인 삭제
+        ClearLine();
 
-        for(int i=1; i<wayPoints.Count; i++)
+        for (; ; )
         {
-            Vector3 newVector3 = path[i].Position;
-            if (oldVector3 != newVector3) wayPoints.Add(newVector3);
-            oldVector3 = newVector3;
+            if (priority > routinesQueue.FirstPriority)
+            {
+                yield return null;
+                continue;
+            }
+
+            // Formation order가 비워지면 formation 종료를 의미한다
+            if (formationOrder.Count == 0)
+            {
+                // Exit
+                routinesQueue.Dequeue();
+                break;
+            }
+
+            // 부모드론 파괴시 예약된 다음 부모 노드를 받아옵니다
+            if (formationOrder.Peek() == null)
+            {
+                formationOrder.Dequeue();
+
+                // 인덱스 계산
+                UpdateIndex();
+            }
+
+            if (formationOrder.Peek().id.Equals(id)) // 헤드 드론입니다
+            {
+                // Do something in here
+            }
+            else
+            {
+                // Follow
+                Vector3 destination = formationOrder.Peek().HeadPosition;
+
+                // 각도 및 반지름 계산
+                float angle = 360f * formationIndex / (formationOrder.Count - 1);
+                float radius = 1.5f / (float)Math.Sin((360 / (formationOrder.Count - 1)) / 2);
+
+                // X좌표는 반지름 * cos(x), z좌표는 반지름 * sin(x)
+                destination.x += radius * (float)Math.Cos(angle * Math.PI / 180);
+                destination.z += radius * (float)Math.Sin(angle * Math.PI / 180);
+
+                // 고유 Y 좌표 부여
+                formationPosition = destination;
+                formationPosition.y += -(formationIndex * 1f);
+
+                transform.position = Vector3.Lerp(transform.position, formationPosition, Time.deltaTime * speed);
+            }
+
+            // Yield
+            yield return null;
+        }
+        yield break;
+    }
+
+    public void MoveFormation()
+    {
+        if (!formationOrder.Peek().id.Equals(id))
+        {
+            // 헤드 드론이 아니면 Formation 통제 권한을 갖을 수 없습니다.
+            return;
+        }
+    }
+
+    #endregion
+
+    #region Debug
+    private void DrawLine(List<Node> nodes, bool clear = true)
+    {
+        // 경로 기록 삭제 요청
+        if (clear)
+        {
+            ClearLine();
         }
 
-        return wayPoints.ToArray();
-    }
+        // 경로 시각화
+        LineRenderer lr = Instantiate(lineRendererPrefab, lineRendererParent);
+        lr.positionCount = nodes.Count;
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            lr.SetPosition(i, nodes[i].center);
+        }
 
+        // 경로 기록에 추가
+        lineRenderers.Add(lr);
+    }
+    private void DrawLine(List<Vector3> nodes, bool clear = true)
+    {
+        // 경로 기록 삭제 요청
+        if (clear)
+        {
+            ClearLine();
+        }
+
+        // 경로 시각화
+        LineRenderer lr = Instantiate(lineRendererPrefab, lineRendererParent);
+        lr.positionCount = nodes.Count;
+        for (int i = 0; i < nodes.Count; i++)
+        {
+            lr.SetPosition(i, nodes[i]);
+        }
+
+        // 경로 기록에 추가
+        lineRenderers.Add(lr);
+    }
+    private void ClearLine()
+    {
+        int len = lineRenderers.Count;
+        for (int i = 0; i < len; i++)
+        {
+            if (lineRenderers[i] != null) Destroy(lineRenderers[i].gameObject);
+        }
+        lineRenderers.Clear();
+    }
     #endregion
 }
