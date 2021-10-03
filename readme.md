@@ -1,6 +1,12 @@
 # DRONAI
 <img src="https://github.com/osamhack2021/app_web_dronai_62bn/blob/3af0d4a39b5353f4054cd5a518ac02a18db99172/WEB/logo-images/twitter_header_photo_2.png" width = 100% height = 100%>
 
+[![Contributors][contributors-shield]][contributors-url]
+[![Forks][forks-shield]][forks-url]
+[![Stargazers][stars-shield]][stars-url]
+[![Issues][issues-shield]][issues-url]
+[![MIT License][license-shield]][license-url]
+
 ## 프로잭트 소개
 - 드론 전투체계 관리 콘솔
 - [Live Demo](https://dronai.linearjun.com)
@@ -58,3 +64,16 @@ $ yarn start
  * [MIT](https://github.com/osam2020-WEB/Sample-ProjectName-TeamName/blob/master/license.md)
 
 This project is licensed under the terms of the MIT license.
+
+
+<!-- MARKDOWN LINKS & IMAGES -->
+[contributors-shield]: https://img.shields.io/github/contributors/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge
+[contributors-url]: https://github.com/osamhack2021/app_web_dronai_62bn/graphs/contributors
+[forks-shield]: https://img.shields.io/github/forks/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge
+[forks-url]: https://github.com/osamhack2021/app_web_dronai_62bn/network/members
+[stars-shield]: https://img.shields.io/github/stars/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge
+[stars-url]: https://github.com/osamhack2021/app_web_dronai_62bn/stargazers
+[issues-shield]: https://img.shields.io/github/issues/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge
+[issues-url]: https://github.com/osamhack2021/app_web_dronai_62bn/issues
+[license-shield]: https://img.shields.io/github/license/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge
+[license-url]: https://github.com/osamhack2021/app_web_dronai_62bn/blob/master/LICENSE.txt
