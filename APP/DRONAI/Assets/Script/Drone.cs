@@ -359,7 +359,6 @@ public class Drone : Entity
         if (formationOrder.Count > 0)
         {
             formationIndex = formationOrder.ToArray().ToList().IndexOf(this);
-            formationIndex--;
         }
         return;
     }
@@ -392,12 +391,12 @@ public class Drone : Entity
             Vector3 destination = indexPosition;
 
             // 각도 및 반지름 계산
-            float angle = 360f * formationIndex / (formationOrder.Count - 1);
-            float radius = 1.5f / (float)Math.Sin((360 / (formationOrder.Count - 1)) / 2);
+            float radian = 2f * (float)Math.PI / (formationOrder.Count - 1);
+            float radius = 2f / (float)Math.Sin(radian / 2);
 
             // X좌표는 반지름 * cos(x), z좌표는 반지름 * sin(x)
-            destination.x += radius * (float)Math.Cos(angle * Math.PI / 180);
-            destination.z += radius * (float)Math.Sin(angle * Math.PI / 180);
+            destination.x += radius * (float)Math.Cos(radian * formationIndex);
+            destination.z += radius * (float)Math.Sin(radian * formationIndex);
 
             // 고유 Y 좌표 부여
             formationPosition = destination;
@@ -481,12 +480,12 @@ public class Drone : Entity
                 Vector3 destination = formationOrder.Peek().HeadPosition;
 
                 // 각도 및 반지름 계산
-                float angle = 360f * formationIndex / (formationOrder.Count - 1);
-                float radius = 1.5f / (float)Math.Sin((360 / (formationOrder.Count - 1)) / 2);
+                float radian = 2f * (float)Math.PI / (formationOrder.Count - 1);
+                float radius = 2f / (float)Math.Sin(radian / 2);
 
                 // X좌표는 반지름 * cos(x), z좌표는 반지름 * sin(x)
-                destination.x += radius * (float)Math.Cos(angle * Math.PI / 180);
-                destination.z += radius * (float)Math.Sin(angle * Math.PI / 180);
+                destination.x += radius * (float)Math.Cos(radian * formationIndex);
+                destination.z += radius * (float)Math.Sin(radian * formationIndex);
 
                 // 고유 Y 좌표 부여
                 formationPosition = destination;

@@ -272,7 +272,7 @@ public class DroneManager : SerializedMonoBehaviour
             yield return new WaitForSeconds(1f);
         }
 
-        print("잔여 드론 : " + DronePool.PoolListCount());
+        // print("잔여 드론 : " + DronePool.PoolListCount());
     }
 
 
