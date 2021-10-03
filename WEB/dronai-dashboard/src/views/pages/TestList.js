@@ -1,8 +1,10 @@
 import React from 'react';
 // material-ui
-import { Grid, Link, Pagination } from '@material-ui/core';
+import { Grid, Link, Pagination, Avatar} from '@material-ui/core';
 import {DataGrid} from '@material-ui/data-grid';
 import MuiTypography from '@material-ui/core/Typography';
+import { renderEditInputCell } from '@material-ui/data-grid';
+
 
 // project imports
 import SubCard from './../../ui-component/cards/SubCard';
@@ -16,20 +18,26 @@ import imgA from './../../assets/images/logo.png';
 //==============================|| TYPOGRAPHY ||==============================//
 
 const columns = [
-    { field : 'image', headerName : 'Image', width : 300,
-    formatter : ({row}) => <ImageFormatter value = {row.image} /> },
+    { field : 'image', headerName : 'Image', width : 300
+    ,        renderCell: (params) => (
+        //params.value
+        
+        <img src = {`${params.value}`}></img>
+        //<img src="/static/media/logo.011a3aea.png"></img>
+    )
+    },
     { field : 'id', headerName : 'DRONE ID', width : 180},
-    { field : 'detail', headerName : 'Details', width : 800}
+    { field : 'detail', headerName : 'Detail', width : 800}
 ]
 
 const rows = [
-    { image:'./../../assets/images/logo.png', id:1, detail:'Hello, world!'}
+    { image: '/static/media/logo.011a3aea.png', id:1, detail:'Hello, world!'},
+    { image:'i', id:3, detail:'test'}
 ]
 
 function ImageFormatter(value) {
     return (
         <div>
-            <img src={imgA} width="100" height="100" align="middle"/>
             <img src={`url(${value})`} width="100" height="100" align="middle"/>
         </div>
     );
@@ -37,13 +45,17 @@ function ImageFormatter(value) {
 
 const TestList = () => {
     return (
+
+
         <MainCard title="Test List" secondary={<SecondaryAction link="https://next.material-ui.com/system/typography/" />}>
+            
             <Grid container spacing={gridSpacing}>
                 <Grid item xs={12} sm={6}>
                     <SubCard title="Extra">
                         <Grid container direction="column" spacing={1}>
 
 
+                            <img src={imgA} width="16" height="16" align="middle"/>
                             <img src={imgA} width="100" height="100" align="middle"/>
 
                             
@@ -81,6 +93,7 @@ const TestList = () => {
                     </SubCard>
                 </Grid>
             </Grid>
+
 
             <div style ={{height:400, width:'100%'}}>
                                 <DataGrid rows={rows} columns={columns} pageSize={5} checkboxSelection/>
