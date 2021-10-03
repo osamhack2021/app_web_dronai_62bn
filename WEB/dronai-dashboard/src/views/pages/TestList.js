@@ -22,7 +22,7 @@ const columns = [
     ,        renderCell: (params) => (
         //params.value
         
-        <img src = {`${params.value}`}></img>
+        <img src = {`${params.value}`} width="280" height="130"></img>
         //<img src="/static/media/logo.011a3aea.png"></img>
     )
     },
@@ -32,7 +32,12 @@ const columns = [
 
 const rows = [
     { image: '/static/media/logo.011a3aea.png', id:1, detail:'Hello, world!'},
-    { image:'i', id:3, detail:'test'}
+    { image:'i', id:3, detail:'test'},
+    { image: '/static/media/logo.011a3aea.png', id:8, detail:'Hello, world!2'},
+    { image:'i', id:9, detail:'test2'},
+    { image: '/static/media/logo.011a3aea.png', id:11, detail:'Hello, world!3'},
+    { image:'i', id:23, detail:'test3'},
+    { image:'/static/media/profile.664db376.jpg', id:5, detail:'test4'}
 ]
 
 function ImageFormatter(value) {
@@ -49,7 +54,7 @@ const TestList = () => {
 
         <MainCard title="Test List" secondary={<SecondaryAction link="https://next.material-ui.com/system/typography/" />}>
             
-            <Grid container spacing={gridSpacing}>
+            {/* <Grid container spacing={gridSpacing}>
                 <Grid item xs={12} sm={6}>
                     <SubCard title="Extra">
                         <Grid container direction="column" spacing={1}>
@@ -92,12 +97,12 @@ const TestList = () => {
                         </Grid>
                     </SubCard>
                 </Grid>
-            </Grid>
+            </Grid> */}
 
 
-            <div style ={{height:400, width:'100%'}}>
-                                <DataGrid rows={rows} columns={columns} pageSize={5} checkboxSelection/>
-                            </div>
+            <div style ={{height:800, width:'100%'}}>
+                <DataGrid rows={rows} columns={columns} rowHeight={150} pageSize={5} checkboxSelection/>
+            </div>
 
             {/* <Pagination count={10} color="primary" /> */}
 
