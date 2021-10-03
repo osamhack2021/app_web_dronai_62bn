@@ -4,6 +4,7 @@
 ## 프로잭트 소개
 - 드론 전투체계 관리 콘솔
 - [Live Demo](https://dronai.linearjun.com)
+- [실시간 기획](https://dronai.notion.site/dronai/DRONAI-44534bc31aac4efaa2b24e3480d71581)
 
 
 ## 기능 설명
