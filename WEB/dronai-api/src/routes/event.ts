@@ -70,6 +70,15 @@ router.post('/add', (req, res) => {
     });
 });
 
+router.get('/get', (_req, res) => {
+    const eventRepository = connection!.getRepository(Event);
+
+    eventRepository.find({}).then((events) => {
+        res.json({ success: true, events });
+    }).catch(() => res.json({ success: false, msg: "요청 실패" }));
+
+});
+
 router.get('/test', (_req, res) => {
     res.status(200).json({ success: true, msg: '이벤트 API 정상' });
 });

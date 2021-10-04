@@ -109,7 +109,7 @@ namespace Dronai.Path
                     {
                         if (path.Contains(n))
                         {
-                            
+                            Gizmos.color = Color.blue;
                         }
                     }
 

@@ -180,7 +180,14 @@ public class UI : MonoBehaviour
             return;
         }
 
-        
+        string[] astarTestMove = dronePosInput.text.Split(',');
+        if (astarTestMove.Length != 3) {
+            print("Please re-enter");
+            return;
+        }
+
+        Vector3 astarPos = new Vector3(float.Parse(astarTestMove[0]), float.Parse(astarTestMove[1]), float.Parse(astarTestMove[2]));
+        droneManager.DroneDic[droneIdInput.text].astarPathFind(astarPos);
     }
 
     #region Functions

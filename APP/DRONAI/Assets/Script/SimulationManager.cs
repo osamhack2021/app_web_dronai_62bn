@@ -17,6 +17,7 @@ public class SimulationManager : Singleton<SimulationManager>
     private void UpdateEditor()
     {
         if (droneManager == null) droneManager = FindObjectOfType<DroneManager>();
+        if (cameraManager == null) cameraManager = FindObjectOfType<CameraManager>();
         if (ui == null) ui = FindObjectOfType<UI>();
     }
 

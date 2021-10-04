@@ -94,7 +94,7 @@ public class DroneManager : SerializedMonoBehaviour
     [SerializeField, BoxGroup("DEBUG")] private LineRenderer lineRendererPrefab = default;
     private List<LineRenderer> lineRenderers = new List<LineRenderer>();
 
-    [BoxGroup("OBJECTS"), SerializeField] private Dictionary<string, Drone> droneDic = new Dictionary<string, Drone>();
+    [BoxGroup("OBJECTS"), SerializeField] public Dictionary<string, Drone> DroneDic = new Dictionary<string, Drone>();
     [BoxGroup("OBJECTS"), OdinSerialize] public Pool DronePool = new Pool();
 
 
@@ -137,7 +137,7 @@ public class DroneManager : SerializedMonoBehaviour
                 target.Initialize(droneName, 0.5f, this);
 
                 // Adding a drone to dictionary and pool
-                droneDic.Add(droneName, target);
+                DroneDic.Add(droneName, target);
                 DronePool.PushToPool(target);
 
                 // Fliping the spawning position
@@ -153,15 +153,15 @@ public class DroneManager : SerializedMonoBehaviour
     private void Cleanup()
     {
         // Clearing the drone list
-        if (droneDic.Count > 0)
+        if (DroneDic.Count > 0)
         {
-            foreach (Drone target in droneDic.Values)
+            foreach (Drone target in DroneDic.Values)
             {
                 if (target == null) continue;
                 if (Application.isEditor) DestroyImmediate(target.gameObject);
                 else if (Application.isPlaying) Destroy(target.gameObject);
             }
-            droneDic.Clear();
+            DroneDic.Clear();
         }
 
         // Clearing the drone pool
@@ -196,7 +196,7 @@ public class DroneManager : SerializedMonoBehaviour
 
 
         // 드론 부트 업 [대기 상태]
-        foreach (Drone target in droneDic.Values)
+        foreach (Drone target in DroneDic.Values)
         {
             target.MoveUp(4f);
             yield return new WaitForSeconds(0.1f);
@@ -211,7 +211,7 @@ public class DroneManager : SerializedMonoBehaviour
     #region Physics
     public void MoveSingleDrone(string id, Vector3 position)
     {
-        droneDic[id].MoveTo(position);
+        DroneDic[id].MoveTo(position);
     }
 
     #endregion
@@ -339,16 +339,16 @@ public class DroneManager : SerializedMonoBehaviour
     #region Getter and Setter
     public bool ContainsDrone(string id)
     {
-        return droneDic.ContainsKey(id);
+        return DroneDic.ContainsKey(id);
     }
     public Vector3 GetDronePositionById(string id)
     {
-        return droneDic[id].transform.position;
+        return DroneDic[id].transform.position;
     }
     public List<string> GetDronesId()
     {
         List<string> result = new List<string>();
-        foreach (KeyValuePair<string, Drone> target in droneDic)
+        foreach (KeyValuePair<string, Drone> target in DroneDic)
         {
             result.Add(target.Value.GetID());
         }
@@ -365,7 +365,7 @@ public class DroneManager : SerializedMonoBehaviour
     /// <param name="droneId">드론 아이디</param>
     public void DestroyDrone(string droneId)
     {
-        Drone target = droneDic[droneId];
+        Drone target = DroneDic[droneId];
         target.OnDroneCollapsed(gameObject);
     }
 

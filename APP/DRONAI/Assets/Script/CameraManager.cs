@@ -15,7 +15,7 @@ public class CameraManager : MonoBehaviour
     public void Initialize()
     {
         if (cameraRoutine != null) StopCoroutine(cameraRoutine);
-        cameraRoutine = StartCoroutine(CameraRoutine());
+        // cameraRoutine = StartCoroutine(CameraRoutine());
     }
 
     public void ChangeFollower(Transform target)

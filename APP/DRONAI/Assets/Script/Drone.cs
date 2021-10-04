@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using PriorityQueue;
 using Sirenix.OdinInspector;
+using Dronai.Path;
 
 
 public class Drone : Entity
@@ -507,6 +508,17 @@ public class Drone : Entity
             // 헤드 드론이 아니면 Formation 통제 권한을 갖을 수 없습니다.
             return;
         }
+    }
+
+    #endregion
+
+    #region Path find
+
+    private AstarPathFinding astarPathFinding = default;
+
+    public void astarPathFind(Vector3 destination)
+    {
+        astarPathFinding.FindPath(transform.position, destination);
     }
 
     #endregion

@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -9,7 +10,7 @@ namespace Dronai.Path
     {
         [SerializeField] private AstarGrid grid = default;
 
-        private void FindPath(Vector3 startPos, Vector3 targetPos)
+        public void FindPath(Vector3 startPos, Vector3 targetPos)
         {
             AstarNode startNode = grid.NodeFromWorldPoint(startPos);
             AstarNode targetNode = grid.NodeFromWorldPoint(targetPos);
@@ -76,17 +77,26 @@ namespace Dronai.Path
             grid.path = path;
         }
 
+        private void swap(ref int num1, ref int num2)
+        {
+            int temp = num1;
+            num1 = num2;
+            num2 = temp;
+        }
+
         public int GetDistance(AstarNode nodeA, AstarNode nodeB)
         {
-            int dstX = Mathf.Abs(nodeA.GridX - nodeB.GridX);
-            int dstY = Mathf.Abs(nodeA.GridY - nodeB.GridY);
-            int dstZ = Mathf.Abs(nodeA.GridZ - nodeB.GridZ);
+            int dx = (int)Math.Abs(nodeA.GridX - nodeB.GridX);
+            int dy = (int)Math.Abs(nodeA.GridY - nodeB.GridY);
+            int dz = (int)Math.Abs(nodeA.GridZ - nodeB.GridZ);
 
-            if (dstX > dstY)
-            {
-                return 14 * dstY + 10 * (dstX - dstY);
-            }
-            return 14 * dstX + 10 * (dstY - dstX);
+            // make (dx, dy, dz) to (dx > dy > dz)
+            if (dx < dy) swap(ref dx, ref dy);
+            if (dx < dz) swap(ref dz, ref dz);
+            if (dy < dz) swap(ref dy, ref dz);
+
+            // sqrt(3) = 1.7xxx, sqrt(2) = 1.4xxx
+            return 17 * dz + 14 * (dy - dz) + 10 * (dx - dy - dz);
         }
     }
 }
