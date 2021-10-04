@@ -202,6 +202,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3bd1db292fd116449ac12109cb7cc3df, type: 2}
   RootSentence: '[F]--F'
   IterationLimit: 2
+  randomIgnoreRuleModifier: 1
+  changeToIgnoreRule: 0.3
 --- !u!4 &487589179
 Transform:
   m_ObjectHideFlags: 0

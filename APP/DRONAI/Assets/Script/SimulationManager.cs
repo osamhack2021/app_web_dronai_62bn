@@ -11,12 +11,13 @@ public class SimulationManager : Singleton<SimulationManager>
 
     // Components
     [BoxGroup("Components"), SerializeField] private DroneManager droneManager = default;
+    [BoxGroup("Components"), SerializeField] private CameraManager cameraManager = default;
     [BoxGroup("Components"), SerializeField] private UI ui = default;
     [BoxGroup("Components"), Button("Refresh", ButtonSizes.Large)]
     private void UpdateEditor()
     {
-        if(droneManager==null) droneManager = FindObjectOfType<DroneManager>();
-        if(ui==null) ui = FindObjectOfType<UI>();
+        if (droneManager == null) droneManager = FindObjectOfType<DroneManager>();
+        if (ui == null) ui = FindObjectOfType<UI>();
     }
 
 
@@ -26,7 +27,8 @@ public class SimulationManager : Singleton<SimulationManager>
 
 
     #region Life cycle
-    private void Start() {
+    private void Start()
+    {
         Initialize();
     }
 
@@ -41,6 +43,7 @@ public class SimulationManager : Singleton<SimulationManager>
 
         // Intialize components
         droneManager.Initialize();
+        cameraManager.Initialize();
         ui.Initialize();
 
         // Finalize
