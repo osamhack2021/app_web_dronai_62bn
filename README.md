@@ -46,7 +46,9 @@
 
 
 ## 기능 설명
- - 설명 기입
+> 설명 기입
+
+<img src="https://forum.linearjun.com/files/attach/images/2021/09/19/edc0ad5dff9ddd4be2f6486d670807a2.gif" height="10%" width="10%"></img>
 
 
 ## 컴퓨터 구성 / 필수 조건 안내 (Prerequisites)
