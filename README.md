@@ -40,7 +40,7 @@
 
  
 ## 프로잭트 소개
-> 드론 전투체계 관리 콘솔
+> 드론 전투체계를 통합적으로 관리하는 플랫폼이다. 
 
 <img src="https://media.wired.com/photos/59327007a312645844994da4/master/w_1600,c_limit/shadows2.gif"></img>
 
