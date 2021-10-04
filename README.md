@@ -17,7 +17,7 @@
     ·
     <a href="https://dronai.notion.site/dronai/DRONAI-44534bc31aac4efaa2b24e3480d71581">Notion</a>
     ·
-    <a href="https://coreax7.gitbook.io/dronai/">Documents</a>
+    <a href="https://app.gitbook.com/@dronai/s/dronai/~/drafts/-Ml9OczkzTSS0yiVIhcc/undefined-4/undefined-1/@drafts">Documents</a>
     <br />
     <br />
     <a href="https://github.com/osamhack2021/app_web_dronai_62bn/graphs/contributors">
