@@ -33,7 +33,7 @@
       <img src="https://img.shields.io/github/issues/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge"/>
     </a>
     <a href="https://github.com/osamhack2021/app_web_dronai_62bn/blob/master/license.md">
-      <img src="https://img.shields.io/github/license/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge"/>
+      <img src="https://img.shields.io/github/license/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge" />
     </a>
   </p>
 </div>
