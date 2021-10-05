@@ -1,10 +1,11 @@
-using System;
-using System.Collections;
-using System.Collections.Generic;
-using Sirenix.OdinInspector;
-using Sirenix.Serialization;
 using UnityEngine;
 using System.Linq;
+using System.Collections;
+using System.Collections.Generic;
+using Dronai.Path;
+using Sirenix.OdinInspector;
+using Sirenix.Serialization;
+using System;
 
 public class DroneManager : SerializedMonoBehaviour
 {
@@ -83,7 +84,7 @@ public class DroneManager : SerializedMonoBehaviour
 
     [SerializeField, BoxGroup("PATH FINDER SETTING")] private GameObject worldMap = default;
     [SerializeField, BoxGroup("PATH FINDER SETTING")] private float mapSize = 16;
-    [SerializeField, BoxGroup("PATH FINDER SETTING")] private int octreeLevel = 8;
+    [SerializeField, BoxGroup("PATH FINDER SETTING")] private int octreeLevel = 8; // 8을 초과한 값을 넣지 않는 편이 좋음
     [SerializeField, BoxGroup("PATH FINDER SETTING")] private Vector3 worldCenter = Vector3.zero;
     [SerializeField, BoxGroup("PATH FINDER SETTING")] private Graph.GraphType graphType = default;
     [SerializeField, BoxGroup("PATH FINDER SETTING")] private bool progressive = true;
@@ -285,6 +286,10 @@ public class DroneManager : SerializedMonoBehaviour
         Graph.PathFindingMethod method = spaceGraph.ThetaStar;
         List<Node> path = spaceGraph.FindPath(method, start, destination, space);
         return path;
+    }
+    public void FindDynamicPath(Vector3 start, Vector3 destination, Action<Vector3[], bool> result)
+    {
+        AstarPathRequestManager.RequestPath(start, destination, result);
     }
     #endregion
 

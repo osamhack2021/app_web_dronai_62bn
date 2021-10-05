@@ -1,18 +1,20 @@
-﻿using System;
+﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static Dronai.Procedural.SimpleVisualizer;
 
 namespace Dronai.Procedural
 {
-    public class SimpleVisualizer : MonoBehaviour
-    {
+	public class Visualizer : MonoBehaviour
+	{
         public LSystemGenerator lsystem;
-        List<Vector3> positions = new List<Vector3>();
-        public GameObject prefab;
-        public Material lineMaterial;
 
+        public RoadHelper roadHelper;
+        public StructureHelper structureHelper;
+        public int roadLength = 8;
         private int length = 8;
         private float angle = 90;
+        private bool waitingForTheRoad = false;
 
         public int Length
         {
@@ -32,11 +34,20 @@ namespace Dronai.Procedural
 
         private void Start()
         {
-            var sequence = lsystem.GenerateSentence();
-            VisualizeSequence(sequence);
+            roadHelper.finishedCoroutine += () => waitingForTheRoad = false;
+            CreateTown();
         }
 
-        private void VisualizeSequence(string sequence)
+        public void CreateTown()
+        {
+            length = roadLength;
+            roadHelper.Reset();
+            structureHelper.Reset();
+            var sequence = lsystem.GenerateSentence();
+            StartCoroutine(VisualizeSequence(sequence));
+        }
+
+        private IEnumerator VisualizeSequence(string sequence)
         {
             Stack<AgentParameters> savePoints = new Stack<AgentParameters>();
             var currentPosition = Vector3.zero;
@@ -44,10 +55,13 @@ namespace Dronai.Procedural
             Vector3 direction = Vector3.forward;
             Vector3 tempPosition = Vector3.zero;
 
-            positions.Add(currentPosition);
 
             foreach (var letter in sequence)
             {
+                if (waitingForTheRoad)
+                {
+                    yield return new WaitForEndOfFrame();
+                }
                 EncodingLetters encoding = (EncodingLetters)letter;
                 switch (encoding)
                 {
@@ -75,9 +89,11 @@ namespace Dronai.Procedural
                     case EncodingLetters.draw:
                         tempPosition = currentPosition;
                         currentPosition += direction * length;
-                        DrawLine(tempPosition, currentPosition, Color.red);
+                        StartCoroutine(roadHelper.PlaceStreetPositions(tempPosition, Vector3Int.RoundToInt(direction), length));
+                        waitingForTheRoad = true;
+                        yield return new WaitForEndOfFrame();
+
                         Length -= 2;
-                        positions.Add(currentPosition);
                         break;
                     case EncodingLetters.turnRight:
                         direction = Quaternion.AngleAxis(angle, Vector3.up) * direction;
@@ -89,38 +105,12 @@ namespace Dronai.Procedural
                         break;
                 }
             }
+            yield return new WaitForSeconds(0.1f);
+            roadHelper.FixRoad();
+            yield return new WaitForSeconds(0.8f);
+            StartCoroutine(structureHelper.PlaceStructuresAroundRoad(roadHelper.GetRoadPositions()));
 
-            foreach (var position in positions)
-            {
-                Instantiate(prefab, position, Quaternion.identity);
-            }
-
-        }
-
-        private void DrawLine(Vector3 start, Vector3 end, Color color)
-        {
-            GameObject line = new GameObject("line");
-            line.transform.position = start;
-            var lineRenderer = line.AddComponent<LineRenderer>();
-            lineRenderer.material = lineMaterial;
-            lineRenderer.startColor = color;
-            lineRenderer.endColor = color;
-            lineRenderer.startWidth = 0.1f;
-            lineRenderer.endWidth = 0.1f;
-            lineRenderer.SetPosition(0, end);
-            lineRenderer.SetPosition(1, start);
-        }
-
-        public enum EncodingLetters
-        {
-            unknown = '1',
-            save = '[',
-            load = ']',
-            draw = 'F',
-            turnRight = '+',
-            turnLeft = '-'
         }
     }
 }
-
 

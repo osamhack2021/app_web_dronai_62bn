@@ -514,11 +514,9 @@ public class Drone : Entity
 
     #region Path find
 
-    private AstarPathFinding astarPathFinding = default;
-
-    public void astarPathFind(Vector3 destination)
+    private void FindDynamicPath(Vector3 destination)
     {
-        astarPathFinding.FindPath(transform.position, destination);
+
     }
 
     #endregion

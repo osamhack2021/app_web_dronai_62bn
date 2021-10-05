@@ -7,19 +7,17 @@ namespace Dronai.Path
 {
     public class AstarGrid : MonoBehaviour
     {
-
+        [SerializeField] private bool displayGridGizmos = false;
         [SerializeField] private LayerMask unwalkableMask = default;
-        [SerializeField] private Vector3 gridWorldSize = default;
-        [SerializeField] private float nodeRadius = default;
+        [SerializeField] private Vector3 gridWorldSize = new Vector3(60, 60, 60);
+        [SerializeField] private float nodeRadius = 0.5f;
 
         private AstarNode[,,] grid = default;
         private float nodeDiameter = default;
         private int gridSizeX, gridSizeY, gridSizeZ;
-        public List<AstarNode> path;
 
 
-
-        private void Start()
+        private void Awake()
         {
             nodeDiameter = nodeRadius * 2f;
             gridSizeX = Mathf.RoundToInt(gridWorldSize.x / nodeDiameter);
@@ -27,6 +25,14 @@ namespace Dronai.Path
             gridSizeZ = Mathf.RoundToInt(gridWorldSize.z / nodeDiameter);
 
             CreateGrid();
+        }
+
+        public int MaxSize
+        {
+            get
+            {
+                return gridSizeX * gridSizeY * gridSizeZ;
+            }
         }
 
         private void CreateGrid()
@@ -100,19 +106,11 @@ namespace Dronai.Path
         {
             Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x, gridWorldSize.y, gridWorldSize.z));
 
-            if (grid != null)
+            if (grid != null && displayGridGizmos)
             {
                 foreach (AstarNode n in grid)
                 {
                     Gizmos.color = (n.Walkable) ? Color.white : Color.red;
-                    if (path != null)
-                    {
-                        if (path.Contains(n))
-                        {
-                            Gizmos.color = Color.blue;
-                        }
-                    }
-
                     Gizmos.DrawCube(n.WorldPosition, Vector3.one * (nodeDiameter - .2f));
                 }
             }

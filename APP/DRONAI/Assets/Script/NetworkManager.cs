@@ -19,6 +19,7 @@ namespace Dronai.Network
 
         // Resources
         [SerializeField] private string serverPath = "ds.linearjun.com";
+        [SerializeField] private string fileName = string.Empty;
 
 
         private void Awake()
@@ -41,7 +42,7 @@ namespace Dronai.Network
         {
             if (Input.GetKeyDown(KeyCode.U))
             {
-                StartCoroutine(AddEvent("Drone_Test", "ADD API 테스트입니다", Application.dataPath + "/Design/Images/Tile.png"));
+                StartCoroutine(AddEvent("Drone_Test", "ADD API 테스트입니다", Application.dataPath + "/Design/Images/" + fileName));
             }
         }
 
@@ -52,11 +53,12 @@ namespace Dronai.Network
 
         private IEnumerator TestConnectionRoutine(Action<bool> success = null)
         {
-            if (ws == null) {
+            if (ws == null)
+            {
                 success?.Invoke(false);
                 yield break;
             }
-            
+
             // 웹 Reqeust 시작
             using (UnityWebRequest www = UnityWebRequest.Get(serverPath + "/api/event/test"))
             {

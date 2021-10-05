@@ -116,7 +116,7 @@ MonoBehaviour:
   droneSensors: []
   startX: 1
   startZ: 1
-  ReconnaissancePosition: {x: 0, y: 0, z: 0}
+  formationPosition: {x: 0, y: 0, z: 0}
   formationIndex: 1
   lineRendererPrefab: {fileID: 7378745952638780769, guid: eec883c0956876340881b11eb992f386, type: 3}
   lineRendererParent: {fileID: 8811604182373490286}
@@ -152,7 +152,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4884309652601251009}
   m_RootOrder: 1
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 234, z: -27.060005}
 --- !u!33 &1390957915240066277
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -234,7 +234,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4884309652601251009}
   m_RootOrder: 4
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 234, z: -27.060005}
 --- !u!33 &2502949435350840081
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -524,7 +524,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4884309652601251009}
   m_RootOrder: 2
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 234, z: -27.060005}
 --- !u!33 &7322530887343728218
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -636,7 +636,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4884309652601251009}
   m_RootOrder: 6
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 234, z: -27.060005}
 --- !u!33 &3440342465911255502
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -749,7 +749,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4884309652601251009}
   m_RootOrder: 3
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 234, z: -27.060005}
 --- !u!33 &5027313208562968714
 MeshFilter:
   m_ObjectHideFlags: 0
@@ -891,6 +891,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4884309652601251009}
+  - component: {fileID: 556900202233544124}
   m_Layer: 6
   m_Name: Root
   m_TagString: Untagged
@@ -919,6 +920,25 @@ Transform:
   m_Father: {fileID: 5420010023230610976}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!95 &556900202233544124
+Animator:
+  serializedVersion: 3
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7918415936674909763}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 5ff822240c2322244aeaf59404ddd0ef, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorControllerStateOnDisable: 0
 --- !u!1 &8165820210815671633
 GameObject:
   m_ObjectHideFlags: 0
@@ -1033,7 +1053,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4884309652601251009}
   m_RootOrder: 5
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_LocalEulerAnglesHint: {x: -90, y: 234, z: -27.060005}
 --- !u!33 &1627886512419947783
 MeshFilter:
   m_ObjectHideFlags: 0
