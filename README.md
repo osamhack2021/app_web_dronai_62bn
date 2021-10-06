@@ -87,7 +87,7 @@
 <p>DRONAI는 컴파일된 프로그램뿐만 아니라 개발단계에서 필요한 에디터 화면에서도 여러 가지 기능을 제공한다.</p>
 <p>앞으로 에디터에서만 동작하는 기능들에 대해서는 <b>EDITOR</b>라는 약어를 붙이겠다.</p>
 
-<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"><img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
 
 <h3 id="runtime">런타임 / RUNTIME</h3>
 <blockquote>런타임에서 동작하는 기능</blockquote>
@@ -95,7 +95,7 @@
 <p>컴파일 및 빌드 된 DRONAI 시뮬레이션이 실질적으로 사용자에게 제공하는 기능들이다.</p>
 <p>앞으로 런타임에서 동작하는 기능들에 대해서는 <b>RUNTIME</b>이라는 약어를 붙이겠다.</p>
 
-<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"><img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
 
 <h3 id="drone_auto_locate">드론 자동배치 기능 (EDITOR)</h3>
 <blockquote>원하는 사이즈와 높이, 생성 빈도에 맞추어 초기 드론 그룹을 자동으로 생성해 준다</blockquote>
