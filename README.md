@@ -60,14 +60,46 @@
 
 > 드론 전투체계를 통합적으로 관리하는 플랫폼이다. 
 
-<img src="https://media.wired.com/photos/59327007a312645844994da4/master/w_1600,c_limit/shadows2.gif"></img>
+<img src="https://media.wired.com/photos/59327007a312645844994da4/master/w_1600,c_limit/shadows2.gif" height="100%" width="100%"></img>
 
 
 <h2 id="features"> :mag: 기능 설명</h2>
+<blockquote>DRONAI에서 제공하는 기능에 대해 기술하는 영역</blockquote>
 
-> 설명 기입
+<details open="open">
+  <ul>
+    <li>클라이언트</li>
+      <ul>
+        <li><a href="#editor">에디터<a/></li>
+        <li><a href="#runtime">런타임<a/></li>
+        <li><a href="#drone_auto_locate">드론 자동배치 기능 (EDITOR)</a></li>
+        <li>etc...</li>
+      </ul>
+    <li>웹 대시보드</li>
+  </ul>
+</details>
 
-<img src="https://forum.linearjun.com/files/attach/images/2021/09/19/edc0ad5dff9ddd4be2f6486d670807a2.gif" height="10%" width="10%"></img>
+<hr>
+
+<h3 id="editor">Editor / 에디터</h3>
+<blockquote>에디터에서만 동작하는 기능</blockquote>
+<img src="https://user-images.githubusercontent.com/36218321/136125123-456be0a1-2ec2-4318-bdbd-280101349366.PNG"></img>
+<p>DRONAI 프로젝트는 컴파일 된 프로그램뿐만이 아니라 개발단계에서 필요한 에디터 화면에서도 여러가지 기능을 제공한다.</p>
+<p>앞으로 에디터에서만 동작하는 기능들에 대해서는 <b>EDITOR</b>라는 약어를 붙히겠다.</p>
+
+<hr>
+
+<h3 id="runtime">Runtime / 런타임</h3>
+<blockquote>런타임에서 동작하는 기능</blockquote>
+<img src="https://user-images.githubusercontent.com/36218321/136126788-88a8390a-6601-414f-b694-a977e0409abf.gif"></img>
+<p>컴파일 및 빌드 된 DRONAI 시뮬레이션이 실질적으로 사용자에게 제공하는 기능들이다</p>
+<p>앞으로 런타임에서 동작하는 기능들에 대해서는 <b>RUNTIME</b>이라는 약어를 붙히겠다.</p>
+
+<hr>
+
+<h3 id="drone_auto_locate">드론 자동배치 기능</h3>
+<blockquote>원하는 사이즈와 높이, 생성 빈도에 맞추어 초기 드론 그룹을 자동으로 생성해 준다</blockquote>
+<img src="https://user-images.githubusercontent.com/36218321/136124125-f10d4fd4-4b9d-434a-b224-375c17981f74.gif"></img>
 
 <h2 id="prerequisites"> :computer: 컴퓨터 구성 / 필수 조건 안내 (Prerequisites)</h2>
 
