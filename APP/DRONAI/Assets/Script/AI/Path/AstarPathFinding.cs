@@ -32,6 +32,8 @@ namespace Dronai.Path
 
             AstarNode startNode = grid.NodeFromWorldPoint(startPos);
             AstarNode targetNode = grid.NodeFromWorldPoint(targetPos);
+            startNode.Parent = startNode;
+
 
             if (startNode.Walkable && targetNode.Walkable)
             {
@@ -59,7 +61,7 @@ namespace Dronai.Path
                             continue;
                         }
 
-                        int newMovementCostToNeighbour = currentNode.gCost + GetDistance(currentNode, neighbour);
+                        int newMovementCostToNeighbour = currentNode.gCost + GetDistance(currentNode, neighbour) + neighbour.MovementPenalty;
                         if (newMovementCostToNeighbour < neighbour.gCost || !openSet.Contains(neighbour))
                         {
                             neighbour.gCost = newMovementCostToNeighbour;
@@ -69,6 +71,10 @@ namespace Dronai.Path
                             if (!openSet.Contains(neighbour))
                             {
                                 openSet.Add(neighbour);
+                            }
+                            else
+                            {
+                                openSet.UpdateItem(neighbour);
                             }
                         }
                     }
@@ -83,12 +89,10 @@ namespace Dronai.Path
             requestManager.FinishedProcessingPath(waypoints, pathSucess);
         }
 
-
         private Vector3[] RetracePath(AstarNode startNode, AstarNode endNode)
         {
             List<AstarNode> path = new List<AstarNode>();
             AstarNode currentNode = endNode;
-
             while (currentNode != startNode)
             {
                 path.Add(currentNode);
@@ -97,7 +101,6 @@ namespace Dronai.Path
             Vector3[] waypoints = SimplifyPath(path);
             Array.Reverse(waypoints);
             return waypoints;
-
         }
 
         private Vector3[] SimplifyPath(List<AstarNode> path)
@@ -105,16 +108,11 @@ namespace Dronai.Path
             List<Vector3> waypoints = new List<Vector3>();
             Vector3 directionOld = Vector3.zero;
 
+            waypoints.Add(path[0].WorldPosition);
             for (int i = 1; i < path.Count; i++)
             {
-                Vector3 directionNew =
-                new Vector3(
-                    path[i - 1].GridX - path[i].GridX,
-                    path[i - 1].GridY - path[i].GridY,
-                    path[i - 1].GridZ - path[i].GridZ
-                );
-
-                if(directionNew != directionOld)
+                Vector3 directionNew = new Vector3(path[i - 1].GridX - path[i].GridX, path[i - 1].GridY - path[i].GridY, path[i - 1].GridZ - path[i].GridZ);
+                if (directionNew != directionOld)
                 {
                     waypoints.Add(path[i].WorldPosition);
                 }

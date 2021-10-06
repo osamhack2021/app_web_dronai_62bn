@@ -7,10 +7,21 @@ namespace Dronai.Path
 {
     public class AstarGrid : MonoBehaviour
     {
+
+        [System.Serializable]
+        public class TerrainType
+        {
+            public LayerMask TerrainMask;
+            public int TerrainPenalty;
+        }
+
         [SerializeField] private bool displayGridGizmos = false;
         [SerializeField] private LayerMask unwalkableMask = default;
-        [SerializeField] private Vector3 gridWorldSize = new Vector3(60, 60, 60);
-        [SerializeField] private float nodeRadius = 0.5f;
+        [SerializeField] private Vector3 gridWorldSize = default;
+        [SerializeField] private float nodeRadius = 1f;
+        [SerializeField] private TerrainType[] walkableRegions = default;
+        private LayerMask walkableMask = default;
+        private Dictionary<int, int> walkableRegionsDictionary = new Dictionary<int, int>();
 
         private AstarNode[,,] grid = default;
         private float nodeDiameter = default;
@@ -23,6 +34,12 @@ namespace Dronai.Path
             gridSizeX = Mathf.RoundToInt(gridWorldSize.x / nodeDiameter);
             gridSizeY = Mathf.RoundToInt(gridWorldSize.y / nodeDiameter);
             gridSizeZ = Mathf.RoundToInt(gridWorldSize.z / nodeDiameter);
+
+            foreach(TerrainType region in walkableRegions)
+            {
+                walkableMask.value |= region.TerrainMask.value;
+                walkableRegionsDictionary.Add((int)Mathf.Log(region.TerrainMask.value, 2), region.TerrainPenalty);
+            }
 
             CreateGrid();
         }
@@ -48,7 +65,20 @@ namespace Dronai.Path
                     {
                         Vector3 worldPoint = worldBottomLeft + Vector3.right * (x * nodeDiameter + nodeRadius) + Vector3.up * (y * nodeDiameter + nodeRadius) + Vector3.forward * (z * nodeDiameter + nodeRadius);
                         bool walkable = !(Physics.CheckSphere(worldPoint, nodeRadius, unwalkableMask));
-                        grid[x, y, z] = new AstarNode(walkable, worldPoint, x, y, z);
+
+                        int movementPenalty = 0;
+
+                        if(walkable)
+                        {
+                            Ray ray = new Ray(worldPoint + Vector3.up * 50, Vector3.down);
+                            RaycastHit hit;
+                            if(Physics.Raycast(ray, out hit, 100, walkableMask))
+                            {
+                                walkableRegionsDictionary.TryGetValue(hit.collider.gameObject.layer, out movementPenalty);
+                            }
+                        }
+
+                        grid[x, y, z] = new AstarNode(walkable, worldPoint, x, y, z, movementPenalty);
                     }
                 }
             }
@@ -102,19 +132,18 @@ namespace Dronai.Path
             return grid[x, y, z];
         }
 
-        private void OnDrawGizmos()
+        void OnDrawGizmos()
         {
             Gizmos.DrawWireCube(transform.position, new Vector3(gridWorldSize.x, gridWorldSize.y, gridWorldSize.z));
-
             if (grid != null && displayGridGizmos)
             {
                 foreach (AstarNode n in grid)
                 {
                     Gizmos.color = (n.Walkable) ? Color.white : Color.red;
-                    Gizmos.DrawCube(n.WorldPosition, Vector3.one * (nodeDiameter - .2f));
+                    Gizmos.DrawCube(n.WorldPosition, Vector3.one * (nodeDiameter - .1f));
                 }
             }
-        }
+	}
     }
 }
 

@@ -83,6 +83,7 @@ public class Drone : Entity
 
     // Routines
     private SimplePriorityQueue<Routine> routinesQueue = new SimplePriorityQueue<Routine>();
+    private Coroutine pathFindingRoutine = default;
 
 
     #endregion
@@ -514,9 +515,53 @@ public class Drone : Entity
 
     #region Path find
 
+    [Button]
+    private void FindDynamicPathDebug()
+    {
+        FindDynamicPath(new Vector3(5,5,5));
+    }
     private void FindDynamicPath(Vector3 destination)
     {
+        // 항상 기존 경로 탐색 루틴을 죽이고 새로 탐색합니다
+        if(pathFindingRoutine != null) StopCoroutine(pathFindingRoutine);
+        pathFindingRoutine = StartCoroutine(FindDynamicPathRoutine(destination));
+    }
+    private IEnumerator FindDynamicPathRoutine(Vector3 destination)
+    {
+        // Variables
+        bool isFinding = true;
+        bool findable = false;
+        Vector3[] foundedPath = default;
 
+        print("시작 " + Position);
+        droneManager.FindDynamicPath(Position, destination, (Vector3[] path, bool result) =>
+        {
+            foundedPath = path;
+            findable = result;
+            isFinding = false;
+        });
+
+        // 경로 탐색 중...
+        while(isFinding)
+        {
+            yield return null;
+        }
+
+        if(findable)
+        {
+            foreach(Vector3 node in foundedPath)
+            {
+                print(node);
+            }
+            DrawLine(foundedPath.ToList(), true);
+        }
+        else
+        {
+            print("[A* Dyanamic] 경로 탐색 실패, 가능한 경로가 없습니다!");
+        }
+
+
+        yield break;
     }
 
     #endregion
@@ -532,10 +577,11 @@ public class Drone : Entity
 
         // 경로 시각화
         LineRenderer lr = Instantiate(lineRendererPrefab, lineRendererParent);
-        lr.positionCount = nodes.Count;
+        lr.positionCount = nodes.Count + 1;
+        lr.SetPosition(0, Position);
         for (int i = 0; i < nodes.Count; i++)
         {
-            lr.SetPosition(i, nodes[i].center);
+            lr.SetPosition(i + 1, nodes[i].center);
         }
 
         // 경로 기록에 추가
@@ -551,10 +597,11 @@ public class Drone : Entity
 
         // 경로 시각화
         LineRenderer lr = Instantiate(lineRendererPrefab, lineRendererParent);
-        lr.positionCount = nodes.Count;
+        lr.positionCount = nodes.Count + 1;
+        lr.SetPosition(0, Position);
         for (int i = 0; i < nodes.Count; i++)
         {
-            lr.SetPosition(i, nodes[i]);
+            lr.SetPosition(i + 1, nodes[i]);
         }
 
         // 경로 기록에 추가

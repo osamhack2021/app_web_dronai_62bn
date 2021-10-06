@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,29 +7,17 @@ namespace Dronai.Path
 {
     public class AstarPathRequestManager : Singleton<AstarPathRequestManager>
     {
-        struct PathRequest
-        {
-            public Vector3 PathStart;
-            public Vector3 PathEnd;
-            public Action<Vector3[], bool> Callback;
-
-            public PathRequest(Vector3 start, Vector3 end, Action<Vector3[], bool> callback)
-            {
-                PathStart = start;
-                PathEnd = end;
-                Callback = callback;
-            }
-        }
 
         private Queue<PathRequest> pathRequestQueue = new Queue<PathRequest>();
-        private PathRequest currentPathRequest = default;
+        private PathRequest currentPathRequest;
 
-        private AstarPathFinding pathFinding;
-        
-        bool isProcessingPath;
+        private AstarPathFinding pathfinding;
 
-        private void Awake() {
-            pathFinding = GetComponent<AstarPathFinding>();
+        private bool isProcessingPath;
+
+        private void Awake()
+        {
+            pathfinding = GetComponent<AstarPathFinding>();
         }
 
         public static void RequestPath(Vector3 pathStart, Vector3 pathEnd, Action<Vector3[], bool> callback)
@@ -40,22 +27,36 @@ namespace Dronai.Path
             Instance.TryProcessNext();
         }
 
-        private void TryProcessNext()
+        void TryProcessNext()
         {
-            if(!isProcessingPath && pathRequestQueue.Count > 0)
+            if (!isProcessingPath && pathRequestQueue.Count > 0)
             {
                 currentPathRequest = pathRequestQueue.Dequeue();
                 isProcessingPath = true;
-                pathFinding.StartFindPath(currentPathRequest.PathStart, currentPathRequest.PathEnd);
+                pathfinding.StartFindPath(currentPathRequest.pathStart, currentPathRequest.pathEnd);
             }
         }
 
         public void FinishedProcessingPath(Vector3[] path, bool success)
         {
-            currentPathRequest.Callback(path, success);
+            currentPathRequest.callback(path, success);
             isProcessingPath = false;
             TryProcessNext();
         }
-    }
 
+        struct PathRequest
+        {
+            public Vector3 pathStart;
+            public Vector3 pathEnd;
+            public Action<Vector3[], bool> callback;
+
+            public PathRequest(Vector3 _start, Vector3 _end, Action<Vector3[], bool> _callback)
+            {
+                pathStart = _start;
+                pathEnd = _end;
+                callback = _callback;
+            }
+
+        }
+    }
 }

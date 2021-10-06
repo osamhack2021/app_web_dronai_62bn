@@ -8,7 +8,7 @@ namespace Dronai.Path
         public bool Walkable = default;
         public Vector3 WorldPosition = default;
         public int GridX, GridY, GridZ;
-        public AstarNode Parent = default;
+        public int MovementPenalty = default;
 
         private int heapIndex = default;
         public int HeapIndex
@@ -32,9 +32,10 @@ namespace Dronai.Path
                 return gCost + hCost;
             }
         }
+        public AstarNode Parent = default;
 
 
-        public AstarNode(bool walkable, Vector3 worldPosition, int gridX, int gridY, int gridZ)
+        public AstarNode(bool walkable, Vector3 worldPosition, int gridX, int gridY, int gridZ, int penalty)
         {
             Walkable = walkable;
             WorldPosition = worldPosition;
@@ -42,8 +43,10 @@ namespace Dronai.Path
             GridX = gridX;
             GridY = gridY;
             GridZ = gridZ;
+
+            MovementPenalty = penalty;
         }
-        
+
         public int CompareTo(AstarNode nodeToCompare)
         {
             int compare = fCost.CompareTo(nodeToCompare.fCost);
