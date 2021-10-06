@@ -87,7 +87,7 @@
 <p>DRONAI는 컴파일된 프로그램뿐만 아니라 개발단계에서 필요한 에디터 화면에서도 여러 가지 기능을 제공한다.</p>
 <p>앞으로 에디터에서만 동작하는 기능들에 대해서는 <b>EDITOR</b>라는 약어를 붙이겠다.</p>
 
-<hr>
+<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"><img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
 
 <h3 id="runtime">런타임 / RUNTIME</h3>
 <blockquote>런타임에서 동작하는 기능</blockquote>
@@ -95,7 +95,7 @@
 <p>컴파일 및 빌드 된 DRONAI 시뮬레이션이 실질적으로 사용자에게 제공하는 기능들이다.</p>
 <p>앞으로 런타임에서 동작하는 기능들에 대해서는 <b>RUNTIME</b>이라는 약어를 붙이겠다.</p>
 
-<hr>
+<a href="https://www.youtube.com/watch?v=dQw4w9WgXcQ"><img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
 
 <h3 id="drone_auto_locate">드론 자동배치 기능 (EDITOR)</h3>
 <blockquote>원하는 사이즈와 높이, 생성 빈도에 맞추어 초기 드론 그룹을 자동으로 생성해 준다</blockquote>
@@ -151,10 +151,71 @@ $ yarn start
 
 <h2 id="team"> :people_holding_hands: 팀 정보 (Team Information)</h2>
 
-- KIM JUN YOUNG (admin@linearjun.com), Github Id: linearjun
-- KANG GEON GU (kdr06006@naver.com), Github Id: kanggeongu
-- KO GEON WOO (coreax7@gmail.com), Github Id: gwsl 
-- HAN CHOONG HYUN (kd4aqqjr@naver.com), Github Id: keyboardsejong
+<table width="1200">
+    <thead>
+      <tr>
+        <th width="100" align="center">Profile</th>
+        <th width="100" align="center">Name</th>
+        <th width="250" align="center">Role</th>
+        <th width="200" align="center">E-mail</th>
+        <th width="200" align="center">Github</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td width="100" align="center">
+          <img src="https://user-images.githubusercontent.com/36218321/136213808-d47f7e73-98cf-43e1-accc-0927ed2495e2.jpg" width="100%" height="100%">
+        </td>
+        <td width="100" align="center">김준영</td>
+        <td width="200" align="center">TEAM LEADER<br>Client Developer</td>
+        <td width="200" align="center">admin@linearjun.com</td>
+        <td width="200" align="center">
+          <a href="https://github.com/linearjun" target="_blank">
+            <img src="https://img.shields.io/badge/github-181717.svg?style=for-the-badge&logo=github&logoColor=white" alt="github" />
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <td width="100" align="center">
+          <img src="https://user-images.githubusercontent.com/36218321/136219864-0080e8a5-bc09-4713-b70a-defb58d6a98c.png" width="100%" height="100%">
+        </td>
+        <td width="100" align="center">강건구</td>
+        <td width="200" align="center">Algo & Logic<br>Client Developer</td>
+        <td width="200" align="center">kdr06006@naver.com</td>
+        <td width="200" align="center">
+          <a href="https://github.com/kanggeongu" target="_blank">
+            <img src="https://img.shields.io/badge/github-181717.svg?style=for-the-badge&logo=github&logoColor=white" alt="github" />
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <td width="100" align="center">
+          <img src="https://user-images.githubusercontent.com/36218321/136219864-0080e8a5-bc09-4713-b70a-defb58d6a98c.png" width="100%" height="100%">
+        </td>
+        <td width="100" align="center">한충현</td>
+        <td width="200" align="center">Front End<br>Web Developer</td>
+        <td width="200" align="center">kd4aqqjr@naver.com</td>
+        <td width="200" align="center">
+          <a href="https://github.com/keyboardsejong" target="_blank">
+            <img src="https://img.shields.io/badge/github-181717.svg?style=for-the-badge&logo=github&logoColor=white" alt="github" />
+          </a>
+        </td>
+      </tr>
+      <tr>
+        <td width="100" align="center">
+          <img src="https://user-images.githubusercontent.com/36218321/136219411-2e77fb33-31ae-44ea-a7ee-4fc2a5f97caf.png" width="100%" height="100%">
+        </td>
+        <td width="100" align="center">고건우</td>
+        <td width="200" align="center"><br>Product Manager</td>
+        <td width="200" align="center">coreax7@gmail.com</td>
+        <td width="200" align="center">
+          <a href="https://github.com/gwsl" target="_blank">
+            <img src="https://img.shields.io/badge/github-181717.svg?style=for-the-badge&logo=github&logoColor=white" alt="github" />
+          </a>
+        </td>
+      </tr>
+    </tbody>
+</table>
 
 <h2 id="license"> :scroll: 저작권 및 사용권 정보 (Copyleft / End User License)</h2>
 
