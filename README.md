@@ -206,7 +206,7 @@ $ yarn start
           <img src="https://user-images.githubusercontent.com/36218321/136219411-2e77fb33-31ae-44ea-a7ee-4fc2a5f97caf.png" width="100%" height="100%">
         </td>
         <td width="100" align="center">고건우</td>
-        <td width="200" align="center"><br>Product Manager</td>
+        <td width="200" align="center">Product Manager<br>AI Researcher</td>
         <td width="200" align="center">coreax7@gmail.com</td>
         <td width="200" align="center">
           <a href="https://github.com/gwsl" target="_blank">
