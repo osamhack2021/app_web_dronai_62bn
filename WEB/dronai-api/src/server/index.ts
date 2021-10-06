@@ -13,6 +13,7 @@ import { connect } from './database';
 // Instantiate express
 const server = express();
 server.use(compression());
+server.use(express.static('public'));
 
 // Passport Config
 initPassport(passport);

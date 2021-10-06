@@ -20,7 +20,7 @@ const storage = multer.diskStorage({
     // @ts-ignore
     destination: (req, file, callback) => {
         // console.log(req + "," + file);
-        callback(null, './resources/images');
+        callback(null, './public/images');
     },
     // @ts-ignore
     filename: (req, file, callback) => {
@@ -45,7 +45,7 @@ router.post('/upload', upload.array('file', 100), (req, res) => {
     }
     else {
         files.forEach(f => {
-            res.send(f.destination + "/" + f.filename);
+            res.send("https://ds.linearjun.com/images/" + f.filename);
         });
     }
 
