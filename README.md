@@ -81,7 +81,7 @@
 
 <hr>
 
-<h3 id="editor">Editor / 에디터</h3>
+<h3 id="editor">에디터 / EDITOR</h3>
 <blockquote>에디터에서만 동작하는 기능</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/136125123-456be0a1-2ec2-4318-bdbd-280101349366.PNG"></img>
 <p>DRONAI 프로젝트는 컴파일 된 프로그램뿐만이 아니라 개발단계에서 필요한 에디터 화면에서도 여러가지 기능을 제공한다.</p>
@@ -89,7 +89,7 @@
 
 <hr>
 
-<h3 id="runtime">Runtime / 런타임</h3>
+<h3 id="runtime">런타임 / RUNTIME</h3>
 <blockquote>런타임에서 동작하는 기능</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/136126788-88a8390a-6601-414f-b694-a977e0409abf.gif"></img>
 <p>컴파일 및 빌드 된 DRONAI 시뮬레이션이 실질적으로 사용자에게 제공하는 기능들이다</p>
@@ -97,7 +97,7 @@
 
 <hr>
 
-<h3 id="drone_auto_locate">드론 자동배치 기능</h3>
+<h3 id="drone_auto_locate">드론 자동배치 기능 (EDITOR)</h3>
 <blockquote>원하는 사이즈와 높이, 생성 빈도에 맞추어 초기 드론 그룹을 자동으로 생성해 준다</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/136124125-f10d4fd4-4b9d-434a-b224-375c17981f74.gif"></img>
 
