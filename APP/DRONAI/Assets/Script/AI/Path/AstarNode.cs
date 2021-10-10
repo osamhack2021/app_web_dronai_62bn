@@ -47,6 +47,18 @@ namespace Dronai.Path
             MovementPenalty = penalty;
         }
 
+        public void UpdateNode(bool walkable, Vector3 worldPosition, int gridX, int gridY, int gridZ, int penalty)
+        {
+            Walkable = walkable;
+            WorldPosition = worldPosition;
+
+            GridX = gridX;
+            GridY = gridY;
+            GridZ = gridZ;
+
+            MovementPenalty = penalty;
+        }
+
         public int CompareTo(AstarNode nodeToCompare)
         {
             int compare = fCost.CompareTo(nodeToCompare.fCost);

@@ -1,0 +1,377 @@
+* {
+    margin: 0px auto;
+    padding: 0px;
+    text-align: center;
+}
+
+body {
+    background-color: #D4D9ED;
+    -webkit-font-smoothing: antialiased;
+}
+
+.cont_principal {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
+.cont_error {
+    position: absolute;
+    width: 100%;
+    height: 300px;
+    top: 50%;
+    margin-top: -150px;
+}
+
+.cont_error>h1 {
+    font-family: 'Lato', sans-serif;
+    font-weight: 400;
+    font-size: 150px;
+    color: #fff;
+    position: relative;
+    left: -100%;
+    transition: all 0.5s;
+}
+
+
+.cont_error>p {
+    font-family: 'Lato', sans-serif;
+    font-weight: 300;
+    font-size: 24px;
+    letter-spacing: 5px;
+    color: #9294AE;
+    position: relative;
+    left: 100%;
+    transition: all 0.5s;
+    transition-delay: 0.5s;
+    -webkit-transition: all 0.5s;
+    -webkit-transition-delay: 0.5s;
+}
+
+.cont_aura_1 {
+    position: absolute;
+    width: 300px;
+    height: 120%;
+    top: 25px;
+    right: -340px;
+    background-color: #8A65DF;
+    box-shadow: 0px 0px 60px 20px rgba(137, 100, 222, 0.5);
+    -webkit-transition: all 0.5s;
+    transition: all 0.5s;
+}
+
+.cont_aura_2 {
+    position: absolute;
+    width: 100%;
+    height: 300px;
+    right: -10%;
+    bottom: -301px;
+    background-color: #8B65E4;
+    box-shadow: 0px 0px 60px 10px rgba(131, 95, 214, 0.5), 0px 0px 20px 0px rgba(0, 0, 0, 0.1);
+    z-index: 5;
+    transition: all 0.5s;
+    -webkit-transition: all 0.5s;
+}
+
+.cont_error_active>.cont_error>h1 {
+    left: 0%;
+}
+
+.cont_error_active>.cont_error>p {
+    left: 0%;
+}
+
+.cont_error_active>.cont_aura_2 {
+    animation-name: animation_error_2;
+    animation-duration: 4s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+    transform: rotate(-20deg);
+}
+
+.cont_error_active>.cont_aura_1 {
+    transform: rotate(20deg);
+    right: -170px;
+    animation-name: animation_error_1;
+    animation-duration: 4s;
+    animation-timing-function: linear;
+    animation-iteration-count: infinite;
+    animation-direction: alternate;
+}
+
+@-webkit-keyframes animation_error_1 {
+    from {
+        -webkit-transform: rotate(20deg);
+        transform: rotate(20deg);
+    }
+
+    to {
+        -webkit-transform: rotate(25deg);
+        transform: rotate(25deg);
+    }
+}
+
+@-o-keyframes animation_error_1 {
+    from {
+        -webkit-transform: rotate(20deg);
+        transform: rotate(20deg);
+    }
+
+    to {
+        -webkit-transform: rotate(25deg);
+        transform: rotate(25deg);
+    }
+
+}
+
+@-moz-keyframes animation_error_1 {
+    from {
+        -webkit-transform: rotate(20deg);
+        transform: rotate(20deg);
+    }
+
+    to {
+        -webkit-transform: rotate(25deg);
+        transform: rotate(25deg);
+    }
+
+}
+
+@keyframes animation_error_1 {
+    from {
+        -webkit-transform: rotate(20deg);
+        transform: rotate(20deg);
+    }
+
+    to {
+        -webkit-transform: rotate(25deg);
+        transform: rotate(25deg);
+    }
+}
+
+
+@-webkit-keyframes animation_error_2 {
+    from {
+        -webkit-transform: rotate(-15deg);
+        transform: rotate(-15deg);
+    }
+
+    to {
+        -webkit-transform: rotate(-20deg);
+        transform: rotate(-20deg);
+    }
+}
+
+@-o-keyframes animation_error_2 {
+    from {
+        -webkit-transform: rotate(-15deg);
+        transform: rotate(-15deg);
+    }
+
+    to {
+        -webkit-transform: rotate(-20deg);
+        transform: rotate(-20deg);
+    }
+}
+
+@-moz-keyframes animation_error_2 {
+    from {
+        -webkit-transform: rotate(-15deg);
+        transform: rotate(-15deg);
+    }
+
+    to {
+        -webkit-transform: rotate(-20deg);
+        transform: rotate(-20deg);
+    }
+}
+
+@keyframes animation_error_2 {
+    from {
+        -webkit-transform: rotate(-15deg);
+        transform: rotate(-15deg);
+    }
+
+    to {
+        -webkit-transform: rotate(-20deg);
+        transform: rotate(-20deg);
+    }
+}
+
+
+
+
+@keyframes loading {
+    0% {
+        cy: 10;
+    }
+
+    25% {
+        cy: 3;
+    }
+
+    50% {
+        cy: 10;
+    }
+}
+
+canvas {
+    position: absolute;
+    left: 50%;
+    top: 90%;
+    transform: translate(-50%, -50%);
+}
+
+button {
+    background: none;
+    border: none;
+    color: #f4f7ff;
+    cursor: pointer;
+    font-family: "Roboto", Arial;
+    font-size: 14px;
+    font-weight: 500;
+    height: 40px;
+    outline: none;
+    overflow: hidden;
+    padding: 0 10px;
+    position: relative;
+    width: 190px;
+    z-index: 1;
+}
+
+button::before {
+    background: #1f2335;
+    border-radius: 50px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.4) inset;
+    content: "";
+    display: block;
+    height: 100%;
+    margin: 0 auto;
+    position: relative;
+    transition: width 0.2s cubic-bezier(0.39, 1.86, 0.64, 1) 0.3s;
+    width: 100%;
+}
+
+button.ready .submitMessage svg {
+    opacity: 1;
+    top: 1px;
+    transition: top 0.4s ease 600ms, opacity 0.3s linear 600ms;
+}
+
+button.ready .submitMessage .button-text span {
+    top: 0;
+    opacity: 1;
+    transition: all 0.2s ease calc(var(--dr) + 600ms);
+}
+
+button.loading::before {
+    transition: width 0.3s ease;
+    width: 80%;
+}
+
+button.loading .loadingMessage {
+    opacity: 1;
+}
+
+button.loading .loadingCircle {
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-name: loading;
+}
+
+button.complete .submitMessage svg {
+    top: -30px;
+    transition: none;
+}
+
+button.complete .submitMessage .button-text span {
+    top: -8px;
+    transition: none;
+}
+
+button.complete .loadingMessage {
+    top: 80px;
+}
+
+button.complete .successMessage .button-text span {
+    left: 0;
+    opacity: 1;
+    transition: all 0.2s ease calc(var(--d) + 1000ms);
+}
+
+button.complete .successMessage svg {
+    stroke-dashoffset: 0;
+    transition: stroke-dashoffset 0.3s ease-in-out 1.4s;
+}
+
+.button-text span {
+    opacity: 0;
+    position: relative;
+}
+
+.message {
+    left: 50%;
+    position: absolute;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+}
+
+.message svg {
+    display: inline-block;
+    fill: none;
+    margin-right: 5px;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 2;
+}
+
+.submitMessage .button-text span {
+    top: 8px;
+    transition: all 0.2s ease var(--d);
+}
+
+.submitMessage svg {
+    color: #5c86ff;
+    margin-left: -1px;
+    opacity: 0;
+    position: relative;
+    top: 30px;
+    transition: top 0.4s ease, opacity 0.3s linear;
+    width: 14px;
+}
+
+.loadingMessage {
+    opacity: 0;
+    transition: opacity 0.3s linear 0.3s,
+        top 0.4s cubic-bezier(0.22, 0, 0.41, -0.57);
+}
+
+.loadingMessage svg {
+    fill: #5c86ff;
+    margin: 0;
+    width: 22px;
+}
+
+.successMessage .button-text span {
+    left: 5px;
+    transition: all 0.2s ease var(--dr);
+}
+
+.successMessage svg {
+    color: #5cffa1;
+    stroke-dasharray: 20;
+    stroke-dashoffset: 20;
+    transition: stroke-dashoffset 0.3s ease-in-out;
+    width: 14px;
+}
+
+.loadingCircle:nth-child(2) {
+    animation-delay: 0.1s;
+}
+
+.loadingCircle:nth-child(3) {
+    animation-delay: 0.2s;
+}

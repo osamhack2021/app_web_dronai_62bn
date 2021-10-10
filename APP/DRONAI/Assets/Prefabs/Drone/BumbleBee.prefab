@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7341894752857769161}
   - component: {fileID: 4514208818354907629}
+  - component: {fileID: 1173237439579523885}
   - component: {fileID: 8666332529626117514}
   m_Layer: 6
   m_Name: BumbleBee
@@ -47,10 +48,24 @@ Rigidbody:
   m_Drag: 0
   m_AngularDrag: 0.05
   m_UseGravity: 0
-  m_IsKinematic: 0
+  m_IsKinematic: 1
   m_Interpolate: 0
   m_Constraints: 0
   m_CollisionDetection: 0
+--- !u!64 &1173237439579523885
+MeshCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1165740686982719177}
+  m_Material: {fileID: 0}
+  m_IsTrigger: 0
+  m_Enabled: 1
+  serializedVersion: 4
+  m_Convex: 1
+  m_CookingOptions: 2147483647
+  m_Mesh: {fileID: 4300000, guid: 72c9818cb12906a41bb5b7e6b7a7ced2, type: 3}
 --- !u!114 &8666332529626117514
 MonoBehaviour:
   m_ObjectHideFlags: 0

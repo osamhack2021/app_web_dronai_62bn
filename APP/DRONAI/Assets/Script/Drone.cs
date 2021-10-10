@@ -28,8 +28,13 @@ public class Drone : Entity
     #region Variable
     [FoldoutGroup("Property"), ShowInInspector, ReadOnly] private bool isDead = false;
     [FoldoutGroup("Property"), ReadOnly] public bool IsWorking = false;
-    [FoldoutGroup("Property"), SerializeField] private float speed = 0.5f;
+    [FoldoutGroup("Property"), SerializeField] private float speed = 2f;
+    [FoldoutGroup("Property"), SerializeField] private float turnSpeed = 3f;
+    [FoldoutGroup("Property"), SerializeField] private float turnDst = 5f;
     [FoldoutGroup("Property"), SerializeField] private AnimationCurve timeCurve = default;
+
+    // 현재 할당 되어있는 Path
+    private AstarPath currentPath = default;
 
     [BoxGroup("Components"), SerializeField, ReadOnly] private DroneManager droneManager = default;
     [BoxGroup("Components"), SerializeField, ReadOnly] private Rigidbody rb = default;
@@ -39,12 +44,12 @@ public class Drone : Entity
     [BoxGroup("Formation"), SerializeField] private float startX = 1;
     [BoxGroup("Formation"), SerializeField] private float startZ = 1;
     [BoxGroup("Formation"), SerializeField] private Vector3 formationPosition = default;
-    public Vector3 HeadPosition 
+    public Vector3 HeadPosition
     {
-        get 
+        get
         {
             Vector3 result = transform.position;
-            result.y -= 2f;
+            result.y -= 1f;
             return result;
         }
     }
@@ -305,18 +310,22 @@ public class Drone : Entity
         MoveTo(result, duration, priority, OnFinished);
     }
 
-    public void MoveViaPathFinder(Vector3 destination, int priority = 50, Action OnFinished = null)
+    public void MoveViaPathFinder(AstarPath path, int priority = 50, Action OnFinished = null)
     {
         if (gameObject.activeSelf)
         {
-            Coroutine routine = StartCoroutine(MoveViaPathFinderRoutine(destination, priority, OnFinished));
+            Coroutine routine = StartCoroutine(MoveViaPathFinderRoutine(path, priority, OnFinished));
             routinesQueue.Enqueue(new Routine(routine, priority), priority);
         }
     }
 
-    private IEnumerator MoveViaPathFinderRoutine(Vector3 destination, int priority, Action OnFinished)
+    private IEnumerator MoveViaPathFinderRoutine(AstarPath path, int priority, Action OnFinished)
     {
-        for (; ; )
+        bool followingPath = true;
+        int pathIndex = 0;
+        transform.LookAt(path.LookPoints[0]);
+
+        while (followingPath)
         {
             if (priority > routinesQueue.FirstPriority)
             {
@@ -324,17 +333,31 @@ public class Drone : Entity
                 continue;
             }
 
-            transform.position = Vector3.Lerp(transform.position, destination, Time.deltaTime * speed);
-            if (Vector3.Distance(transform.position, destination) < .4f)
+            if (path.TurnBoundaries[pathIndex].HasCrossedLine(Position))
             {
-                // transform.position = destination;
-                break;
+                if (pathIndex == path.finishLineIndex)
+                {
+                    followingPath = false;
+                }
+                else
+                {
+                    pathIndex++;
+                }
             }
+
+            if (followingPath)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(path.LookPoints[pathIndex] - Position);
+                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
+                transform.Translate(Vector3.forward * Time.deltaTime * speed * 10, Space.Self);
+            }
+
+
             yield return null;
         }
 
         // Fix the final position
-        transform.position = destination;
+        transform.position = path.LookPoints[pathIndex];
 
         // Exit
         routinesQueue.Dequeue();
@@ -344,7 +367,6 @@ public class Drone : Entity
         OnFinished?.Invoke();
         yield break;
     }
-
 
     #endregion
 
@@ -402,7 +424,7 @@ public class Drone : Entity
 
             // 고유 Y 좌표 부여
             formationPosition = destination;
-            formationPosition.y += -(formationIndex * 1f);
+            formationPosition.y += -(formationIndex * 0.5f);
 
             // Build Formation Routine [20] 생성 및 마무리
             Coroutine routine = StartCoroutine(BuildFormation(formationPosition, priority));
@@ -411,23 +433,76 @@ public class Drone : Entity
     }
     private IEnumerator BuildFormation(Vector3 position, int priority)
     {
-        List<Node> nodes = droneManager.FindPath(Position, position);
-        DrawLine(nodes);
+        // Variables
+        bool isFinding = true;
+        bool findable = false;
+        AstarPath path = default;
 
-        for (int i = 0; i < nodes.Count; i++)
+        // Find the path
+        while (!findable)
         {
-            while (Vector3.Distance(Position, nodes[i].center) > 1f)
+            AstarPathRequestManager.RequestPath(Position, position, true, (Vector3[] waypoints, bool pathSucessful) =>
             {
-                if (priority > routinesQueue.FirstPriority)
+                findable = pathSucessful;
+                isFinding = false;
+                if (pathSucessful)
                 {
-                    yield return null;
-                    continue;
+                    path = new AstarPath(waypoints, Position, turnDst);
+                    print("목적지 : " + position + "," + waypoints[waypoints.Length - 1]);
                 }
-
-                transform.position = Vector3.MoveTowards(transform.position, nodes[i].center, (Time.deltaTime * speed) * 10f);
-                // transform.position = Vector3.Lerp(transform.position, nodes[i].center, Time.deltaTime * speed);
+            });
+            for (; ; )
+            {
+                if (!isFinding)
+                {
+                    break;
+                }
                 yield return null;
             }
+            if (!findable)
+            {
+                // 경로를 찾지 못한다면 동적 Pathing 을 포기하고 다시 검색
+                print("[" + name + "] 경로 탐색 실패! 맵을 초기화합니다");
+                AstarPathRequestManager.RequestUpdateGrid();
+            }
+            yield return null;
+        }
+
+        // 경로를 따라가기 시작
+        bool followingPath = true;
+        int pathIndex = 0;
+
+        DrawLine(path);
+        transform.LookAt(path.LookPoints[0]);
+
+        while (followingPath)
+        {
+            if (priority > routinesQueue.FirstPriority)
+            {
+                yield return null;
+                continue;
+            }
+
+            while (path.TurnBoundaries[pathIndex].HasCrossedLine(Position))
+            {
+                if (pathIndex == path.finishLineIndex)
+                {
+                    followingPath = false;
+                    break;
+                }
+                else
+                {
+                    pathIndex++;
+                }
+            }
+
+            if (followingPath)
+            {
+                Quaternion targetRotation = Quaternion.LookRotation(path.LookPoints[pathIndex] - Position);
+                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
+                transform.Translate(Vector3.forward * Time.deltaTime * speed * 10, Space.Self);
+            }
+            yield return null;
         }
 
         // Fomration Routine [+ 10] 생성 및 마무리 -> Formation Routine은 항상 Build Formation 보다 Priority 값이 높아야 한다
@@ -441,7 +516,6 @@ public class Drone : Entity
         // print(name + " | MVROUTINE 제거됨 --> " + priority + " 현재 FIRST --> " + routinesQueue.FirstPriority);
         yield break;
     }
-
     private IEnumerator FormationRoutine(int priority)
     {
         // 라인 삭제
@@ -491,7 +565,7 @@ public class Drone : Entity
 
                 // 고유 Y 좌표 부여
                 formationPosition = destination;
-                formationPosition.y += -(formationIndex * 1f);
+                formationPosition.y += -(formationIndex * 0.5f);
 
                 transform.position = Vector3.Lerp(transform.position, formationPosition, Time.deltaTime * speed);
             }
@@ -518,12 +592,12 @@ public class Drone : Entity
     [Button]
     private void FindDynamicPathDebug()
     {
-        FindDynamicPath(new Vector3(5,5,5));
+        FindDynamicPath(new Vector3(5, 5, 5));
     }
     private void FindDynamicPath(Vector3 destination)
     {
         // 항상 기존 경로 탐색 루틴을 죽이고 새로 탐색합니다
-        if(pathFindingRoutine != null) StopCoroutine(pathFindingRoutine);
+        if (pathFindingRoutine != null) StopCoroutine(pathFindingRoutine);
         pathFindingRoutine = StartCoroutine(FindDynamicPathRoutine(destination));
     }
     private IEnumerator FindDynamicPathRoutine(Vector3 destination)
@@ -531,35 +605,24 @@ public class Drone : Entity
         // Variables
         bool isFinding = true;
         bool findable = false;
-        Vector3[] foundedPath = default;
 
-        print("시작 " + Position);
-        droneManager.FindDynamicPath(Position, destination, (Vector3[] path, bool result) =>
+        AstarPathRequestManager.RequestPath(Position, destination, false, (Vector3[] waypoints, bool result) =>
         {
-            foundedPath = path;
+            currentPath = new AstarPath(waypoints, Position, turnDst);
             findable = result;
             isFinding = false;
         });
 
         // 경로 탐색 중...
-        while(isFinding)
+        while (isFinding)
         {
             yield return null;
         }
 
-        if(findable)
+        if (findable)
         {
-            foreach(Vector3 node in foundedPath)
-            {
-                print(node);
-            }
-            DrawLine(foundedPath.ToList(), true);
+            DrawLine(currentPath, true);
         }
-        else
-        {
-            print("[A* Dyanamic] 경로 탐색 실패, 가능한 경로가 없습니다!");
-        }
-
 
         yield break;
     }
@@ -567,6 +630,26 @@ public class Drone : Entity
     #endregion
 
     #region Debug
+    private void DrawLine(AstarPath path, bool clear = true)
+    {
+        // 경로 기록 삭제 요청
+        if (clear)
+        {
+            ClearLine();
+        }
+
+        // 경로 시각화
+        LineRenderer lr = Instantiate(lineRendererPrefab, lineRendererParent);
+        lr.positionCount = path.LookPoints.Length + 1;
+        lr.SetPosition(0, Position);
+        for (int i = 0; i < path.LookPoints.Length; i++)
+        {
+            lr.SetPosition(i + 1, path.LookPoints[i]);
+        }
+
+        // 경로 기록에 추가
+        lineRenderers.Add(lr);
+    }
     private void DrawLine(List<Node> nodes, bool clear = true)
     {
         // 경로 기록 삭제 요청
@@ -615,6 +698,13 @@ public class Drone : Entity
             if (lineRenderers[i] != null) Destroy(lineRenderers[i].gameObject);
         }
         lineRenderers.Clear();
+    }
+    private void OnDrawGizmos()
+    {
+        if (currentPath != null)
+        {
+            currentPath.DrawWithGizmos();
+        }
     }
     #endregion
 }

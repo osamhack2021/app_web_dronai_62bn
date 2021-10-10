@@ -20,9 +20,9 @@ namespace Dronai.Path
         [SerializeField] private Vector3 gridWorldSize = default;
         [SerializeField] private float nodeRadius = 1f;
         [SerializeField] private TerrainType[] walkableRegions = default;
+        [SerializeField] private int obstacleProximityPenalty = 10;
         private LayerMask walkableMask = default;
         private Dictionary<int, int> walkableRegionsDictionary = new Dictionary<int, int>();
-
         private AstarNode[,,] grid = default;
         private float nodeDiameter = default;
         private int gridSizeX, gridSizeY, gridSizeZ;
@@ -55,8 +55,12 @@ namespace Dronai.Path
         private void CreateGrid()
         {
             grid = new AstarNode[gridSizeX, gridSizeY, gridSizeZ];
-            Vector3 worldBottomLeft = transform.position - Vector3.right * gridWorldSize.x / 2 - Vector3.up * gridWorldSize.y / 2 - Vector3.forward * gridWorldSize.z / 2;
+            UpdateGrid();
+        }
 
+        public void UpdateGrid()
+        {
+            Vector3 worldBottomLeft = transform.position - Vector3.right * gridWorldSize.x / 2 - Vector3.up * gridWorldSize.y / 2 - Vector3.forward * gridWorldSize.z / 2;
             for (int x = 0; x < gridSizeX; x++)
             {
                 for (int y = 0; y < gridSizeY; y++)
@@ -68,14 +72,17 @@ namespace Dronai.Path
 
                         int movementPenalty = 0;
 
-                        if(walkable)
+
+                        Ray ray = new Ray(worldPoint + Vector3.up * 50, Vector3.down);
+                        RaycastHit hit;
+                        if (Physics.Raycast(ray, out hit, 100, walkableMask))
                         {
-                            Ray ray = new Ray(worldPoint + Vector3.up * 50, Vector3.down);
-                            RaycastHit hit;
-                            if(Physics.Raycast(ray, out hit, 100, walkableMask))
-                            {
-                                walkableRegionsDictionary.TryGetValue(hit.collider.gameObject.layer, out movementPenalty);
-                            }
+                            walkableRegionsDictionary.TryGetValue(hit.collider.gameObject.layer, out movementPenalty);
+                        }
+
+                        if (!walkable)
+                        {
+                            movementPenalty += obstacleProximityPenalty;
                         }
 
                         grid[x, y, z] = new AstarNode(walkable, worldPoint, x, y, z, movementPenalty);

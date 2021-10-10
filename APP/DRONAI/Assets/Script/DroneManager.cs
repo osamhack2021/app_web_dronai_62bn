@@ -78,6 +78,7 @@ public class DroneManager : SerializedMonoBehaviour
 
     [SerializeField, BoxGroup("SPAWN SETTING")] private GameObject dronePrefab = default;
     [SerializeField, BoxGroup("SPAWN SETTING")] private Transform droneParent = default;
+    [SerializeField, BoxGroup("SPAWN SETTING"), Range(0.1f, 20f)] private float droneSpeed = 1f;
     [SerializeField, BoxGroup("SPAWN SETTING")] private int spawningSize = 10;
     [SerializeField, BoxGroup("SPAWN SETTING"), Range(0, 10)] private float spawningHeight = 1f;
     [SerializeField, BoxGroup("SPAWN SETTING"), Range(1, 20)] private float spawningDistance = 2f;
@@ -135,7 +136,7 @@ public class DroneManager : SerializedMonoBehaviour
                 // Pulling a drone from pool
                 Drone target = Instantiate(dronePrefab, new Vector3(x, spawningHeight, y), Quaternion.identity, droneParent).GetComponent<Drone>();
 
-                target.Initialize(droneName, 0.5f, this);
+                target.Initialize(droneName, droneSpeed, this);
 
                 // Adding a drone to dictionary and pool
                 DroneDic.Add(droneName, target);
@@ -262,6 +263,9 @@ public class DroneManager : SerializedMonoBehaviour
         // 이전 작업이 끝날때까지 기다립니다
         while (working) yield return null;
 
+        // Dynamic A* 맵 Rebake
+        AstarPathRequestManager.RequestUpdateGrid();
+
         Queue<Drone> q = new Queue<Drone>();
         foreach (Drone drone in drones)
         {
@@ -287,9 +291,9 @@ public class DroneManager : SerializedMonoBehaviour
         List<Node> path = spaceGraph.FindPath(method, start, destination, space);
         return path;
     }
-    public void FindDynamicPath(Vector3 start, Vector3 destination, Action<Vector3[], bool> result)
+    public void FindDynamicPath(Vector3 start, Vector3 destination, bool history, Action<Vector3[], bool> result)
     {
-        AstarPathRequestManager.RequestPath(start, destination, result);
+        AstarPathRequestManager.RequestPath(start, destination, history, result);
     }
     #endregion
 

@@ -18,11 +18,19 @@ namespace Dronai.Path
             if (grid == null) grid = GetComponent<AstarGrid>();
         }
 
-        public void StartFindPath(Vector3 startPos, Vector3 targetPos)
+        /// <summary>
+        /// 베이크 맵을 최신화 합니다
+        /// </summary>
+        public void UpdateGrid()
         {
-            StartCoroutine(FindPath(startPos, targetPos));
+            grid.UpdateGrid();
         }
-        private IEnumerator FindPath(Vector3 startPos, Vector3 targetPos)
+
+        public void StartFindPath(Vector3 startPos, Vector3 targetPos, bool history)
+        {
+            StartCoroutine(FindPath(startPos, targetPos, history));
+        }
+        private IEnumerator FindPath(Vector3 startPos, Vector3 targetPos, bool history)
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
@@ -35,7 +43,7 @@ namespace Dronai.Path
             startNode.Parent = startNode;
 
 
-            if (startNode.Walkable && targetNode.Walkable)
+            if (targetNode.Walkable)
             {
                 Heap<AstarNode> openSet = new Heap<AstarNode>(grid.MaxSize);
                 HashSet<AstarNode> closedSet = new HashSet<AstarNode>();
@@ -44,12 +52,14 @@ namespace Dronai.Path
                 while (openSet.Count > 0)
                 {
                     AstarNode currentNode = openSet.RemoveFirst();
+                    // print("world : " + currentNode.WorldPosition);
+
                     closedSet.Add(currentNode);
 
                     if (currentNode == targetNode)
                     {
                         sw.Stop();
-                        print("Path found: " + sw.ElapsedMilliseconds + "ms");
+                        print("[A* Dyanamic] 경로 발견 : " + sw.ElapsedMilliseconds + "ms");
                         pathSucess = true;
                         break;
                     }
@@ -84,26 +94,31 @@ namespace Dronai.Path
 
             if (pathSucess)
             {
-                waypoints = RetracePath(startNode, targetNode);
+                waypoints = RetracePath(startNode, targetNode, history);
+            }
+            else
+            {
+                print("[A* Dyanamic] 경로 탐색 실패, 가능한 경로가 없습니다!");
             }
             requestManager.FinishedProcessingPath(waypoints, pathSucess);
         }
 
-        private Vector3[] RetracePath(AstarNode startNode, AstarNode endNode)
+        private Vector3[] RetracePath(AstarNode startNode, AstarNode endNode, bool history = false)
         {
             List<AstarNode> path = new List<AstarNode>();
             AstarNode currentNode = endNode;
             while (currentNode != startNode)
             {
+                if(history) currentNode.Walkable = false;
                 path.Add(currentNode);
                 currentNode = currentNode.Parent;
             }
-            Vector3[] waypoints = SimplifyPath(path);
-            Array.Reverse(waypoints);
-            return waypoints;
+            List<Vector3> waypoints = SimplifyPath(path);
+            waypoints.Reverse();
+            return waypoints.ToArray();
         }
 
-        private Vector3[] SimplifyPath(List<AstarNode> path)
+        private List<Vector3> SimplifyPath(List<AstarNode> path)
         {
             List<Vector3> waypoints = new List<Vector3>();
             Vector3 directionOld = Vector3.zero;
@@ -118,7 +133,7 @@ namespace Dronai.Path
                 }
                 directionOld = directionNew;
             }
-            return waypoints.ToArray();
+            return waypoints;
         }
 
         public int GetDistance(AstarNode nodeA, AstarNode nodeB)
@@ -129,11 +144,12 @@ namespace Dronai.Path
 
             // make (dx, dy, dz) to (dx > dy > dz)
             if (dx < dy) Swap(ref dx, ref dy);
-            if (dx < dz) Swap(ref dz, ref dz);
+            if (dx < dz) Swap(ref dx, ref dz);
             if (dy < dz) Swap(ref dy, ref dz);
 
             // sqrt(3) = 1.7xxx, sqrt(2) = 1.4xxx
-            return 17 * dz + 14 * (dy - dz) + 10 * (dx - dy - dz);
+            // dz, dy - dz, (dx - dz) - (dy - dz)
+            return 17 * dz + 14 * (dy - dz) + 10 * (dx - dy);
         }
 
         private void Swap(ref int num1, ref int num2)
