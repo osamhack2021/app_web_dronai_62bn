@@ -77,7 +77,7 @@ const NoticeCard = () => {
                             <AnimateButton>
                                 <Button
                                     component={Link}
-                                    href="https://appseed.us/product/react-node-js-berry-dashboard"
+                                    href="https://dronai.notion.site/dronai/DRONAI-44534bc31aac4efaa2b24e3480d71581"
                                     target="_blank"
                                     variant="contained"
                                     className={classes.button}
