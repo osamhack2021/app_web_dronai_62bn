@@ -172,7 +172,7 @@ const columns = [
         )
     },
     { field: 'date', headerName: 'Date', width: 120, renderCell: renderCellExpand, },
-    { field: 'droneId', headerName: 'DRONE ID', width: 120, renderCell: renderCellExpand, },
+    { field: 'droneId', headerName: 'DRONE ID', width: 170, renderCell: renderCellExpand, },
     { field: 'id', headerName: 'ID', width: 120, renderCell: renderCellExpand, },
     {
         field: 'detail', headerName: 'Detail', width: 500
