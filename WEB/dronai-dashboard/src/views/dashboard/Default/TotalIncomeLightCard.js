@@ -81,10 +81,10 @@ const TotalIncomeLightCard = ({ isLoading }) => {
                                     mb: 0.45
                                 }}
                                 className={classes.padding}
-                                primary={<Typography variant="h4">$203k</Typography>}
+                                primary={<Typography variant="h4">37°33′58.97″N 126°58′39.78″E</Typography>}
                                 secondary={
                                     <Typography variant="subtitle2" className={classes.secondary}>
-                                        Total Income
+                                        Latest Event Location
                                     </Typography>
                                 }
                             />

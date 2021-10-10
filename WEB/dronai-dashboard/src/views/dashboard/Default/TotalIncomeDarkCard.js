@@ -88,12 +88,12 @@ const TotalIncomeDarkCard = ({ isLoading }) => {
                                 }}
                                 primary={
                                     <Typography variant="h4" className={classes.primary}>
-                                        $203k
+                                        2021-10-04 08:44:44
                                     </Typography>
                                 }
                                 secondary={
                                     <Typography variant="subtitle2" className={classes.secondary}>
-                                        Total Income
+                                         Latest Event Time
                                     </Typography>
                                 }
                             />

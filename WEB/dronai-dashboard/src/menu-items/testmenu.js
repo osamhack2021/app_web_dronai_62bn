@@ -15,12 +15,12 @@ const icons = {
 
 export const testmenu = {
     id: 'utilities',
-    title: 'Testmenu',
+    title: 'Event List',
     type: 'group',
     children: [
         {
             id: 'util-typography',
-            title: 'testlist',
+            title: 'Event List',
             type: 'item',
             url: '/views/pages/testlist',
             icon: icons['IconTypography'],

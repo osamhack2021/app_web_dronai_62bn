@@ -172,7 +172,7 @@ const ConnectionCard = ({ isLoading }) => {
                         <Grid item>
                             <Grid container alignItems="center">
                                 <Grid item>
-                                    <Typography className={classes.cardHeading}>OFFLINE</Typography>
+                                    <Typography className={classes.cardHeading}>13대</Typography>
                                 </Grid>
                                 <Grid item>
                                     <Avatar className={classes.avatarCircle}>
@@ -182,7 +182,7 @@ const ConnectionCard = ({ isLoading }) => {
                             </Grid>
                         </Grid>
                         <Grid item sx={{ mb: 1.25 }}>
-                            <Typography className={classes.subHeading}>SIMULATION STATE</Typography>
+                            <Typography className={classes.subHeading}>DRONES ONLINE</Typography>
                         </Grid>
                     </Grid>
                 </MainCard>

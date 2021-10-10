@@ -216,7 +216,7 @@ const TestList = () => {
     }
     
         return (
-            <MainCard title="Test List" secondary={<SecondaryAction link="https://next.material-ui.com/system/typography/" />}>
+            <MainCard title="Event List" secondary={<SecondaryAction link="https://next.material-ui.com/system/typography/" />}>
                 <div style={{ height: 910, width: '100%' }}>
                     {isLoading ? <div></div>: <DataGrid rows={testRows} columns={columns} rowHeight={150} pageSize={5} checkboxSelection  />}
                 </div>
