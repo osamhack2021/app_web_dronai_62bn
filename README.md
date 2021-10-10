@@ -14,6 +14,8 @@
     <br />
     <br />
     <a href="https://dronai.linearjun.com">Web Demo</a>
+    .
+    <a href="https://osamhack2021.github.io/app_web_dronai_62bn/">Download</a>
     ·
     <a href="https://dronai.notion.site/dronai/DRONAI-44534bc31aac4efaa2b24e3480d71581">Notion</a>
     ·
