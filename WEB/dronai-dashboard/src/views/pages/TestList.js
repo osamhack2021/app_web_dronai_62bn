@@ -171,11 +171,11 @@ const columns = [
             //<img src="/static/media/logo.011a3aea.png"></img>
         )
     },
-    { field: 'date', headerName: 'Date', width: 100, renderCell: renderCellExpand, },
-    { field: 'droneId', headerName: 'DRONE ID', width: 170, renderCell: renderCellExpand, },
-    { field: 'id', headerName: 'ID', width: 100, renderCell: renderCellExpand, },
+    { field: 'date', headerName: 'Date', width: 120, renderCell: renderCellExpand, },
+    { field: 'droneId', headerName: 'DRONE ID', width: 120, renderCell: renderCellExpand, },
+    { field: 'id', headerName: 'ID', width: 120, renderCell: renderCellExpand, },
     {
-        field: 'detail', headerName: 'Detail', width: 250
+        field: 'detail', headerName: 'Detail', width: 500
          , renderCell: renderCellExpand,
     }
 ]
