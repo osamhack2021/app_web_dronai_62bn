@@ -9,12 +9,10 @@ namespace Dronai.Path
 {
     public class AstarPathFinding : MonoBehaviour
     {
-        private AstarPathRequestManager requestManager;
         [SerializeField] private AstarGrid grid = default;
 
         private void Awake()
         {
-            if (requestManager == null) requestManager = GetComponent<AstarPathRequestManager>();
             if (grid == null) grid = GetComponent<AstarGrid>();
         }
 
@@ -23,23 +21,23 @@ namespace Dronai.Path
         /// </summary>
         public void UpdateGrid()
         {
+            Stopwatch sw = new Stopwatch();
+            sw.Start();
             grid.UpdateGrid();
+            sw.Stop();
+            print("[A* Dyanamic] 맵 재구성 완료 : " + sw.ElapsedMilliseconds + "ms");
         }
 
-        public void StartFindPath(Vector3 startPos, Vector3 targetPos, bool history)
-        {
-            StartCoroutine(FindPath(startPos, targetPos, history));
-        }
-        private IEnumerator FindPath(Vector3 startPos, Vector3 targetPos, bool history)
+        public void FindPath(PathRequest request, Action<PathResult> callback)
         {
             Stopwatch sw = new Stopwatch();
             sw.Start();
 
             Vector3[] waypoints = new Vector3[0];
-            bool pathSucess = false;
+            bool pathSuccess = false;
 
-            AstarNode startNode = grid.NodeFromWorldPoint(startPos);
-            AstarNode targetNode = grid.NodeFromWorldPoint(targetPos);
+            AstarNode startNode = grid.NodeFromWorldPoint(request.PathStart);
+            AstarNode targetNode = grid.NodeFromWorldPoint(request.PathEnd);
             startNode.Parent = startNode;
 
 
@@ -59,8 +57,8 @@ namespace Dronai.Path
                     if (currentNode == targetNode)
                     {
                         sw.Stop();
-                        print("[A* Dyanamic] 경로 발견 : " + sw.ElapsedMilliseconds + "ms");
-                        pathSucess = true;
+                        // print("[A* Dyanamic] 경로 발견 : " + sw.ElapsedMilliseconds + "ms");
+                        pathSuccess = true;
                         break;
                     }
 
@@ -90,17 +88,16 @@ namespace Dronai.Path
                     }
                 }
             }
-            yield return null;
-
-            if (pathSucess)
+            if (pathSuccess)
             {
-                waypoints = RetracePath(startNode, targetNode, history);
+                waypoints = RetracePath(startNode, targetNode, request.History);
+                pathSuccess = waypoints.Length > 0;
             }
             else
             {
                 print("[A* Dyanamic] 경로 탐색 실패, 가능한 경로가 없습니다!");
             }
-            requestManager.FinishedProcessingPath(waypoints, pathSucess);
+            callback(new PathResult(waypoints, pathSuccess, request.Callback));
         }
 
         private Vector3[] RetracePath(AstarNode startNode, AstarNode endNode, bool history = false)

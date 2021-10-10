@@ -8,7 +8,7 @@ namespace Dronai.Path
         private const float verticalLineGradient = 1e5f;
 
         private float gradient;
-        private float y_intercept;
+        private float z_intercept;
         private Vector3 pointOnLine_1;
         private Vector3 pointOnLine_2;
         private float gradientPerpendicular;
@@ -38,7 +38,7 @@ namespace Dronai.Path
             }
 
 
-            y_intercept = pointOnLine.y - gradient * pointOnLine.x;
+            z_intercept = pointOnLine.z - gradient * pointOnLine.x;
             pointOnLine_1 = pointOnLine;
             pointOnLine_2 = pointOnLine + new Vector3(1, gradient, 0);
 
@@ -55,7 +55,6 @@ namespace Dronai.Path
         {
             return GetSide(p) != approachSide;
         }
-
         public void DrawWithGizmos(float length)
         {
             Vector3 lineDir = new Vector3(1, 0, gradient).normalized;

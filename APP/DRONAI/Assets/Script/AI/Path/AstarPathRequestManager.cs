@@ -1,4 +1,5 @@
 using System;
+using System.Threading;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -8,69 +9,79 @@ namespace Dronai.Path
     public class AstarPathRequestManager : Singleton<AstarPathRequestManager>
     {
 
-        private Queue<PathRequest> pathRequestQueue = new Queue<PathRequest>();
-        private PathRequest currentPathRequest;
-
+        private Queue<PathResult> results = new Queue<PathResult>();
         private AstarPathFinding pathfinding;
-
-        private bool isProcessingPath;
 
         private void Awake()
         {
             pathfinding = GetComponent<AstarPathFinding>();
         }
-
-        public static void RequestPath(Vector3 pathStart, Vector3 pathEnd, bool history, Action<Vector3[], bool> callback)
+        private void Update()
         {
-            PathRequest newRequest = new PathRequest(pathStart, pathEnd, history, callback);
-            Instance.pathRequestQueue.Enqueue(newRequest);
-            Instance.TryProcessNext();
+            if (results.Count > 0)
+            {
+                int itemsInQueue = results.Count;
+                lock (results)
+                {
+                    for (int i = 0; i < itemsInQueue; i++)
+                    {
+                        PathResult result = results.Dequeue();
+                        result.Callback(result.Path, result.Success);
+                    }
+                }
+            }
         }
-
         public static void RequestUpdateGrid()
         {
             Instance.UpdateGrid();
         }
-
         public void UpdateGrid()
         {
             pathfinding.UpdateGrid();
         }
-
-        void TryProcessNext()
+        public static void RequestPath(PathRequest request)
         {
-            if (!isProcessingPath && pathRequestQueue.Count > 0)
+            ThreadStart threadStart = delegate
             {
-                currentPathRequest = pathRequestQueue.Dequeue();
-                isProcessingPath = true;
-                if (!currentPathRequest.History) UpdateGrid();
-                pathfinding.StartFindPath(currentPathRequest.PathStart, currentPathRequest.PathEnd, currentPathRequest.History);
+                Instance.pathfinding.FindPath(request, Instance.FinishedProcessingPath);
+            };
+            threadStart.Invoke();
+        }
+        public void FinishedProcessingPath(PathResult result)
+        {
+            lock (results)
+            {
+                results.Enqueue(result);
             }
         }
+    }
+    public struct PathResult
+    {
+        public Vector3[] Path;
+        public bool Success;
+        public Action<Vector3[], bool> Callback;
 
-        public void FinishedProcessingPath(Vector3[] path, bool success)
+        public PathResult(Vector3[] path, bool success, Action<Vector3[], bool> callback)
         {
-            currentPathRequest.Callback(path, success);
-            isProcessingPath = false;
-            TryProcessNext();
+            Path = path;
+            Success = success;
+            Callback = callback;
         }
+    }
+    public struct PathRequest
+    {
+        public Vector3 PathStart;
+        public Vector3 PathEnd;
+        public bool History;
+        public Action<Vector3[], bool> Callback;
 
-        struct PathRequest
+
+        public PathRequest(Vector3 _start, Vector3 _end, bool history, Action<Vector3[], bool> _callback)
         {
-            public Vector3 PathStart;
-            public Vector3 PathEnd;
-            public bool History;
-            public Action<Vector3[], bool> Callback;
-
-
-            public PathRequest(Vector3 _start, Vector3 _end, bool history, Action<Vector3[], bool> _callback)
-            {
-                PathStart = _start;
-                PathEnd = _end;
-                History = history;
-                Callback = _callback;
-            }
-
+            PathStart = _start;
+            PathEnd = _end;
+            History = history;
+            Callback = _callback;
         }
     }
 }

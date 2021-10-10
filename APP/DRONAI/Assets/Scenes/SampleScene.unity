@@ -14453,7 +14453,7 @@ MonoBehaviour:
   - TerrainMask:
       serializedVersion: 2
       m_Bits: 128
-    TerrainPenalty: 5
+    TerrainPenalty: 8
   obstacleProximityPenalty: 10
 --- !u!114 &1699721371
 MonoBehaviour:

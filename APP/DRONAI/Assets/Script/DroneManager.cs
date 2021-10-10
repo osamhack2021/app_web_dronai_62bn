@@ -266,6 +266,7 @@ public class DroneManager : SerializedMonoBehaviour
         // Dynamic A* 맵 Rebake
         AstarPathRequestManager.RequestUpdateGrid();
 
+        int buildFinished = 0;
         Queue<Drone> q = new Queue<Drone>();
         foreach (Drone drone in drones)
         {
@@ -273,11 +274,21 @@ public class DroneManager : SerializedMonoBehaviour
         }
         for (int i = 0; i < drones.Count; i++)
         {
-            drones[i].DefineFormation(q, destination);
+            drones[i].DefineFormation(q, destination, ()=>
+            {
+                buildFinished++;
+            });
             yield return new WaitForSeconds(1f);
         }
 
-        // print("잔여 드론 : " + DronePool.PoolListCount());
+        // 드론 포메이션 구축 대기
+        while(buildFinished < n)
+        {
+            yield return null;
+        }
+
+        // 포메이션 구축 완료, 맵 리베이크
+        AstarPathRequestManager.RequestUpdateGrid();
     }
 
 
@@ -293,7 +304,7 @@ public class DroneManager : SerializedMonoBehaviour
     }
     public void FindDynamicPath(Vector3 start, Vector3 destination, bool history, Action<Vector3[], bool> result)
     {
-        AstarPathRequestManager.RequestPath(start, destination, history, result);
+        AstarPathRequestManager.RequestPath(new PathRequest(start, destination, history, result));
     }
     #endregion
 

@@ -387,7 +387,7 @@ public class Drone : Entity
         return;
     }
 
-    public void DefineFormation(Queue<Drone> formationOrder, Vector3 indexPosition)
+    public void DefineFormation(Queue<Drone> formationOrder, Vector3 indexPosition, Action OnFinished)
     {
         // 변수 정의
         int priority = 20;
@@ -400,7 +400,7 @@ public class Drone : Entity
 
             // Build Formation Routine [20] 생성 및 마무리
             formationPosition = indexPosition;
-            Coroutine routine = StartCoroutine(BuildFormation(formationPosition, priority));
+            Coroutine routine = StartCoroutine(BuildFormation(formationPosition, priority, OnFinished));
             routinesQueue.Enqueue(new Routine(routine, priority), priority);
         }
         else // 자식 드론입니다
@@ -427,11 +427,11 @@ public class Drone : Entity
             formationPosition.y += -(formationIndex * 0.5f);
 
             // Build Formation Routine [20] 생성 및 마무리
-            Coroutine routine = StartCoroutine(BuildFormation(formationPosition, priority));
+            Coroutine routine = StartCoroutine(BuildFormation(formationPosition, priority, OnFinished));
             routinesQueue.Enqueue(new Routine(routine, priority), priority);
         }
     }
-    private IEnumerator BuildFormation(Vector3 position, int priority)
+    private IEnumerator BuildFormation(Vector3 position, int priority, Action OnFinished)
     {
         // Variables
         bool isFinding = true;
@@ -441,16 +441,15 @@ public class Drone : Entity
         // Find the path
         while (!findable)
         {
-            AstarPathRequestManager.RequestPath(Position, position, true, (Vector3[] waypoints, bool pathSucessful) =>
+            AstarPathRequestManager.RequestPath(new PathRequest(Position, position, true, (Vector3[] waypoints, bool pathSucessful) =>
             {
                 findable = pathSucessful;
                 isFinding = false;
                 if (pathSucessful)
                 {
                     path = new AstarPath(waypoints, Position, turnDst);
-                    print("목적지 : " + position + "," + waypoints[waypoints.Length - 1]);
                 }
-            });
+            }));
             for (; ; )
             {
                 if (!isFinding)
@@ -473,7 +472,7 @@ public class Drone : Entity
         int pathIndex = 0;
 
         DrawLine(path);
-        transform.LookAt(path.LookPoints[0]);
+        // transform.LookAt(path.LookPoints[0]);
 
         while (followingPath)
         {
@@ -498,9 +497,10 @@ public class Drone : Entity
 
             if (followingPath)
             {
-                Quaternion targetRotation = Quaternion.LookRotation(path.LookPoints[pathIndex] - Position);
-                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
-                transform.Translate(Vector3.forward * Time.deltaTime * speed * 10, Space.Self);
+                // Quaternion targetRotation = Quaternion.LookRotation(path.LookPoints[pathIndex] - Position);
+                // transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
+                // transform.Translate(Vector3.forward * Time.deltaTime * speed * 10, Space.Self);
+                transform.position = Vector3.MoveTowards(Position, path.LookPoints[pathIndex], Time.deltaTime * speed * 10);
             }
             yield return null;
         }
@@ -511,9 +511,9 @@ public class Drone : Entity
         routinesQueue.Enqueue(new Routine(routine, priority), priority);
 
 
-        // Exit
+        // Finalize
+        OnFinished?.Invoke();
         routinesQueue.Dequeue();
-        // print(name + " | MVROUTINE 제거됨 --> " + priority + " 현재 FIRST --> " + routinesQueue.FirstPriority);
         yield break;
     }
     private IEnumerator FormationRoutine(int priority)
@@ -606,12 +606,12 @@ public class Drone : Entity
         bool isFinding = true;
         bool findable = false;
 
-        AstarPathRequestManager.RequestPath(Position, destination, false, (Vector3[] waypoints, bool result) =>
+        AstarPathRequestManager.RequestPath(new PathRequest(Position, destination, false, (Vector3[] waypoints, bool result) =>
         {
             currentPath = new AstarPath(waypoints, Position, turnDst);
             findable = result;
             isFinding = false;
-        });
+        }));
 
         // 경로 탐색 중...
         while (isFinding)
