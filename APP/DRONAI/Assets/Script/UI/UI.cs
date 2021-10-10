@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using Sirenix.OdinInspector;
-
+using System.Text;
 
 public class UI : MonoBehaviour
 {
@@ -16,8 +16,16 @@ public class UI : MonoBehaviour
     // Windows
     [BoxGroup("Window"), SerializeField] private GameObject[] windows = default;
     private GameObject previousWindow = null;
-    
+
     private int currentWindow = 0;
+
+    // Command variables
+    [BoxGroup("Command"), SerializeField] private TMP_Text droneFormationInfoHeader = default;
+    [BoxGroup("Command"), SerializeField] private TMP_InputField droneFormationCountInput = default;
+    [BoxGroup("Command"), SerializeField] private TMP_Text droneFormationCheckResultText = default;
+    [BoxGroup("Command"), SerializeField] private TMP_InputField dronePathInput = default;
+    [BoxGroup("Command"), SerializeField] private TMP_Text droneFormationLogText = default;
+
 
 
     // Input variables
@@ -94,6 +102,10 @@ public class UI : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 윈도우를 표시하기 전 윈도우 요소들을 최신화 해주는 함수
+    /// </summary>
+    /// <param name="code"></param>
     private void UpdateWindow(int code)
     {
         currentWindow = code;
@@ -112,6 +124,17 @@ public class UI : MonoBehaviour
 
         targetAnim = windows[code].GetComponent<Animation>();
         targetAnim.Play("Area_Intro");
+
+        // 요소 최신화
+        StringBuilder sb = new StringBuilder();
+        sb.Append("드론 편대 [온라인 : " + droneManager.AvailableDrone + "대 | 작업 중 : " + droneManager.WorkingDrone.ToString() + "대 | 전체 : " + droneManager.TotalDrone.ToString() + "]");
+        droneFormationInfoHeader.text = sb.ToString();
+        sb.Clear();
+
+        sb.Append("Console is ready...waiting");
+        droneFormationLogText.text = sb.ToString();
+        sb.Clear();
+
     }
 
     /// <summary>
@@ -143,6 +166,29 @@ public class UI : MonoBehaviour
     }
     #endregion
 
+    #region Event
+    public void OnFormationCheckButtonDown()
+    {
+        int count = 0;
+        try
+        {
+            count = int.Parse(droneFormationCountInput.text);
+        }
+        catch
+        {
+            droneFormationCheckResultText.text = "<color=\"red\">입력 오류</color>";
+            return;
+        }
+
+        if (count <= droneManager.AvailableDrone)
+        {
+            droneFormationCheckResultText.text = "<color=\"green\">출동 가능</color>";
+        }
+        else
+        {
+            droneFormationCheckResultText.text = "<color=\"red\">드론 부족</color>";
+        }
+    }
     public void OnDroneSelected(string id)
     {
         // Close th selection window when drone selected
@@ -161,7 +207,7 @@ public class UI : MonoBehaviour
         if (!droneIdInput.text.Contains("Drone")) // 편대 구축할 드론의 수 입력
         {
             string[] position = dronePosInput.text.Split(',');
-            if (position.Length != 3) 
+            if (position.Length != 3)
             {
                 print("Please re-enter");
                 return;
@@ -181,6 +227,7 @@ public class UI : MonoBehaviour
         }
     }
 
+    #endregion
     #region Functions
 
     public void AutoFill(string text)

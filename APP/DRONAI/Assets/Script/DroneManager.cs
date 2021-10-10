@@ -99,6 +99,27 @@ public class DroneManager : SerializedMonoBehaviour
     [BoxGroup("OBJECTS"), SerializeField] public Dictionary<string, Drone> DroneDic = new Dictionary<string, Drone>();
     [BoxGroup("OBJECTS"), OdinSerialize] public Pool DronePool = new Pool();
 
+    public int TotalDrone
+    {
+        get
+        {
+            return DroneDic.Count;
+        }
+    }
+    public int AvailableDrone
+    {
+        get
+        {
+            return DronePool.PoolListCount();
+        }
+    }
+    public int WorkingDrone
+    {
+        get
+        {
+            return TotalDrone - AvailableDrone;
+        }
+    }
 
     #endregion
 
