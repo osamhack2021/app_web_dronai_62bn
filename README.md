@@ -216,7 +216,7 @@ $ yarn start
       </tr>
       <tr>
         <td width="100" align="center">
-          <img src="https://user-images.githubusercontent.com/36218321/136219864-0080e8a5-bc09-4713-b70a-defb58d6a98c.png" width="100%" height="100%">
+          <img src="https://user-images.githubusercontent.com/36218321/136688194-71fbd009-9ffa-4887-9078-74040007947a.jpg" width="100%" height="100%">
         </td>
         <td width="100" align="center">한충현</td>
         <td width="200" align="center">Front End<br>Web Developer</td>
