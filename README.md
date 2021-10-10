@@ -61,10 +61,14 @@
 </details>
 
 <h2 id="about"> :grey_question: 프로젝트 소개</h2>
-
-> 드론 전투체계를 통합적으로 관리하는 플랫폼이다. 
-
+<blockquote>드론 전투체계를 통합적으로 관리하는 플랫폼이다.</blockquote>
 <img src="https://media.wired.com/photos/59327007a312645844994da4/master/w_1600,c_limit/shadows2.gif" height="100%" width="100%"></img>
+
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
+
+<h3>클라이언트 UI 프로토타입</h3>
+<blockquote>작업 중인 클라이언트 UI 2차 프로토타입 초안</blockquote>
+<img src="https://user-images.githubusercontent.com/36218321/136693588-115e3798-1b5e-4690-8711-85e736728e16.png">
 
 
 <h2 id="features"> :mag: 기능 설명</h2>
@@ -203,7 +207,7 @@ $ yarn start
       </tr>
       <tr>
         <td width="100" align="center">
-          <img src="https://user-images.githubusercontent.com/36218321/136219864-0080e8a5-bc09-4713-b70a-defb58d6a98c.png" width="100%" height="100%">
+          <img src="https://user-images.githubusercontent.com/36218321/136693616-8772f2c6-6f71-4ea5-9a67-a233c5a720b7.jpg" width="100%" height="100%">
         </td>
         <td width="100" align="center">강건구</td>
         <td width="200" align="center">Algo & Logic<br>Client Developer</td>
