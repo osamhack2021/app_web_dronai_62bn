@@ -6,7 +6,7 @@ import { testmenu } from './testmenu';
 //-----------------------|| MENU ITEMS ||-----------------------//
 
 const menuItems = {
-    items: [dashboard, utilities, settings, testmenu]
+    items: [dashboard, testmenu]
 };
 
 export default menuItems;
