@@ -130,6 +130,7 @@ namespace Dronai.Path
                 }
                 directionOld = directionNew;
             }
+            waypoints.Add(path[path.Count - 1].WorldPosition);
             return waypoints;
         }
 

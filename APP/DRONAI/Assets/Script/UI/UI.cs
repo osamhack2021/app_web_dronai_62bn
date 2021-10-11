@@ -10,20 +10,26 @@ public class UI : MonoBehaviour
 {
     // Components
     [BoxGroup("Components"), SerializeField] private DroneManager droneManager = default;
+    [BoxGroup("Components"), SerializeField] private CameraManager cameraManager = default;
     [BoxGroup("Components"), SerializeField] private Animation anim = default;
 
 
     // Windows
-    [BoxGroup("Window"), SerializeField] private GameObject[] windows = default;
+    [BoxGroup("Window"), SerializeField] private GameObject[] windowsUI = default;
+    [BoxGroup("Window"), SerializeField] private GameObject[] windowsOverview = default;
+    private int currentWindow = 0;
     private GameObject previousWindow = null;
 
-    private int currentWindow = 0;
+
+    // Overview variables
+    private List<Vector3> currentOverviewNodes = new List<Vector3>();
+
 
     // Command variables
     [BoxGroup("Command"), SerializeField] private TMP_Text droneFormationInfoHeader = default;
     [BoxGroup("Command"), SerializeField] private TMP_InputField droneFormationCountInput = default;
     [BoxGroup("Command"), SerializeField] private TMP_Text droneFormationCheckResultText = default;
-    [BoxGroup("Command"), SerializeField] private TMP_InputField dronePathInput = default;
+    [BoxGroup("Command"), SerializeField] private TMP_InputField droneFormationPathInput = default;
     [BoxGroup("Command"), SerializeField] private TMP_Text droneFormationLogText = default;
 
 
@@ -42,6 +48,7 @@ public class UI : MonoBehaviour
 
     // Conditions
     private bool isWindowEnabled = false;
+    private bool isOverviewWindowEnabled = false;
     private bool isSelectionWindowEnabled = false;
 
 
@@ -69,7 +76,7 @@ public class UI : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            ShowUI(isWindowEnabled);
+            CallWindow(isWindowEnabled);
         }
         if (Input.GetKeyDown(KeyCode.Tab))
         {
@@ -79,8 +86,13 @@ public class UI : MonoBehaviour
     #endregion
 
     #region Window
-    private void ShowUI(bool state)
+    private void CallWindow(bool state)
     {
+        if (isOverviewWindowEnabled || isSelectionWindowEnabled)
+        {
+            return;
+        }
+
         if (!state)
         {
             // change state
@@ -120,9 +132,9 @@ public class UI : MonoBehaviour
             targetAnim.Play("Area_Outro");
         }
 
-        previousWindow = windows[code];
+        previousWindow = windowsUI[code];
 
-        targetAnim = windows[code].GetComponent<Animation>();
+        targetAnim = windowsUI[code].GetComponent<Animation>();
         targetAnim.Play("Area_Intro");
 
         // 요소 최신화
@@ -146,8 +158,24 @@ public class UI : MonoBehaviour
         if (currentWindow == code) return;
         else UpdateWindow(code);
     }
+    public void OpenOverviewWindow(int code)
+    {
+        isOverviewWindowEnabled = true;
 
+        foreach (GameObject o in windowsOverview)
+        {
+            o.SetActive(false);
+        }
+        windowsOverview[code].SetActive(true);
 
+        PlayAnimationSafe(anim, "UI_Seperate_In");
+    }
+    public void CloseOverviewWindow()
+    {
+        isOverviewWindowEnabled = false;
+
+        PlayAnimationSafe(anim, "UI_Seperate_Out");
+    }
     private void CallSelectionWindow(bool state)
     {
         if (state)
@@ -166,9 +194,56 @@ public class UI : MonoBehaviour
     }
     #endregion
 
-    #region Event
-    public void OnFormationCheckButtonDown()
+    #region Overview UI
+    int overviewIndex = 0;
+
+    /// <summary>
+    /// Overview ui로 부터 카메라 타겟 요청을 받을 때 수행되는 함수
+    /// </summary>
+    /// <param name="direction">T is next F is previous</param>
+    public void ChangeCameraTarget(bool direction)
     {
+        if (direction)
+        {
+            // Next
+            if (overviewIndex < currentOverviewNodes.Count - 1)
+            {
+                overviewIndex++;
+
+                // Change the actual target
+                cameraManager.ChangeTarget(currentOverviewNodes[overviewIndex]);
+            }
+        }
+        else
+        {
+            // Previous
+            if (overviewIndex > 0)
+            {
+                overviewIndex--;
+
+                // Change the actual target
+                cameraManager.ChangeTarget(currentOverviewNodes[overviewIndex]);
+            }
+        }
+    }
+
+    #endregion
+
+
+    #region Formation UI
+    private void ClearFormationInput()
+    {
+        droneFormationPathInput.text = "";
+        droneFormationCountInput.text = "";
+    }
+    private int CheckCountInput()
+    {
+        // 요소 최신화
+        StringBuilder sb = new StringBuilder();
+        sb.Append("드론 편대 [온라인 : " + droneManager.AvailableDrone + "대 | 작업 중 : " + droneManager.WorkingDrone.ToString() + "대 | 전체 : " + droneManager.TotalDrone.ToString() + "]");
+        droneFormationInfoHeader.text = sb.ToString();
+        sb.Clear();
+
         int count = 0;
         try
         {
@@ -177,7 +252,8 @@ public class UI : MonoBehaviour
         catch
         {
             droneFormationCheckResultText.text = "<color=\"red\">입력 오류</color>";
-            return;
+            droneFormationLogText.text = "[<color=\"red\">입력 오류!</color>] 드론 수 입력란을 확인하세요!";
+            return -1;
         }
 
         if (count <= droneManager.AvailableDrone)
@@ -187,8 +263,97 @@ public class UI : MonoBehaviour
         else
         {
             droneFormationCheckResultText.text = "<color=\"red\">드론 부족</color>";
+            droneFormationLogText.text = "[<color=\"red\">가용 불가!</color>] 가용 가능한 드론 수가 입력한 값보다 부족합니다!";
+            return -1;
         }
+
+        return count;
     }
+    private List<Vector3> CheckPathInput()
+    {
+        List<Vector3> nodes = new List<Vector3>();
+        try
+        {
+            string[] plain = droneFormationPathInput.text.Trim().Split(';');
+            foreach (string pos in plain)
+            {
+                string[] value = pos.Trim().Split(',');
+                float x = float.Parse(value[0]);
+                float y = float.Parse(value[1]);
+                float z = float.Parse(value[2]);
+                nodes.Add(new Vector3(x, y, z));
+            }
+        }
+        catch
+        {
+            droneFormationLogText.text = "[<color=\"red\">입력 오류!</color>] 드론 경로 입력란을 확인하세요! (EX 1,1,1 ; 10,5,10 ; 3,3,3)";
+            return null;
+        }
+
+        return nodes;
+    }
+    public void OnFormationCheckButtonDown()
+    {
+        CheckCountInput();
+    }
+    public void OnFomrationOverviewButtonDown()
+    {
+        currentOverviewNodes = CheckPathInput();
+
+        if (currentOverviewNodes.Count < 2)
+        {
+            droneFormationLogText.text = "[<color=\"red\">입력 오류!</color>] 최소 2개 이상의 노드가 필요합니다! (EX 1,1,1 ; 10,5,10 ; 3,3,3)";
+            return;
+        }
+
+        droneManager.OverviewDroneFormation(currentOverviewNodes, (bool success) =>
+        {
+            if (success)
+            {
+                OpenOverviewWindow(0);
+                return;
+            }
+            else
+            {
+                droneFormationLogText.text = "[<color=\"red\">미리보기 실패</color>]";
+                return;
+            }
+        });
+    }
+    public void OnFormationExecuteButtonDown()
+    {
+        int count = CheckCountInput();
+
+        if (count == -1)
+        {
+            return;
+        }
+
+        List<Vector3> nodes = CheckPathInput();
+
+        if (nodes.Count < 2)
+        {
+            droneFormationLogText.text = "[<color=\"red\">입력 오류!</color>] 최소 2개 이상의 노드가 필요합니다! (EX 1,1,1 ; 10,5,10 ; 3,3,3)";
+            return;
+        }
+
+        droneManager.DefineDroneFormation(count, nodes, (bool success) =>
+        {
+            if (success)
+            {
+                droneFormationLogText.text = "[<color=\"green\">편대 구성 성공</color>]";
+                ClearFormationInput();
+                return;
+            }
+            else
+            {
+                droneFormationLogText.text = "[<color=\"red\">편대 구성 실패</color>]";
+                return;
+            }
+        });
+    }
+
+    // Need to remove
     public void OnDroneSelected(string id)
     {
         // Close th selection window when drone selected
@@ -216,7 +381,7 @@ public class UI : MonoBehaviour
             Vector3 pos = new Vector3(float.Parse(position[0]), float.Parse(position[1]), float.Parse(position[2]));
             //droneManager.MoveSingleDrone(droneIdInput.text, pos);
 
-            droneManager.BuildDroneFormation(pos, int.Parse(droneIdInput.text.ToString()));
+            // droneManager.BuildDroneFormation(pos, int.Parse(droneIdInput.text.ToString()));
             return;
         }
 
@@ -226,10 +391,11 @@ public class UI : MonoBehaviour
             return;
         }
     }
+    // --- x
 
     #endregion
-    #region Functions
 
+    #region Functions
     public void AutoFill(string text)
     {
         if (dronePosInput.text.Length == 0)
@@ -241,7 +407,6 @@ public class UI : MonoBehaviour
             }
         }
     }
-
 
     /// <summary>
     /// 이전 애니메이션을 강제로 멈추고 요청받은 애니메이션을 재생합니다.

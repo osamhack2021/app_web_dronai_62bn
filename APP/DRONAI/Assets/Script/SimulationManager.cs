@@ -44,7 +44,7 @@ public class SimulationManager : Singleton<SimulationManager>
 
         // Intialize components
         droneManager.Initialize();
-        cameraManager.Initialize();
+        cameraManager.Initialize(droneManager.GetFirstDrone().transform);
         ui.Initialize();
 
         // Finalize

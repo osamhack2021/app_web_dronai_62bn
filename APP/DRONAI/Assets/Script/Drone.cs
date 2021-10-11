@@ -30,7 +30,7 @@ public class Drone : Entity
     [FoldoutGroup("Property"), ReadOnly] public bool IsWorking = false;
     [FoldoutGroup("Property"), SerializeField] private float speed = 2f;
     [FoldoutGroup("Property"), SerializeField] private float turnSpeed = 3f;
-    [FoldoutGroup("Property"), SerializeField] private float turnDst = 5f;
+    [FoldoutGroup("Property"), SerializeField] private float turnDst = 2f;
     [FoldoutGroup("Property"), SerializeField] private AnimationCurve timeCurve = default;
 
     // 현재 할당 되어있는 Path
@@ -141,7 +141,7 @@ public class Drone : Entity
             isDead = true;
 
             // 리스트 안에 드론이 있다면 없애줘야함
-            if (droneManager.DronePool.IsItemInList(this.GetID())) droneManager.DronePool.DeleteItemInList(this);
+            if (droneManager.DronePool.ContainsItem(this.GetID())) droneManager.DronePool.DeleteItemInList(this);
 
             // Stop routines
             StopAllCoroutines();
@@ -387,6 +387,12 @@ public class Drone : Entity
         return;
     }
 
+    public Drone GetHeadDrone()
+    {
+        return formationOrder.Peek();
+    }
+
+
     public void DefineFormation(Queue<Drone> formationOrder, Vector3 indexPosition, Action OnFinished)
     {
         // 변수 정의
@@ -394,7 +400,7 @@ public class Drone : Entity
         this.formationOrder = formationOrder;
 
 
-        if (formationOrder.Peek().id.Equals(id)) // 헤드 드론입니다
+        if (GetHeadDrone().id.Equals(id)) // 헤드 드론입니다
         {
             formationIndex = -1;
 
@@ -435,15 +441,15 @@ public class Drone : Entity
     {
         // Variables
         bool isFinding = true;
-        bool findable = false;
+        bool isFindable = false;
         AstarPath path = default;
 
         // Find the path
-        while (!findable)
+        while (!isFindable)
         {
             AstarPathRequestManager.RequestPath(new PathRequest(Position, position, true, (Vector3[] waypoints, bool pathSucessful) =>
             {
-                findable = pathSucessful;
+                isFindable = pathSucessful;
                 isFinding = false;
                 if (pathSucessful)
                 {
@@ -458,7 +464,7 @@ public class Drone : Entity
                 }
                 yield return null;
             }
-            if (!findable)
+            if (!isFindable)
             {
                 // 경로를 찾지 못한다면 동적 Pathing 을 포기하고 다시 검색
                 print("[" + name + "] 경로 탐색 실패! 맵을 초기화합니다");
@@ -538,7 +544,7 @@ public class Drone : Entity
             }
 
             // 부모드론 파괴시 예약된 다음 부모 노드를 받아옵니다
-            if (formationOrder.Peek() == null)
+            if (GetHeadDrone() == null)
             {
                 formationOrder.Dequeue();
 
@@ -546,14 +552,14 @@ public class Drone : Entity
                 UpdateIndex();
             }
 
-            if (formationOrder.Peek().id.Equals(id)) // 헤드 드론입니다
+            if (GetHeadDrone().id.Equals(id)) // 헤드 드론입니다
             {
                 // Do something in here
             }
             else
             {
                 // Follow
-                Vector3 destination = formationOrder.Peek().HeadPosition;
+                Vector3 destination = GetHeadDrone().HeadPosition;
 
                 // 각도 및 반지름 계산
                 float radian = 2f * (float)Math.PI / (formationOrder.Count - 1);
@@ -578,7 +584,7 @@ public class Drone : Entity
 
     public void MoveFormation()
     {
-        if (!formationOrder.Peek().id.Equals(id))
+        if (!GetHeadDrone().id.Equals(id))
         {
             // 헤드 드론이 아니면 Formation 통제 권한을 갖을 수 없습니다.
             return;
@@ -604,12 +610,12 @@ public class Drone : Entity
     {
         // Variables
         bool isFinding = true;
-        bool findable = false;
+        bool isFindable = false;
 
         AstarPathRequestManager.RequestPath(new PathRequest(Position, destination, false, (Vector3[] waypoints, bool result) =>
         {
             currentPath = new AstarPath(waypoints, Position, turnDst);
-            findable = result;
+            isFindable = result;
             isFinding = false;
         }));
 
@@ -619,7 +625,7 @@ public class Drone : Entity
             yield return null;
         }
 
-        if (findable)
+        if (isFindable)
         {
             DrawLine(currentPath, true);
         }
