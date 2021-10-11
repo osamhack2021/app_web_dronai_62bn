@@ -661,9 +661,10 @@ public class DroneManager : SerializedMonoBehaviour
         lr.positionCount = path.LookPoints.Length;
         for (int i = 0; i < path.LookPoints.Length; i++)
         {
-            // 포인트 생성
+            // 포인트 생성 및 기록
             GameObject point = Instantiate(linePointPrefab, transform);
             point.transform.position = path.LookPoints[i];
+            linePoints.Add(point);
 
             // 라인 생성
             lr.SetPosition(i, path.LookPoints[i]);
@@ -710,7 +711,7 @@ public class DroneManager : SerializedMonoBehaviour
         // 경로 기록에 추가
         lineRenderers.Add(lr);
     } 
-    private void ClearLine()
+    public void ClearLine()
     {
         foreach (LineRenderer l in lineRenderers) Destroy(l.gameObject);
         lineRenderers.Clear();

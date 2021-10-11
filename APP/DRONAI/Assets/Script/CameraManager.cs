@@ -10,6 +10,7 @@ public class CameraManager : MonoBehaviour
 
     // Free camera variables
     private Transform targetTransform = default;
+    private Transform defaultTargetTransform = default;
     private Vector3 targetPosition = default;
     private bool isVector = false;
     private Vector3 target
@@ -36,7 +37,8 @@ public class CameraManager : MonoBehaviour
     public void Initialize(Transform target)
     {
         // Initial target
-        ChangeTarget(target);
+        defaultTargetTransform = target;
+        SetToDefaultTarget();
     }
     private void Update()
     {
@@ -105,6 +107,10 @@ public class CameraManager : MonoBehaviour
     {
         isVector = true;
         targetPosition = position;
+    }
+    public void SetToDefaultTarget()
+    {
+        ChangeTarget(defaultTargetTransform);
     }
 
 }

@@ -23,6 +23,7 @@ public class UI : MonoBehaviour
 
     // Overview variables
     private List<Vector3> currentOverviewNodes = new List<Vector3>();
+    int overviewIndex = 0; // 카메라 타겟 인덱스
 
 
     // Command variables
@@ -160,20 +161,32 @@ public class UI : MonoBehaviour
     }
     public void OpenOverviewWindow(int code)
     {
+        // Variables set
         isOverviewWindowEnabled = true;
+        overviewIndex = 0;
 
+        // Prepare the target window
         foreach (GameObject o in windowsOverview)
         {
             o.SetActive(false);
         }
         windowsOverview[code].SetActive(true);
 
+        // Play
         PlayAnimationSafe(anim, "UI_Seperate_In");
     }
     public void CloseOverviewWindow()
     {
+        // Variables set
         isOverviewWindowEnabled = false;
 
+        // 드론 매니저가 생성한 디버그 라인들 전부 종료
+        droneManager.ClearLine();
+
+        // 카메라 원위치
+        cameraManager.SetToDefaultTarget();
+
+        // Play
         PlayAnimationSafe(anim, "UI_Seperate_Out");
     }
     private void CallSelectionWindow(bool state)
@@ -195,7 +208,6 @@ public class UI : MonoBehaviour
     #endregion
 
     #region Overview UI
-    int overviewIndex = 0;
 
     /// <summary>
     /// Overview ui로 부터 카메라 타겟 요청을 받을 때 수행되는 함수
