@@ -138,7 +138,7 @@ public class DroneManager : SerializedMonoBehaviour
         [SerializeField] private List<GameObject> portAreas = new List<GameObject>();
         [SerializeField] private Queue<int> availabe = new Queue<int>();
 
-        private float safetyDistance = 2f;
+        [SerializeField, Range(2, 10)] private float safetyDistance = 4f;
 
         public Port()
         {
@@ -191,7 +191,9 @@ public class DroneManager : SerializedMonoBehaviour
         }
         public Vector3 GetPortPosition(int key)
         {
-            return portAreas[key].transform.position + new Vector3(0, safetyDistance, 0);
+            Vector3 result = portAreas[key].transform.position;
+            result.y += safetyDistance;
+            return result;
         }
     }
 
@@ -219,7 +221,8 @@ public class DroneManager : SerializedMonoBehaviour
 
     [BoxGroup("FORMATION"), OdinSerialize] public List<Formation> formations = new List<Formation>();
     [BoxGroup("FORMATION/PORT"), OdinSerialize] public Port port = new Port();
-    [BoxGroup("FORMATION/PORT"), Button(ButtonSizes.Medium)] private void UpdatePort()
+    [BoxGroup("FORMATION/PORT"), Button(ButtonSizes.Medium)]
+    private void UpdatePort()
     {
         port.UpdatePort();
     }
@@ -492,16 +495,16 @@ public class DroneManager : SerializedMonoBehaviour
             isSuccess = success;
             isWorking = false;
         });
-        
+
 
         // 경로 탐색 대기
         while (isWorking) yield return null;
 
 
         // 만약 경로 요청을 실패 했다면...
-        if(!isSuccess)
+        if (!isSuccess)
         {
-            foreach(KeyValuePair<String, Drone> item in targetFormation.Drones)
+            foreach (KeyValuePair<String, Drone> item in targetFormation.Drones)
             {
                 DronePool.PushToPool(item.Value);
             }
@@ -710,7 +713,7 @@ public class DroneManager : SerializedMonoBehaviour
 
         // 경로 기록에 추가
         lineRenderers.Add(lr);
-    } 
+    }
     public void ClearLine()
     {
         foreach (LineRenderer l in lineRenderers) Destroy(l.gameObject);

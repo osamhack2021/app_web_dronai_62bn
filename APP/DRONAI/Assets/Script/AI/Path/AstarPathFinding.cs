@@ -50,7 +50,6 @@ namespace Dronai.Path
                 while (openSet.Count > 0)
                 {
                     AstarNode currentNode = openSet.RemoveFirst();
-                    // print("world : " + currentNode.WorldPosition);
 
                     closedSet.Add(currentNode);
 
