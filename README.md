@@ -84,6 +84,11 @@
         <li>etc...</li>
       </ul>
     <li>웹 대시보드</li>
+      <ul>
+        <li><a href="#login">로그인 기능<a/></li>
+        <li><a href="#dashboard">대시보드<a/></li>
+        <li><a href="#eventlist">이벤트 리스트<a/></li>
+    </ul>
   </ul>
 </details>
 
@@ -109,6 +114,14 @@
 <blockquote>원하는 사이즈와 높이, 생성 빈도에 맞추어 초기 드론 그룹을 자동으로 생성해 준다</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/136124125-f10d4fd4-4b9d-434a-b224-375c17981f74.gif"></img>
 
+<h3 id="login">로그인 기능 / LOGIN </h3>
+<blockquote>회원가입, 로그인 기능이다.</blockquote>
+
+<h3 id="dashboard">대쉬보드 / DASHBOARD </h3>
+<blockquote>기본 페이지입니다.</blockquote>
+
+<h3 id="eventlist">이벤트 리스트 / EVENT LIST </h3>
+<blockquote>이벤트 리스트입니다.</blockquote>
 
 
 <h2 id="techniques"> :electric_plug: 기술 스택 (Techniques Used)</h2>
