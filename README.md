@@ -29,7 +29,7 @@
       <img src="https://img.shields.io/github/forks/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge"/>
     </a>
     <a href="https://github.com/osamhack2021/app_web_dronai_62bn/stargazers">
-      <img src="http://img.shields.io/github/stars/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge"/>
+      <img src="https://img.shields.io/github/stars/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge"/>
     </a>
     <a href="https://github.com/osamhack2021/app_web_dronai_62bn/issues">
       <img src="https://img.shields.io/github/issues/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge"/>
