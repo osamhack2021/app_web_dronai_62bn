@@ -71,8 +71,10 @@
 <img src="https://user-images.githubusercontent.com/36218321/136693588-115e3798-1b5e-4690-8711-85e736728e16.png">
 
 <h3>데모 페이지</h3>
-<blockquote>로그인 </blockquote>
-<img src="https://user-images.githubusercontent.com/89467983/137246368-1da3a483-9081-4144-8381-ba4dc3d8b489.gif"></img>
+<blockquote>회원가입</blockquote>
+<img src="https://user-images.githubusercontent.com/36218321/137323586-d659536d-c1b9-417c-b542-8c6a7fb0162d.gif"></img>
+<blockquote>로그인</blockquote>
+<img src="https://user-images.githubusercontent.com/36218321/137323452-e29a1641-f478-4679-baa0-d4b1352eba6b.gif"></img>
 
 <h2 id="features"> :mag: 기능 설명</h2>
 <blockquote>DRONAI에서 제공하는 기능에 대해 기술하는 영역</blockquote>
@@ -122,7 +124,7 @@
 
 <h3 id="dashboard">대쉬보드 / DASHBOARD </h3>
 <blockquote>기본 페이지입니다.</blockquote>
-<img src="https://user-images.githubusercontent.com/89467983/137246513-13532625-14f4-4d15-9665-fa657dd5cfd4.png"></img>
+<img src="https://user-images.githubusercontent.com/36218321/137323802-263094f6-170c-4533-9d57-c01515691cc8.PNG"></img>
 
 <h3 id="eventlist">이벤트 리스트 / EVENT LIST </h3>
 <blockquote>이벤트 리스트입니다.</blockquote>
