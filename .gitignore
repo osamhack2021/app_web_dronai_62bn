@@ -1,3 +1,54 @@
-# APP (Additional)
-APP/DRONAI/Assets/Design
-APP/DRONAI/Assets/Plugins
+# =============================== #
+# ====== DRONAI SIMULATION ====== #
+# =============================== #
+CLIENT/DRONAI/Assets/Design
+CLIENT/DRONAI/Assets/Plugins
+
+# =============================== #
+# ====== DRONAI DASHBOARD ====== #
+# =============================== #
+/WEB(FE)/node_modules
+/WEB(FE)/build
+
+# dependencies
+/WEB(FE)/node_modules
+/WEB(FE)/.pnp
+/WEB(FE)/.pnp.js
+
+# testing
+/WEB(FE)/coverage
+
+# production
+/WEB(FE)/build
+
+# misc
+/WEB(FE)/.DS_Store
+/WEB(FE)/.env.local
+/WEB(FE)/.env.development.local
+/WEB(FE)/.env.test.local
+/WEB(FE)/.env.production.local
+
+/WEB(FE)/npm-debug.log*
+/WEB(FE)/yarn-debug.log*
+/WEB(FE)/yarn-error.log*
+/WEB(FE)/.idea/
+
+
+# =============================== #
+# ========= DRONAI API ========== #
+# =============================== #
+/WEB(BE)/node_modules
+/WEB(BE)/build
+
+# Logs
+*.log
+/WEB(BE)/npm-debug.log*
+/WEB(BE)/yarn-debug.log*
+/WEB(BE)/yarn-error.log*
+
+# Images
+/WEB(BE)/public/images/*.jpg
+/WEB(BE)/public/images/*.png
+
+# Database
+*.db

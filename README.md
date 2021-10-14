@@ -4,7 +4,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/osamhack2021/app_web_dronai_62bn">
-    <img src="https://github.com/osamhack2021/app_web_dronai_62bn/blob/master/WEB/logo-images/logo_only.png" alt="Logo" width="256px" height="256px">
+    <img src="https://github.com/osamhack2021/app_web_dronai_62bn/blob/master/resources/logo-images/logo_only.png" alt="Logo" width="256px" height="256px">
   </a>
 
   <h3 align="center">DRONAI</h3>
