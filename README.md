@@ -122,6 +122,7 @@
 
 <h3 id="dashboard">대쉬보드 / DASHBOARD </h3>
 <blockquote>기본 페이지입니다.</blockquote>
+<img src="https://user-images.githubusercontent.com/89467983/137246513-13532625-14f4-4d15-9665-fa657dd5cfd4.png"></img>
 
 <h3 id="eventlist">이벤트 리스트 / EVENT LIST </h3>
 <blockquote>이벤트 리스트입니다.</blockquote>
