@@ -186,14 +186,14 @@
 
 -  API 서버 실행
 ```bash
-$ cd .\dronai-api\
+$ cd ./WEB\(BE\)/
 $ yarn
 $ yarn typeorm migration:run
 $ yarn dev
 ```
 -  DASHBOARD FRONTEND 실행
 ```bash
-$ cd .\dronai-dashboard\
+$ cd ./WEB\(FE\)/
 $ yarn
 $ yarn start
 ```
