@@ -72,7 +72,7 @@
 
 <h3>데모 페이지</h3>
 <blockquote>로그인 </blockquote>
-<img src="https://user-images.githubusercontent.com/89467983/137244958-6cd1e41b-7c55-4bd0-84f5-8fd701e4e2a9.gif"></img>
+<img src="https://user-images.githubusercontent.com/89467983/137246368-1da3a483-9081-4144-8381-ba4dc3d8b489.gif"></img>
 
 <h2 id="features"> :mag: 기능 설명</h2>
 <blockquote>DRONAI에서 제공하는 기능에 대해 기술하는 영역</blockquote>
