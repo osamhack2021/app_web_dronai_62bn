@@ -69,70 +69,6 @@ public class DroneManager : SerializedMonoBehaviour
         }
     }
 
-    public class Formation
-    {
-        public enum State
-        {
-            Preparing,
-            Ready,
-            Building,
-            Working,
-            Finished,
-            Decommissioning
-        }
-
-        public Dictionary<string, Drone> Drones = new Dictionary<string, Drone>();
-        private List<AstarPath> routes = new List<AstarPath>();
-        public int PortKey = -1;
-        public State Condition = State.Preparing;
-        [ReadOnly] public string FormationLog = string.Empty;
-
-        public int DroneCount
-        {
-            get
-            {
-                return Drones.Count;
-            }
-        }
-        public Drone HeadDrone
-        {
-            get
-            {
-                if (DroneCount == 0) return null;
-                return Drones.First().Value.GetHeadDrone();
-            }
-        }
-
-        public void DefinePortKey(int key)
-        {
-            PortKey = key;
-        }
-        public void DefineRoutes(List<AstarPath> routes)
-        {
-            this.routes = routes;
-        }
-        public void AddDrone(string id, Drone drone)
-        {
-            Drones.Add(id, drone);
-        }
-
-        public bool RequestReady()
-        {
-            if (PortKey != -1 && routes.Count > 0 && Drones.Count > 0)
-            {
-                Condition = State.Ready;
-                print("[DRONE FORMATION] Formation ready state 승격 요청 완료");
-                return true;
-            }
-            else
-            {
-                print("[DRONE FORMATION] Ready state의 요구 조건 불충족, 다시 요청하시오!");
-                return false;
-            }
-        }
-
-    }
-
     public class Port
     {
         [SerializeField] private List<GameObject> portAreas = new List<GameObject>();
@@ -144,6 +80,9 @@ public class DroneManager : SerializedMonoBehaviour
         {
             UpdatePort();
         }
+        /// <summary>
+        /// Port 상태를 최신화 합니다 [Editor only]
+        /// </summary>
         public void UpdatePort()
         {
             // 런타임에서는 포트 개수가 변할 수 없습니다
@@ -199,9 +138,9 @@ public class DroneManager : SerializedMonoBehaviour
 
     #endregion
 
-
     #region Variable
 
+    // Instantiate
     [SerializeField, BoxGroup("SPAWN SETTING")] private GameObject dronePrefab = default;
     [SerializeField, BoxGroup("SPAWN SETTING")] private Transform droneParent = default;
     [SerializeField, BoxGroup("SPAWN SETTING"), Range(0.1f, 20f)] private float droneSpeed = 1f;
@@ -209,33 +148,42 @@ public class DroneManager : SerializedMonoBehaviour
     [SerializeField, BoxGroup("SPAWN SETTING"), Range(0, 10)] private float spawningHeight = 1f;
     [SerializeField, BoxGroup("SPAWN SETTING"), Range(1, 20)] private float spawningDistance = 2f;
 
+
+    // Path finding
     [SerializeField, BoxGroup("PATH FINDER SETTING")] private GameObject worldMap = default;
     [SerializeField, BoxGroup("PATH FINDER SETTING")] private float mapSize = 16;
     [SerializeField, BoxGroup("PATH FINDER SETTING")] private int octreeLevel = 8; // 8을 초과한 값을 넣지 않는 편이 좋음
     [SerializeField, BoxGroup("PATH FINDER SETTING")] private Vector3 worldCenter = Vector3.zero;
     [SerializeField, BoxGroup("PATH FINDER SETTING")] private Graph.GraphType graphType = default;
     [SerializeField, BoxGroup("PATH FINDER SETTING")] private bool progressive = true;
-
     private Octree space = default;
     private Graph spaceGraph = default;
 
-    [BoxGroup("FORMATION"), OdinSerialize] public List<Formation> formations = new List<Formation>();
+
+    // Formation
+    [BoxGroup("FORMATION"), OdinSerialize] public List<Formation> Formations = new List<Formation>();
     [BoxGroup("FORMATION/PORT"), OdinSerialize] public Port port = new Port();
+
     [BoxGroup("FORMATION/PORT"), Button(ButtonSizes.Medium)]
     private void UpdatePort()
     {
         port.UpdatePort();
     }
 
+
+    // Debug
     [SerializeField, BoxGroup("DEBUG")] private LineRenderer lineRendererPrefab = default;
     [SerializeField, BoxGroup("DEBUG")] private GameObject linePointPrefab = default;
     private List<LineRenderer> lineRenderers = new List<LineRenderer>();
     private List<GameObject> linePoints = new List<GameObject>();
 
 
+    // Group objects
     [BoxGroup("GROUP"), SerializeField] public Dictionary<string, Drone> DroneDic = new Dictionary<string, Drone>();
     [BoxGroup("GROUP"), OdinSerialize] public Pool DronePool = new Pool();
 
+
+    // Information
     public int TotalDrone
     {
         get
@@ -259,11 +207,14 @@ public class DroneManager : SerializedMonoBehaviour
     }
 
 
+    // Events
+    [HideInInspector] public Action OnFormationUpdated = default;
+
+
     // Coroutines
     private Coroutine findRouteRoutine = default;
 
     #endregion
-
 
     #region Editor 
 
@@ -341,7 +292,6 @@ public class DroneManager : SerializedMonoBehaviour
     }
     #endregion
 
-
     #region Life cycle
     public void Initialize()
     {
@@ -371,7 +321,6 @@ public class DroneManager : SerializedMonoBehaviour
 
     #endregion
 
-
     #region Physics
     public void MoveSingleDrone(string id, Vector3 position)
     {
@@ -380,8 +329,17 @@ public class DroneManager : SerializedMonoBehaviour
 
     #endregion
 
-
     #region Formation
+    public void UpdateFormationCondition(int code, Formation.State state)
+    {
+        Formations[code].UpdateCondition(state);
+        OnFormationUpdated?.Invoke();
+    }
+    public void UpdateFormationRouteIndex(int code, int index)
+    {
+        Formations[code].UpdateRouteIndex(index);
+    }
+
 
     public void OverviewDroneFormation(List<Vector3> nodes, Action<bool> OnFinished)
     {
@@ -397,7 +355,6 @@ public class DroneManager : SerializedMonoBehaviour
         // Variables
         bool isFinding = true;
         bool isFindable = false;
-
         List<AstarPath> routes = new List<AstarPath>();
 
 
@@ -462,6 +419,11 @@ public class DroneManager : SerializedMonoBehaviour
             return;
         }
 
+        StartCoroutine(DefineDroneFormationRoutine(count, requestNodes, OnFinished));
+    }
+    private IEnumerator DefineDroneFormationRoutine(int count, List<Vector3> requestNodes, Action<bool> OnFinished)
+    {
+        // Creating formation structure
         Formation targetFormation = new Formation();
         for (int i = 0; i < count; i++)
         {
@@ -469,10 +431,8 @@ public class DroneManager : SerializedMonoBehaviour
             targetFormation.AddDrone(targetDrone.GetID(), targetDrone);
         }
 
-        StartCoroutine(DefineDroneFormationRoutine(targetFormation, requestNodes, OnFinished));
-    }
-    private IEnumerator DefineDroneFormationRoutine(Formation targetFormation, List<Vector3> requestNodes, Action<bool> OnFinished)
-    {
+
+        // Getting port key
         int key = -1;
         for (; ; )
         {
@@ -482,6 +442,7 @@ public class DroneManager : SerializedMonoBehaviour
             }
             yield return null;
         }
+
 
         // Assign key
         targetFormation.PortKey = key;
@@ -512,16 +473,20 @@ public class DroneManager : SerializedMonoBehaviour
             yield break;
         }
 
+
         // 상태 승격 요청
         if (targetFormation.RequestReady())
         {
-            formations.Add(targetFormation);
+            Formations.Add(targetFormation);
+            OnFormationUpdated?.Invoke();
             OnFinished?.Invoke(true);
         }
         else
         {
             OnFinished?.Invoke(false);
         }
+
+        // Fianalize
         yield break;
     }
 
@@ -529,19 +494,29 @@ public class DroneManager : SerializedMonoBehaviour
     /// <summary>
     /// 포메이션이 정의된 드론 그룹에 한해서 편대 비행 폼을 구축한다
     /// </summary>
-    /// <param name="code"></param>
+    /// <param name="code">포메이션 코드</param>
     public void BuildDroneFormation(int code)
     {
-        StartCoroutine(BuildDroneFormationRoutine(code));
+        if (!Formations[code].Commandable)
+        {
+            print("[DRONE FORMATION] CLOSING 상태이므로 명령을 받을 수 없습니다!");
+            return;
+        }
+        if (Formations[code].Routine != null) StopCoroutine(Formations[code].Routine);
+        Formations[code].Routine = StartCoroutine(BuildDroneFormationRoutine(code));
     }
-
     private IEnumerator BuildDroneFormationRoutine(int code)
     {
+        // 상태 정의
+        UpdateFormationCondition(code, Formation.State.Building);
+
+        // 변수 정의
         Queue<Drone> q = new Queue<Drone>();
         int index = 0;
         int cnt = 0;
 
-        foreach (KeyValuePair<string, Drone> drone in formations[code].Drones)
+        // 비행 준비
+        foreach (KeyValuePair<string, Drone> drone in Formations[code].Drones)
         {
             q.Enqueue(drone.Value);
             drone.Value.MoveUp(2 + (index * 1f), -1f, 200, () =>
@@ -552,7 +527,7 @@ public class DroneManager : SerializedMonoBehaviour
         }
 
         // 이전 작업이 끝날때까지 기다립니다
-        while (cnt < formations[code].DroneCount) yield return null;
+        while (cnt < Formations[code].DroneCount) yield return null;
 
         // Dynamic A* 맵 Rebake
         AstarPathRequestManager.RequestUpdateGrid();
@@ -560,9 +535,9 @@ public class DroneManager : SerializedMonoBehaviour
         // 재 정의
         index = 0;
         cnt = 0;
-        Vector3 destination = port.GetPortPosition(formations[code].PortKey);
+        Vector3 destination = port.GetPortPosition(Formations[code].PortKey);
 
-        foreach (KeyValuePair<string, Drone> drone in formations[code].Drones)
+        foreach (KeyValuePair<string, Drone> drone in Formations[code].Drones)
         {
             drone.Value.DefineFormation(q, destination, () =>
             {
@@ -572,18 +547,127 @@ public class DroneManager : SerializedMonoBehaviour
         }
 
         // 드론 포메이션 구축 대기
-        while (cnt < formations[code].DroneCount) yield return null;
+        while (cnt < Formations[code].DroneCount) yield return null;
 
 
         // 포메이션 구축 완료, 맵 리베이크
         AstarPathRequestManager.RequestUpdateGrid();
+
+
+        // Finalize
+        UpdateFormationCondition(code, Formation.State.Workable);
+        MoveDroneFormation(code);
+        yield break;
     }
 
 
+    /// <summary>
+    /// 드론 포메이션을 움직여주는 함수
+    /// </summary>
+    /// <param name="code">포메이션 코드</param>
+    public void MoveDroneFormation(int code)
+    {
+        if (!Formations[code].Commandable)
+        {
+            print("[DRONE FORMATION] CLOSING 상태이므로 명령을 받을 수 없습니다!");
+            return;
+        }
+        if (Formations[code].Routine != null) StopCoroutine(Formations[code].Routine);
+        Formations[code].Routine = StartCoroutine(MoveDroneFormationRoutine(code));
+    }
+    private IEnumerator MoveDroneFormationRoutine(int code)
+    {
+        // 상태 정의
+        UpdateFormationCondition(code, Formation.State.Working);
+
+        // 변수 정의
+        Drone head = Formations[code].HeadDrone;
+        List<Vector3> movePoints = Formations[code].GetAllMovePoints();
+
+        bool working = true;
+        int index = 0;
+        foreach (Vector3 point in movePoints)
+        {
+            head.MoveFormation(point, () =>
+            {
+                working = false;
+            });
+            while (working)
+            {
+                yield return null;
+            }
+            // 포인트 인덱스 증가
+            index++;
+
+            // 포인트를 지남
+            UpdateFormationRouteIndex(code, index);
+        }
+
+        // Fianlize
+        UpdateFormationCondition(code, Formation.State.Finished);
+        CloseDroneFormation(code);
+        yield break;
+    }
+
+
+    /// <summary>
+    /// 드론 포메이션을 종료합니다.
+    /// </summary>
+    /// <param name="code">포메이션 코드</param>
+    public void CloseDroneFormation(int code)
+    {
+        if (!Formations[code].Commandable)
+        {
+            print("[DRONE FORMATION] 이미 CLOSING 상태이므로 명령을 받을 수 없습니다!");
+            return;
+        }
+        if (Formations[code].Routine != null) StopCoroutine(Formations[code].Routine);
+        Formations[code].Routine = StartCoroutine(CloseDroneFormationRoutine(code));
+    }
+    private IEnumerator CloseDroneFormationRoutine(int code)
+    {
+        // 상태 정의
+        UpdateFormationCondition(code, Formation.State.Closing);
+
+        // Dynamic A* 맵 Rebake
+        AstarPathRequestManager.RequestUpdateGrid();
+
+        // 정의
+        int cnt = 0;
+        Vector3 destination = port.GetPortPosition(Formations[code].PortKey);
+
+        foreach (KeyValuePair<string, Drone> drone in Formations[code].Drones)
+        {
+            drone.Value.Recall(() =>
+            {
+                cnt++;
+            });
+            yield return new WaitForSeconds(1f);
+        }
+
+        // 드론 포메이션 정리 대기
+        while (cnt < Formations[code].DroneCount) yield return null;
+
+        // Dynamic A* 맵 Rebake
+        AstarPathRequestManager.RequestUpdateGrid();
+
+        // 포메이션 해체
+        Formations.RemoveAt(code);
+
+        // Finalize
+        yield break;
+    }
     #endregion
 
 
     #region Path finding
+
+    /// <summary>
+    /// 드론 그룹의 순환 경로를 찾아줍니다
+    /// </summary>
+    /// <param name="nodes">지나가는 지점들</param>
+    /// <param name="formation">드론 포메이션</param>
+    /// <param name="OnFinished">함수 작업 완료시 콜백</param>
     public void FindRoute(List<Vector3> nodes, Formation formation, Action<bool> OnFinished)
     {
         if (nodes.Count < 2)
@@ -601,8 +685,13 @@ public class DroneManager : SerializedMonoBehaviour
         bool isFinding = true;
         bool isFindable = false;
         List<AstarPath> routes = new List<AstarPath>();
+
         for (int i = 1; i < nodes.Count; i++)
         {
+            // Variables
+            isFinding = true;
+            isFindable = false;
+
             // Find the path
             while (!isFindable)
             {
@@ -767,4 +856,142 @@ public class DroneManager : SerializedMonoBehaviour
 
     }
     #endregion
+}
+public class Formation
+{
+    public enum State
+    {
+        Opening,
+        Buildable,
+        Building,
+        Workable,
+        Working,
+        Finished,
+        Closing
+    }
+
+    #region  Variables
+
+    // 그룹 정보
+    private List<AstarPath> routes = new List<AstarPath>();
+    [FoldoutGroup("Formation"), ReadOnly] public Dictionary<string, Drone> Drones = new Dictionary<string, Drone>();
+    [FoldoutGroup("Formation"), SerializeField, ReadOnly] private int currentRouteIndex = 0;
+    [FoldoutGroup("Formation"), ReadOnly] public int PortKey = -1;
+
+    // 포메이션 상태
+    [BoxGroup("Formation/State")] private State condition = State.Opening;
+    [BoxGroup("Formation/State"), ReadOnly] public string FormationLog = string.Empty;
+
+    // 포메이션 작업
+    [HideInInspector] public Coroutine Routine = default;
+
+    // 정보
+    public int DroneCount
+    {
+        get
+        {
+            return Drones.Count;
+        }
+    }
+    public Drone HeadDrone
+    {
+        get
+        {
+            if (DroneCount == 0) return null;
+            return Drones.First().Value.GetHeadDrone();
+        }
+    }
+    public bool Commandable
+    {
+        get
+        {
+            return condition == State.Closing ? false : true;
+        }
+    }
+
+    #endregion
+
+
+    // Define & build
+    public void AddDrone(string id, Drone drone)
+    {
+        Drones.Add(id, drone);
+    }
+    public void DefinePortKey(int key)
+    {
+        PortKey = key;
+    }
+    public void DefineRoutes(List<AstarPath> routes)
+    {
+        this.routes = routes;
+    }
+
+
+    // Route and nodes
+    public void UpdateRouteIndex(int index)
+    {
+        currentRouteIndex = index;
+    }
+    public int GetRouteIndex()
+    {
+        return currentRouteIndex;
+    }
+    public string GetRoutePositionString(int index, string prefix)
+    {
+        if (index >= routes.Count)
+        {
+            return prefix + "\n(CLOSING)";
+        }
+        if (index < 0)
+        {
+            return prefix + "\n(OPENING)";
+        }
+        return prefix + "\n" + routes[index].LookPoints[0].ToString("F0");
+    }
+    public List<Vector3> GetAllMovePoints()
+    {
+        List<Vector3> results = new List<Vector3>();
+        foreach (AstarPath path in routes)
+        {
+            foreach (Vector3 point in path.LookPoints)
+            {
+                results.Add(point);
+            }
+        }
+        return results;
+    }
+
+
+    // States and conditions
+    public bool RequestReady()
+    {
+        if (PortKey != -1 && routes.Count > 0 && Drones.Count > 0)
+        {
+            UpdateCondition(State.Buildable);
+            return true;
+        }
+        else
+        {
+            Debug.Log("[DRONE FORMATION] Ready state의 요구 조건 불충족, 다시 요청하시오!");
+            return false;
+        }
+    }
+    public void UpdateCondition(State state)
+    {
+        condition = state;
+        Debug.Log("[DRONE FORMATION] Formation [" + GetStateString() + "] 상태로 승격 요청 완료");
+    }
+    public int GetConditionIndex()
+    {
+        return (int)condition;
+    }
+    public string GetStateString()
+    {
+        return condition.ToString();
+    }
+    public string[] GetAllStateString()
+    {
+        string[] result = Enum.GetNames(typeof(State));
+        return result;
+    }
 }

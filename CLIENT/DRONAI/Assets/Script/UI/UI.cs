@@ -26,18 +26,17 @@ public class UI : MonoBehaviour
     int overviewIndex = 0; // 카메라 타겟 인덱스
 
 
-    // Command variables
-    [BoxGroup("Command"), SerializeField] private TMP_Text droneFormationInfoHeader = default;
-    [BoxGroup("Command"), SerializeField] private TMP_InputField droneFormationCountInput = default;
-    [BoxGroup("Command"), SerializeField] private TMP_Text droneFormationCheckResultText = default;
-    [BoxGroup("Command"), SerializeField] private TMP_InputField droneFormationPathInput = default;
-    [BoxGroup("Command"), SerializeField] private TMP_Text droneFormationLogText = default;
-
-
-
-    // Input variables
-    [BoxGroup("Input"), SerializeField] private TMP_InputField droneIdInput = default;
-    [BoxGroup("Input"), SerializeField] private TMP_InputField dronePosInput = default;
+    // Formation command variables
+    [BoxGroup("Formation Command"), SerializeField] private TMP_Text droneFormationInfoHeader = default;
+    [BoxGroup("Formation Command"), SerializeField] private TMP_InputField droneFormationCountInput = default;
+    [BoxGroup("Formation Command"), SerializeField] private TMP_Text droneFormationCheckResultText = default;
+    [BoxGroup("Formation Command"), SerializeField] private TMP_InputField droneFormationPathInput = default;
+    [BoxGroup("Formation Command"), SerializeField] private TMP_Text droneFormationLogText = default;
+    
+    
+    // Formation list variables
+    [BoxGroup("Formation List"), SerializeField] private Transform listParent = default;
+    [BoxGroup("Formation List"), SerializeField] private GameObject listElementPrefab = default;
 
 
     // Selection variables
@@ -55,6 +54,16 @@ public class UI : MonoBehaviour
 
 
     #region Life cycle
+    private void OnEnable()
+    {
+        droneManager.OnFormationUpdated += OnFormationUpdated;
+    }
+
+    private void OnDisable()
+    {
+        droneManager.OnFormationUpdated -= OnFormationUpdated;
+    }
+
     public void Initialize()
     {
         IntializeDroneSelection();
@@ -241,8 +250,7 @@ public class UI : MonoBehaviour
 
     #endregion
 
-
-    #region Formation UI
+    #region Formation Build UI
     private void ClearFormationInput()
     {
         droneFormationPathInput.text = "";
@@ -364,61 +372,38 @@ public class UI : MonoBehaviour
             }
         });
     }
+    #endregion
 
-    // Need to remove
-    public void OnDroneSelected(string id)
+    #region Formation List UI
+    public void OnFormationUpdated()
     {
-        // Close th selection window when drone selected
-        CallSelectionWindow(false);
-
-        // Process
-        selectedDroneId = id;
-
-        droneIdInput.text = selectedDroneId;
-        dronePosInput.text = string.Empty;
-
-        AutoFill(id);
-    }
-    public void OnButtonDown()
-    {
-        if (!droneIdInput.text.Contains("Drone")) // 편대 구축할 드론의 수 입력
+        int cnt = 0;
+        if (listParent.childCount > 0)
         {
-            string[] position = dronePosInput.text.Split(',');
-            if (position.Length != 3)
+            cnt = listParent.childCount;
+            for (int i = 0; i < cnt; i++)
             {
-                print("Please re-enter");
-                return;
+                Destroy(listParent.GetChild(i).gameObject);
             }
-
-            Vector3 pos = new Vector3(float.Parse(position[0]), float.Parse(position[1]), float.Parse(position[2]));
-            //droneManager.MoveSingleDrone(droneIdInput.text, pos);
-
-            // droneManager.BuildDroneFormation(pos, int.Parse(droneIdInput.text.ToString()));
-            return;
         }
 
-        if (dronePosInput.text.Length == 0) // 선택된 드론 폭파
+        cnt = droneManager.Formations.Count;
+        for (int i = 0; i < cnt; i++)
         {
-            droneManager.DestroyDrone(droneIdInput.text);
-            return;
+            // Element 생성
+            FormationElementUI target = Instantiate(listElementPrefab, listParent).GetComponent<FormationElementUI>();
+            
+            // Code 할당
+            target.Initialize(i, droneManager);
         }
     }
-    // --- x
-
+    public void OnFormationDispatch(int code)
+    {
+        droneManager.BuildDroneFormation(code);
+    }
     #endregion
 
     #region Functions
-    public void AutoFill(string text)
-    {
-        if (dronePosInput.text.Length == 0)
-        {
-            if (droneManager.ContainsDrone(text))
-            {
-                Vector3 pos = droneManager.GetDronePositionById(text);
-                dronePosInput.text = pos.x + "," + pos.y + "," + pos.z;
-            }
-        }
-    }
 
     /// <summary>
     /// 이전 애니메이션을 강제로 멈추고 요청받은 애니메이션을 재생합니다.
@@ -429,6 +414,14 @@ public class UI : MonoBehaviour
     {
         animation.Stop();
         animation.Play(animationName);
+    }
+    public void OnDroneSelected(string id)
+    {
+        // Close th selection window when drone selected
+        CallSelectionWindow(false);
+
+        // Process
+        selectedDroneId = id;
     }
     #endregion
 }

@@ -26,6 +26,8 @@ public class Drone : Entity
     #endregion
 
     #region Variable
+    
+    // Property
     [FoldoutGroup("Property"), ShowInInspector, ReadOnly] private bool isDead = false;
     [FoldoutGroup("Property"), ReadOnly] public bool IsWorking = false;
     [FoldoutGroup("Property"), SerializeField] private float speed = 2f;
@@ -33,17 +35,18 @@ public class Drone : Entity
     [FoldoutGroup("Property"), SerializeField] private float turnDst = 2f;
     [FoldoutGroup("Property"), SerializeField] private AnimationCurve timeCurve = default;
 
-    // 현재 할당 되어있는 Path
-    private AstarPath currentPath = default;
 
+    // Components
     [BoxGroup("Components"), SerializeField, ReadOnly] private DroneManager droneManager = default;
     [BoxGroup("Components"), SerializeField, ReadOnly] private Rigidbody rb = default;
     [BoxGroup("Components"), SerializeField, ReadOnly] private List<DroneSensor> droneSensors = new List<DroneSensor>();
 
-
-    [BoxGroup("Formation"), SerializeField] private float startX = 1;
-    [BoxGroup("Formation"), SerializeField] private float startZ = 1;
+    
+    // Formation
+    [BoxGroup("Formation"), SerializeField] private Vector3 startPosition = default;
     [BoxGroup("Formation"), SerializeField] private Vector3 formationPosition = default;
+    [BoxGroup("Formation"), SerializeField, ReadOnly] private int formationIndex = 1;
+    [BoxGroup("Formation"), SerializeField] private Queue<Drone> formationOrder = new Queue<Drone>();
     public Vector3 HeadPosition
     {
         get
@@ -53,18 +56,21 @@ public class Drone : Entity
             return result;
         }
     }
-    [BoxGroup("Formation"), SerializeField, ReadOnly] private int formationIndex = 1;
-    [BoxGroup("Formation"), SerializeField] private Queue<Drone> formationOrder = new Queue<Drone>();
+    // 현재 할당 되어있는 Path
+    private AstarPath currentPath = default;
 
-    [SerializeField, BoxGroup("DEBUG")] private LineRenderer lineRendererPrefab = default;
+
+    // Debug
     private List<LineRenderer> lineRenderers = new List<LineRenderer>();
+    [SerializeField, BoxGroup("DEBUG")] private LineRenderer lineRendererPrefab = default;
     [SerializeField, BoxGroup("DEBUG")] private Transform lineRendererParent = default;
 
 
-
+    // Resources
     [BoxGroup("Resources"), SerializeField] private Transform explosionPrefab = default;
 
 
+    // Information
     public Vector3 Velocity
     {
         get { return rb.velocity; }
@@ -86,6 +92,7 @@ public class Drone : Entity
         get { return transform.position.z; }
     }
 
+
     // Routines
     private SimplePriorityQueue<Routine> routinesQueue = new SimplePriorityQueue<Routine>();
     private Coroutine pathFindingRoutine = default;
@@ -104,14 +111,13 @@ public class Drone : Entity
     public void Initialize(string id, float speed, DroneManager droneManager)
     {
         // Generate new id
-        //GenerateNewID(); --> use drone name as id (important!)
+        // GenerateNewID(); --> using drone name as id (important!)
         this.id = id;
 
         // Assign variables
         this.speed = speed;
         this.droneManager = droneManager;
-
-        startX = X; startZ = Z;
+        startPosition = transform.position;
 
         // Assign components
         if (rb == null) rb = GetComponent<Rigidbody>();
@@ -159,14 +165,19 @@ public class Drone : Entity
 
     #region Physics
 
+    /// <summary>
+    /// 드론 회피 함수, 드론 자체 보호 함수 [PRIORITY : 0]
+    /// </summary>
+    /// <param name="other"></param>
     public void AvoidFromOther(ref GameObject other)
     {
-        //print("센서 감지됨! [나: " + name + "]" + " |  [상대: " + other.name + "]");
+        // Priority definition is 0
+        int priority = 0;
 
         // Remove previous process
         for (; ; )
         {
-            if (routinesQueue.FirstPriority == 0)
+            if (routinesQueue.FirstPriority == priority)
             {
                 Routine target = routinesQueue.Dequeue();
                 StopCoroutine(target.Task);
@@ -177,13 +188,40 @@ public class Drone : Entity
             }
         }
 
+        // Creating react position
         Vector3 directionVector = (transform.position - other.transform.position).normalized;
-
         float minX = 0.02f, maxX = 0.05f;
         Vector3 ramdomVector = new Vector3(UnityEngine.Random.Range(minX, maxX), UnityEngine.Random.Range(minX, maxX), UnityEngine.Random.Range(minX, maxX));
 
         // Run physics
-        MoveTo(directionVector + transform.position + ramdomVector, 0.5f, 0);
+        MoveTo(directionVector + transform.position + ramdomVector, 0.5f, priority);
+    }
+
+    /// <summary>
+    /// 원래 주차되어 있었던 위치로 복귀한다 [PRIORITY : 6]
+    /// </summary>
+    /// <param name="OnFinished"></param>
+    public void Recall(Action OnFinished = null)
+    {
+        // Priority definition is 6
+        int priority = 6;
+
+        // Remove previous process
+        for (; ; )
+        {
+            if (routinesQueue.FirstPriority == priority)
+            {
+                Routine target = routinesQueue.Dequeue();
+                StopCoroutine(target.Task);
+            }
+            else
+            {
+                break;
+            }
+        }
+
+        // Run physics
+        MoveTo(startPosition, priority);
     }
 
 
@@ -310,6 +348,13 @@ public class Drone : Entity
         MoveTo(result, duration, priority, OnFinished);
     }
 
+
+    /// <summary>
+    /// A* Path finder 가 제공한 노드를 이용하여 움직인다
+    /// </summary>
+    /// <param name="path">A* result</param>
+    /// <param name="priority">우선 순위</param>
+    /// <param name="OnFinished">완료시 호출</param>
     public void MoveViaPathFinder(AstarPath path, int priority = 50, Action OnFinished = null)
     {
         if (gameObject.activeSelf)
@@ -582,13 +627,16 @@ public class Drone : Entity
         yield break;
     }
 
-    public void MoveFormation()
+    public void MoveFormation(Vector3 position, Action OnFinished)
     {
         if (!GetHeadDrone().id.Equals(id))
         {
             // 헤드 드론이 아니면 Formation 통제 권한을 갖을 수 없습니다.
             return;
         }
+        
+        // Move formation as Routine [20]
+        MoveTo(position, 20, OnFinished);
     }
 
     #endregion
