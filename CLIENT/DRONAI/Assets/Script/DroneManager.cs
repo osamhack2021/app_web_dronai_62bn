@@ -150,7 +150,6 @@ public class DroneManager : SerializedMonoBehaviour
 
 
     // Path finding
-    [SerializeField, BoxGroup("PATH FINDER SETTING")] private GameObject worldMap = default;
     [SerializeField, BoxGroup("PATH FINDER SETTING")] private float mapSize = 16;
     [SerializeField, BoxGroup("PATH FINDER SETTING")] private int octreeLevel = 8; // 8을 초과한 값을 넣지 않는 편이 좋음
     [SerializeField, BoxGroup("PATH FINDER SETTING")] private Vector3 worldCenter = Vector3.zero;
@@ -303,7 +302,7 @@ public class DroneManager : SerializedMonoBehaviour
     {
         // 월드 초기화
         space = progressive ? new ProgressiveOctree(mapSize, worldCenter - Vector3.one * mapSize / 2, octreeLevel) : new Octree(mapSize, worldCenter - Vector3.one * mapSize / 2, octreeLevel);
-        space.BuildFromGameObject(worldMap);
+        // space.BuildFromGameObject(worldMap);
         spaceGraph =
             graphType == Graph.GraphType.CENTER ? space.ToCenterGraph() :
             graphType == Graph.GraphType.CORNER ? space.ToCornerGraph() : space.ToCrossedGraph();
@@ -546,7 +545,7 @@ public class DroneManager : SerializedMonoBehaviour
             {
                 cnt++;
             });
-            yield return new WaitForSeconds(0.4f);
+            yield return new WaitForSeconds(0.6f);
         }
 
         // 드론 포메이션 구축 대기
@@ -844,6 +843,10 @@ public class DroneManager : SerializedMonoBehaviour
     {
         return DroneDic.ContainsKey(id);
     }
+    public Drone GetDroneById(string id)
+    {
+        return DroneDic[id];
+    }
     public Vector3 GetDronePositionById(string id)
     {
         return DroneDic[id].transform.position;
@@ -856,6 +859,17 @@ public class DroneManager : SerializedMonoBehaviour
             result.Add(target.Value.GetID());
         }
         return result;
+    }
+    public string GetFormationNameById(string id)
+    {
+        for (int i = 0; i < Formations.Count; i++)
+        {
+            if (Formations[i].Drones.ContainsKey(id))
+            {
+                return "그룹 " + i;
+            }
+        }
+        return string.Empty;
     }
     #endregion
 

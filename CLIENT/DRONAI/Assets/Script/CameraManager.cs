@@ -27,11 +27,11 @@ public class CameraManager : Singleton<CameraManager>
             }
         }
     }
-    [BoxGroup("Property"), SerializeField, Range(4, 70)] private float distanceToTarget = 10;
+    [BoxGroup("Property"), SerializeField, Range(4, 100)] private float distanceToTarget = 10;
     private Vector3 previousPosition;
 
     [BoxGroup("Property"), SerializeField] private float followingSpeed = 4f;
-    [BoxGroup("Property"), SerializeField] private float wheelSpeed = 10f;
+    [BoxGroup("Property"), SerializeField] private float wheelSpeed = 20f;
 
 
     public void Initialize(Transform target)
@@ -45,9 +45,9 @@ public class CameraManager : Singleton<CameraManager>
         float scroll = -(Input.GetAxis("Mouse ScrollWheel") * wheelSpeed);
         if (Mathf.Abs(scroll) > 0)
         {
-            if (scroll > 0 && distanceToTarget > 70)
+            if (scroll > 0 && distanceToTarget > 100)
             {
-                distanceToTarget = 70;
+                distanceToTarget = 100;
             }
             if (scroll < 0 && distanceToTarget < 4)
             {

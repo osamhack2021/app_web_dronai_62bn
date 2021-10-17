@@ -1,10 +1,9 @@
-using System;
-using UnityEngine;
-using UnityEngine.Events;
-using UnityEngine.EventSystems;
 using TMPro;
+using System;
 using Sirenix.OdinInspector;
-
+using UnityEngine;
+using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 
 public class DroneGridElementUI : MonoBehaviour, IPointerClickHandler
@@ -12,25 +11,25 @@ public class DroneGridElementUI : MonoBehaviour, IPointerClickHandler
 
     [SerializeField, ReadOnly] private string id = string.Empty;
     [SerializeField] private TMP_Text displayText = default;
+    [SerializeField] private Image displayImage = default;
 
 
     // Action and Events
     private Action<string> OnClick = default;
-    [SerializeField] private UnityEvent OnClickEvent = default;
 
 
-    public void Initialize(string id, Action<string> OnClick)
+    public void Initialize(string id, string prefix, Color color, Action<string> OnClick)
     {
         this.id = id;
         this.OnClick += OnClick;
 
         // Update the display text
-        displayText.text = id;
+        displayText.text = prefix + id;
+        displayImage.color = color;
     }
 
     public void OnPointerClick(PointerEventData eventData)
     {
         OnClick?.Invoke(id);
-        OnClickEvent?.Invoke();
     }
 }

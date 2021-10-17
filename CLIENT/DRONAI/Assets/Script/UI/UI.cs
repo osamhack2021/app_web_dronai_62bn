@@ -36,6 +36,7 @@ public class UI : MonoBehaviour
     // Formation list variables
     [BoxGroup("Formation List"), SerializeField] private Transform listParent = default;
     [BoxGroup("Formation List"), SerializeField] private GameObject listElementPrefab = default;
+    [BoxGroup("Formation List"), SerializeField] private GameObject listInfoText = default;
 
 
     // Selection variables
@@ -65,19 +66,27 @@ public class UI : MonoBehaviour
 
     public void Initialize()
     {
-        IntializeDroneSelection();
+        OnFormationUpdated();
     }
 
     public void IntializeDroneSelection()
     {
-
         // 드론 리스트 UI 생성자
         List<string> dronesId = droneManager.GetDronesId();
 
         foreach (string id in dronesId)
         {
             DroneGridElementUI target = Instantiate(selectionPrefab, selectionParent).GetComponent<DroneGridElementUI>();
-            target.Initialize(id, OnDroneSelected);
+            string prefix = droneManager.GetFormationNameById(id);
+            if (prefix.Length > 0)
+            {
+                target.Initialize(id, prefix + "\n", Color.cyan, OnDroneSelected);
+            }
+            else
+            {
+                target.Initialize(id, prefix, Color.white, OnDroneSelected);
+            }
+
         }
     }
 
@@ -406,14 +415,27 @@ public class UI : MonoBehaviour
         }
 
         cnt = droneManager.Formations.Count;
-        for (int i = 0; i < cnt; i++)
+        if (cnt > 0)
         {
-            // Element 생성
-            FormationElementUI target = Instantiate(listElementPrefab, listParent).GetComponent<FormationElementUI>();
-            
-            // Code 할당
-            target.Initialize(i, droneManager, this);
+            for (int i = 0; i < cnt; i++)
+            {
+                // Element 생성
+                FormationElementUI target = Instantiate(listElementPrefab, listParent).GetComponent<FormationElementUI>();
+
+                // Code 할당
+                target.Initialize(i, droneManager, this);
+
+                // Empty info text 비활성화
+                listInfoText.SetActive(false);
+            }
         }
+        else
+        {
+            listInfoText.SetActive(true);
+        }
+
+        // 드론 선택창 재 정렬
+        IntializeDroneSelection();
     }
     public void OnFormationDispatch(int code)
     {
@@ -435,6 +457,9 @@ public class UI : MonoBehaviour
     }
     public void OnDroneSelected(string id)
     {
+        // Change camera position
+        CameraManager.Instance.ChangeTarget(droneManager.GetDroneById(id).transform);
+
         // Close th selection window when drone selected
         CallSelectionWindow(false);
 
