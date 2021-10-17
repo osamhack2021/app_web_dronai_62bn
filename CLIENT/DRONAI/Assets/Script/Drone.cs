@@ -26,14 +26,16 @@ public class Drone : Entity
     #endregion
 
     #region Variable
-    
+
     // Property
+#pragma warning disable 414
     [FoldoutGroup("Property"), ShowInInspector, ReadOnly] private bool isDead = false;
     [FoldoutGroup("Property"), ReadOnly] public bool IsWorking = false;
     [FoldoutGroup("Property"), SerializeField] private float speed = 2f;
     [FoldoutGroup("Property"), SerializeField] private float turnSpeed = 3f;
     [FoldoutGroup("Property"), SerializeField] private float turnDst = 2f;
     [FoldoutGroup("Property"), SerializeField] private AnimationCurve timeCurve = default;
+#pragma warning restore 414
 
 
     // Components
@@ -41,9 +43,10 @@ public class Drone : Entity
     [BoxGroup("Components"), SerializeField, ReadOnly] private Rigidbody rb = default;
     [BoxGroup("Components"), SerializeField, ReadOnly] private List<DroneSensor> droneSensors = new List<DroneSensor>();
 
-    
+
     // Formation
-    [BoxGroup("Formation"), SerializeField] private Vector3 startPosition = default;
+    [BoxGroup("Formation"), SerializeField, ReadOnly] private Vector3 startPosition = default;
+    [BoxGroup("Formation"), SerializeField, ReadOnly] private Vector3 recallPosition = default;
     [BoxGroup("Formation"), SerializeField] private Vector3 formationPosition = default;
     [BoxGroup("Formation"), SerializeField, ReadOnly] private int formationIndex = 1;
     [BoxGroup("Formation"), SerializeField] private Queue<Drone> formationOrder = new Queue<Drone>();
@@ -52,7 +55,7 @@ public class Drone : Entity
         get
         {
             Vector3 result = transform.position;
-            result.y -= 1f;
+            result.y += 1f;
             return result;
         }
     }
@@ -161,6 +164,12 @@ public class Drone : Entity
         }
     }
 
+    public void OnDroneClosed()
+    {
+        // Clean up everything...
+        StopAllCoroutines();
+        routinesQueue.Clear();
+    }
     #endregion
 
     #region Physics
@@ -196,34 +205,6 @@ public class Drone : Entity
         // Run physics
         MoveTo(directionVector + transform.position + ramdomVector, 0.5f, priority);
     }
-
-    /// <summary>
-    /// 원래 주차되어 있었던 위치로 복귀한다 [PRIORITY : 6]
-    /// </summary>
-    /// <param name="OnFinished"></param>
-    public void Recall(Action OnFinished = null)
-    {
-        // Priority definition is 6
-        int priority = 6;
-
-        // Remove previous process
-        for (; ; )
-        {
-            if (routinesQueue.FirstPriority == priority)
-            {
-                Routine target = routinesQueue.Dequeue();
-                StopCoroutine(target.Task);
-            }
-            else
-            {
-                break;
-            }
-        }
-
-        // Run physics
-        MoveTo(startPosition, priority);
-    }
-
 
     #region Move
 
@@ -283,10 +264,9 @@ public class Drone : Entity
             }
 
             transform.position = Vector3.Lerp(transform.position, destination, Time.deltaTime * speed);
-            if (Vector3.Distance(transform.position, destination) < 0.1f)
+            if (Vector3.Distance(transform.position, destination) < 0.06f)
             {
                 transform.position = destination;
-
                 break;
             }
             yield return null;
@@ -300,7 +280,6 @@ public class Drone : Entity
         OnFinished?.Invoke();
         yield break;
     }
-
     private IEnumerator MoveAsTimeRoutine(Vector3 destination, float duration, int priority, Action OnFinished)
     {
         // Variables
@@ -334,7 +313,6 @@ public class Drone : Entity
     }
 
 
-
     /// <summary>
     /// 드론을 Y 좌표로만 증가시켜주는 함수
     /// </summary>
@@ -348,76 +326,15 @@ public class Drone : Entity
         MoveTo(result, duration, priority, OnFinished);
     }
 
-
-    /// <summary>
-    /// A* Path finder 가 제공한 노드를 이용하여 움직인다
-    /// </summary>
-    /// <param name="path">A* result</param>
-    /// <param name="priority">우선 순위</param>
-    /// <param name="OnFinished">완료시 호출</param>
-    public void MoveViaPathFinder(AstarPath path, int priority = 50, Action OnFinished = null)
-    {
-        if (gameObject.activeSelf)
-        {
-            Coroutine routine = StartCoroutine(MoveViaPathFinderRoutine(path, priority, OnFinished));
-            routinesQueue.Enqueue(new Routine(routine, priority), priority);
-        }
-    }
-
-    private IEnumerator MoveViaPathFinderRoutine(AstarPath path, int priority, Action OnFinished)
-    {
-        bool followingPath = true;
-        int pathIndex = 0;
-        transform.LookAt(path.LookPoints[0]);
-
-        while (followingPath)
-        {
-            if (priority > routinesQueue.FirstPriority)
-            {
-                yield return null;
-                continue;
-            }
-
-            if (path.TurnBoundaries[pathIndex].HasCrossedLine(Position))
-            {
-                if (pathIndex == path.finishLineIndex)
-                {
-                    followingPath = false;
-                }
-                else
-                {
-                    pathIndex++;
-                }
-            }
-
-            if (followingPath)
-            {
-                Quaternion targetRotation = Quaternion.LookRotation(path.LookPoints[pathIndex] - Position);
-                transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
-                transform.Translate(Vector3.forward * Time.deltaTime * speed * 10, Space.Self);
-            }
-
-
-            yield return null;
-        }
-
-        // Fix the final position
-        transform.position = path.LookPoints[pathIndex];
-
-        // Exit
-        routinesQueue.Dequeue();
-        // print(name + " | MVROUTINE 제거됨 --> " + priority + " 현재 FIRST --> " + routinesQueue.FirstPriority);
-
-        // Call finished event
-        OnFinished?.Invoke();
-        yield break;
-    }
-
     #endregion
 
     #endregion
 
     #region Formation
+    public Drone GetHeadDrone()
+    {
+        return formationOrder.Peek();
+    }
 
     /// <summary>
     /// 드론 Formation의 Index를 계산해주는 함수
@@ -432,26 +349,25 @@ public class Drone : Entity
         return;
     }
 
-    public Drone GetHeadDrone()
+
+    public void DefineFormation(Queue<Drone> formationOrder)
     {
-        return formationOrder.Peek();
+        this.formationOrder = formationOrder;
     }
 
-
-    public void DefineFormation(Queue<Drone> formationOrder, Vector3 indexPosition, Action OnFinished)
+    public void BuildFormation(Vector3 indexPosition, Action OnFinished)
     {
         // 변수 정의
         int priority = 20;
-        this.formationOrder = formationOrder;
 
-
+        recallPosition = Position;
         if (GetHeadDrone().id.Equals(id)) // 헤드 드론입니다
         {
             formationIndex = -1;
 
             // Build Formation Routine [20] 생성 및 마무리
             formationPosition = indexPosition;
-            Coroutine routine = StartCoroutine(BuildFormation(formationPosition, priority, OnFinished));
+            Coroutine routine = StartCoroutine(BuildFormationRoutine(formationPosition, priority, OnFinished));
             routinesQueue.Enqueue(new Routine(routine, priority), priority);
         }
         else // 자식 드론입니다
@@ -475,14 +391,14 @@ public class Drone : Entity
 
             // 고유 Y 좌표 부여
             formationPosition = destination;
-            formationPosition.y += -(formationIndex * 0.5f);
+            formationPosition.y += (formationIndex * 0.6f);
 
             // Build Formation Routine [20] 생성 및 마무리
-            Coroutine routine = StartCoroutine(BuildFormation(formationPosition, priority, OnFinished));
+            Coroutine routine = StartCoroutine(BuildFormationRoutine(formationPosition, priority, OnFinished));
             routinesQueue.Enqueue(new Routine(routine, priority), priority);
         }
     }
-    private IEnumerator BuildFormation(Vector3 position, int priority, Action OnFinished)
+    private IEnumerator BuildFormationRoutine(Vector3 position, int priority, Action OnFinished)
     {
         // Variables
         bool isFinding = true;
@@ -518,43 +434,30 @@ public class Drone : Entity
             yield return null;
         }
 
-        // 경로를 따라가기 시작
-        bool followingPath = true;
-        int pathIndex = 0;
-
+        // 경로를 따라가기 시작   
         DrawLine(path);
-        // transform.LookAt(path.LookPoints[0]);
 
-        while (followingPath)
+        foreach (Vector3 destination in path.LookPoints)
         {
-            if (priority > routinesQueue.FirstPriority)
+            for (; ; )
             {
-                yield return null;
-                continue;
-            }
-
-            while (path.TurnBoundaries[pathIndex].HasCrossedLine(Position))
-            {
-                if (pathIndex == path.finishLineIndex)
+                if (priority > routinesQueue.FirstPriority)
                 {
-                    followingPath = false;
+                    yield return null;
+                    continue;
+                }
+
+                if (Vector3.Distance(Position, destination) <= 0.4f)
+                {
+                    transform.position = destination;
                     break;
                 }
-                else
-                {
-                    pathIndex++;
-                }
-            }
+                transform.position = Vector3.MoveTowards(Position, destination, Time.deltaTime * speed * 10f);
 
-            if (followingPath)
-            {
-                // Quaternion targetRotation = Quaternion.LookRotation(path.LookPoints[pathIndex] - Position);
-                // transform.rotation = Quaternion.Lerp(transform.rotation, targetRotation, Time.deltaTime * turnSpeed);
-                // transform.Translate(Vector3.forward * Time.deltaTime * speed * 10, Space.Self);
-                transform.position = Vector3.MoveTowards(Position, path.LookPoints[pathIndex], Time.deltaTime * speed * 10);
+                yield return null;
             }
-            yield return null;
         }
+
 
         // Fomration Routine [+ 10] 생성 및 마무리 -> Formation Routine은 항상 Build Formation 보다 Priority 값이 높아야 한다
         priority += 10;
@@ -616,7 +519,7 @@ public class Drone : Entity
 
                 // 고유 Y 좌표 부여
                 formationPosition = destination;
-                formationPosition.y += -(formationIndex * 0.5f);
+                formationPosition.y += (formationIndex * 0.6f);
 
                 transform.position = Vector3.Lerp(transform.position, formationPosition, Time.deltaTime * speed);
             }
@@ -627,16 +530,198 @@ public class Drone : Entity
         yield break;
     }
 
-    public void MoveFormation(Vector3 position, Action OnFinished)
+    public void MoveFormation(Vector3 destination, Action OnFinished)
     {
         if (!GetHeadDrone().id.Equals(id))
         {
             // 헤드 드론이 아니면 Formation 통제 권한을 갖을 수 없습니다.
             return;
         }
-        
+
         // Move formation as Routine [20]
-        MoveTo(position, 20, OnFinished);
+        int priority = 20;
+        Coroutine routine = StartCoroutine(MoveFormationRoutine(destination, priority, OnFinished));
+        routinesQueue.Enqueue(new Routine(routine, priority), priority);
+    }
+    private IEnumerator MoveFormationRoutine(Vector3 destination, int priority, Action OnFinished)
+    {
+        // 추적
+        for (; ; )
+        {
+            if (priority > routinesQueue.FirstPriority)
+            {
+                yield return null;
+                continue;
+            }
+
+            if (Vector3.Distance(Position, destination) <= 0.2f)
+            {
+                break;
+            }
+
+            transform.position = Vector3.MoveTowards(Position, destination, Time.deltaTime * speed * 4f);
+            yield return null;
+        }
+
+        // Exit
+        routinesQueue.Dequeue();
+        OnFinished?.Invoke();
+        yield break;
+    }
+
+    public void CloseFormation()
+    {
+        routinesQueue.Clear();
+        StopAllCoroutines();
+    }
+
+    /// <summary>
+    /// 원래 주차되어 있었던 위치로 복귀한다 [PRIORITY : 6]
+    /// </summary>
+    /// <param name="OnFinished"></param>
+    public void Recall(Action OnFinished = null)
+    {
+        // Priority definition is 6
+        int priority = 6;
+
+        // Remove previous process
+        foreach (Routine target in routinesQueue)
+        {
+            if (target.Priority == priority)
+            {
+                StopCoroutine(target.Task);
+                routinesQueue.Remove(target);
+            }
+        }
+
+        // Recall as Routine [6]
+        Coroutine routine = StartCoroutine(RecallRoutine(priority, OnFinished));
+        routinesQueue.Enqueue(new Routine(routine, priority), priority);
+    }
+    private IEnumerator RecallRoutine(int priority, Action OnFinished)
+    {
+        // Variables
+        bool isFinding = true;
+        bool isFindable = false;
+        AstarPath path = default;
+
+        // Find the path
+        while (!isFindable)
+        {
+            AstarPathRequestManager.RequestPath(new PathRequest(Position, recallPosition, true, (Vector3[] waypoints, bool pathSucessful) =>
+            {
+                isFindable = pathSucessful;
+                isFinding = false;
+                if (pathSucessful)
+                {
+                    path = new AstarPath(waypoints, Position, turnDst);
+                }
+            }));
+            for (; ; )
+            {
+                if (!isFinding)
+                {
+                    break;
+                }
+                yield return null;
+            }
+            if (!isFindable)
+            {
+                // 경로를 찾지 못한다면 동적 Pathing 을 포기하고 다시 검색
+                print("[" + name + "] 경로 탐색 실패! 맵을 초기화합니다");
+                AstarPathRequestManager.RequestUpdateGrid();
+            }
+            yield return null;
+        }
+
+        // 경로를 따라가기 시작   
+        DrawLine(path);
+
+        foreach (Vector3 destination in path.LookPoints)
+        {
+            for (; ; )
+            {
+                if (priority > routinesQueue.FirstPriority)
+                {
+                    yield return null;
+                    continue;
+                }
+
+                if (Vector3.Distance(Position, destination) <= .2f)
+                {
+                    transform.position = destination;
+                    break;
+                }
+                transform.position = Vector3.MoveTowards(Position, destination, Time.deltaTime * speed * 6f);
+
+                yield return null;
+            }
+        }
+        ClearLine();
+
+        // 재 정의
+        isFinding = true;
+        isFindable = false;
+        path = default;
+
+        // 하강 경로 추적
+        while (!isFindable)
+        {
+            AstarPathRequestManager.RequestPath(new PathRequest(Position, startPosition, false, (Vector3[] waypoints, bool pathSucessful) =>
+            {
+                isFindable = pathSucessful;
+                isFinding = false;
+                if (pathSucessful)
+                {
+                    path = new AstarPath(waypoints, Position, turnDst);
+                }
+            }));
+            for (; ; )
+            {
+                if (!isFinding)
+                {
+                    break;
+                }
+                yield return null;
+            }
+            if (!isFindable)
+            {
+                // 경로를 찾지 못한다면 동적 Pathing 을 포기하고 다시 검색
+                print("[" + name + "] 경로 탐색 실패! 맵을 초기화합니다");
+                AstarPathRequestManager.RequestUpdateGrid();
+            }
+            yield return null;
+        }
+
+        // 경로를 따라가기 시작   
+        DrawLine(path);
+
+        foreach (Vector3 destination in path.LookPoints)
+        {
+            for (; ; )
+            {
+                if (priority > routinesQueue.FirstPriority)
+                {
+                    yield return null;
+                    continue;
+                }
+
+                if (Vector3.Distance(Position, destination) <= .4f)
+                {
+                    transform.position = destination;
+                    break;
+                }
+                transform.position = Vector3.MoveTowards(Position, destination, Time.deltaTime * speed * 6f);
+
+                yield return null;
+            }
+        }
+
+        // Finalize
+        ClearLine();
+        routinesQueue.Dequeue();
+        OnFinished?.Invoke();
+        yield break;
     }
 
     #endregion

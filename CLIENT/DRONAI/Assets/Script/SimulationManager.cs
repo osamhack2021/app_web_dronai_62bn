@@ -1,9 +1,6 @@
 using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Sirenix.OdinInspector;
-
 
 
 public class SimulationManager : Singleton<SimulationManager>
@@ -12,15 +9,17 @@ public class SimulationManager : Singleton<SimulationManager>
     // Components
     [BoxGroup("Components"), SerializeField] private DroneManager droneManager = default;
     [BoxGroup("Components"), SerializeField] private CameraManager cameraManager = default;
-    [BoxGroup("Components"), SerializeField] private UI ui = default;
-    [BoxGroup("Components"), Button("Refresh", ButtonSizes.Large)]
+    [BoxGroup("Components"), SerializeField] private UI uiManager = default;
+
+    [BoxGroup("References"), SerializeField] private Transform defaultCameraPosition = default;
+
+    [Button("Refresh", ButtonSizes.Large)]
     private void UpdateEditor()
     {
         if (droneManager == null) droneManager = FindObjectOfType<DroneManager>();
         if (cameraManager == null) cameraManager = FindObjectOfType<CameraManager>();
-        if (ui == null) ui = FindObjectOfType<UI>();
+        if (uiManager == null) uiManager = FindObjectOfType<UI>();
     }
-
 
     // Action and Events
     [HideInInspector] public Action OnInitialize = default;
@@ -44,8 +43,8 @@ public class SimulationManager : Singleton<SimulationManager>
 
         // Intialize components
         droneManager.Initialize();
-        cameraManager.Initialize(droneManager.GetFirstDrone().transform);
-        ui.Initialize();
+        cameraManager.Initialize(defaultCameraPosition);
+        uiManager.Initialize();
 
         // Finalize
         Initialized();

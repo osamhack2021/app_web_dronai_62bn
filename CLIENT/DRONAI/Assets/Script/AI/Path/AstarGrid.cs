@@ -58,8 +58,16 @@ namespace Dronai.Path
             UpdateGrid();
         }
 
+        private float previousUpdateGridTime = -1;
         public void UpdateGrid()
         {
+            if(Time.time - previousUpdateGridTime < .4f)
+            {
+                // print("[A* Dynamic] Request denied : Grid 최신화 주기가 잦음!");
+                return;
+            }
+            previousUpdateGridTime = Time.time;
+
             Vector3 worldBottomLeft = transform.position - Vector3.right * gridWorldSize.x / 2 - Vector3.up * gridWorldSize.y / 2 - Vector3.forward * gridWorldSize.z / 2;
             for (int x = 0; x < gridSizeX; x++)
             {

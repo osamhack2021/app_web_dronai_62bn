@@ -10,7 +10,6 @@ public class UI : MonoBehaviour
 {
     // Components
     [BoxGroup("Components"), SerializeField] private DroneManager droneManager = default;
-    [BoxGroup("Components"), SerializeField] private CameraManager cameraManager = default;
     [BoxGroup("Components"), SerializeField] private Animation anim = default;
 
 
@@ -86,7 +85,7 @@ public class UI : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            CallWindow(isWindowEnabled);
+            OpenWindow(isWindowEnabled ? false : true);
         }
         if (Input.GetKeyDown(KeyCode.Tab))
         {
@@ -96,17 +95,24 @@ public class UI : MonoBehaviour
     #endregion
 
     #region Window
-    private void CallWindow(bool state)
+    
+    // Main windows
+
+    /// <summary>
+    /// UI Main 윈도우를 열어 줍니다
+    /// </summary>
+    /// <param name="state">T : is open, F : is false</param>
+    public void OpenWindow(bool state)
     {
         if (isOverviewWindowEnabled || isSelectionWindowEnabled)
         {
             return;
         }
 
-        if (!state)
+        if (state)
         {
             // change state
-            isWindowEnabled = true;
+            isWindowEnabled = state;
 
             // Call
             UpdateWindow(currentWindow);
@@ -117,13 +123,23 @@ public class UI : MonoBehaviour
         else
         {
             // change state
-            isWindowEnabled = false;
+            isWindowEnabled = state;
 
             anim.Stop();
             anim.Play("UI_Outro");
         }
     }
 
+    /// <summary>
+    /// 버튼으로부터 윈도우 변경 호출을 받는 함수 / 중복검사 함
+    /// </summary>
+    /// <param name="code">호출할 페이지 코드</param>
+    public void CallWindow(int code)
+    {
+        if (currentWindow == code) return;
+        else UpdateWindow(code);
+    }
+    
     /// <summary>
     /// 윈도우를 표시하기 전 윈도우 요소들을 최신화 해주는 함수
     /// </summary>
@@ -158,16 +174,9 @@ public class UI : MonoBehaviour
         sb.Clear();
 
     }
-
-    /// <summary>
-    /// 버튼으로부터 윈도우 변경 호출을 받는 함수 / 중복검사 함
-    /// </summary>
-    /// <param name="code">호출할 페이지 코드</param>
-    public void CallWindow(int code)
-    {
-        if (currentWindow == code) return;
-        else UpdateWindow(code);
-    }
+    
+    
+    // Overview windows
     public void OpenOverviewWindow(int code)
     {
         // Variables set
@@ -193,11 +202,14 @@ public class UI : MonoBehaviour
         droneManager.ClearLine();
 
         // 카메라 원위치
-        cameraManager.SetToDefaultTarget();
+        CameraManager.Instance.SetToDefaultTarget();
 
         // Play
         PlayAnimationSafe(anim, "UI_Seperate_Out");
     }
+    
+
+    // Selection windows
     private void CallSelectionWindow(bool state)
     {
         if (state)
@@ -214,6 +226,7 @@ public class UI : MonoBehaviour
         // Change the state
         isSelectionWindowEnabled = state;
     }
+    
     #endregion
 
     #region Overview UI
@@ -232,7 +245,7 @@ public class UI : MonoBehaviour
                 overviewIndex++;
 
                 // Change the actual target
-                cameraManager.ChangeTarget(currentOverviewNodes[overviewIndex]);
+                CameraManager.Instance.ChangeTarget(currentOverviewNodes[overviewIndex]);
             }
         }
         else
@@ -243,7 +256,7 @@ public class UI : MonoBehaviour
                 overviewIndex--;
 
                 // Change the actual target
-                cameraManager.ChangeTarget(currentOverviewNodes[overviewIndex]);
+                CameraManager.Instance.ChangeTarget(currentOverviewNodes[overviewIndex]);
             }
         }
     }
@@ -362,7 +375,12 @@ public class UI : MonoBehaviour
             if (success)
             {
                 droneFormationLogText.text = "[<color=\"green\">편대 구성 성공</color>]";
+                
+                // Input 초기화
                 ClearFormationInput();
+
+                // Group window 호출
+                CallWindow(3);
                 return;
             }
             else
@@ -394,7 +412,7 @@ public class UI : MonoBehaviour
             FormationElementUI target = Instantiate(listElementPrefab, listParent).GetComponent<FormationElementUI>();
             
             // Code 할당
-            target.Initialize(i, droneManager);
+            target.Initialize(i, droneManager, this);
         }
     }
     public void OnFormationDispatch(int code)

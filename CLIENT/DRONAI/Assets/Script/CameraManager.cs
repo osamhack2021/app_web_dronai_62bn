@@ -3,7 +3,7 @@ using System.Collections;
 using Sirenix.OdinInspector;
 
 
-public class CameraManager : MonoBehaviour
+public class CameraManager : Singleton<CameraManager>
 {
     // Components
     [BoxGroup("Components"), SerializeField] private Camera cam;
@@ -27,7 +27,7 @@ public class CameraManager : MonoBehaviour
             }
         }
     }
-    [BoxGroup("Property"), SerializeField, Range(4, 50)] private float distanceToTarget = 10;
+    [BoxGroup("Property"), SerializeField, Range(4, 70)] private float distanceToTarget = 10;
     private Vector3 previousPosition;
 
     [BoxGroup("Property"), SerializeField] private float followingSpeed = 4f;
@@ -45,9 +45,9 @@ public class CameraManager : MonoBehaviour
         float scroll = -(Input.GetAxis("Mouse ScrollWheel") * wheelSpeed);
         if (Mathf.Abs(scroll) > 0)
         {
-            if (scroll > 0 && distanceToTarget > 50)
+            if (scroll > 0 && distanceToTarget > 70)
             {
-                distanceToTarget = 50;
+                distanceToTarget = 70;
             }
             if (scroll < 0 && distanceToTarget < 4)
             {

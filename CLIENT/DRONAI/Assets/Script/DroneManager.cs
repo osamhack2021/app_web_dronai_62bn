@@ -308,13 +308,6 @@ public class DroneManager : SerializedMonoBehaviour
             graphType == Graph.GraphType.CENTER ? space.ToCenterGraph() :
             graphType == Graph.GraphType.CORNER ? space.ToCornerGraph() : space.ToCrossedGraph();
 
-
-        // 드론 부트 업 [대기 상태]
-        foreach (Drone target in DroneDic.Values)
-        {
-            target.MoveUp(4f);
-            yield return new WaitForSeconds(0.1f);
-        }
         yield break;
     }
 
@@ -337,7 +330,8 @@ public class DroneManager : SerializedMonoBehaviour
     }
     public void UpdateFormationRouteIndex(int code, int index)
     {
-        Formations[code].UpdateRouteIndex(index);
+        Formations[code].UpdatePathPositionIndex(index);
+        OnFormationUpdated?.Invoke();
     }
 
 
@@ -346,6 +340,7 @@ public class DroneManager : SerializedMonoBehaviour
         // 예상 경로 추가
         nodes.Insert(0, port.GetPortPosition(0));
         nodes.Insert(0, GetFirstDrone().Position);
+        nodes.Insert(nodes.Count, port.GetPortPosition(0));
 
         // 지정 받은 경로로 요청
         StartCoroutine(OverviewDroneFormationRoutine(nodes, OnFinished));
@@ -418,19 +413,25 @@ public class DroneManager : SerializedMonoBehaviour
             print("[DEFINE FORMATION] 잔여 드론이 사용할 드론보다 적습니다. 잔여드론 : " + DronePool.PoolListCount());
             return;
         }
-
         StartCoroutine(DefineDroneFormationRoutine(count, requestNodes, OnFinished));
     }
     private IEnumerator DefineDroneFormationRoutine(int count, List<Vector3> requestNodes, Action<bool> OnFinished)
     {
-        // Creating formation structure
+        // 포메이션 구조 생성
+        Queue<Drone> dronesQueue = new Queue<Drone>();
         Formation targetFormation = new Formation();
         for (int i = 0; i < count; i++)
         {
             Drone targetDrone = DronePool.PopFromPool();
             targetFormation.AddDrone(targetDrone.GetID(), targetDrone);
+            dronesQueue.Enqueue(targetDrone);
         }
 
+        // 포메이션의 각 드론들에게 서로의 정보 전달
+        foreach (KeyValuePair<String, Drone> item in targetFormation.Drones)
+        {
+            item.Value.DefineFormation(dronesQueue);
+        }
 
         // Getting port key
         int key = -1;
@@ -446,6 +447,10 @@ public class DroneManager : SerializedMonoBehaviour
 
         // Assign key
         targetFormation.PortKey = key;
+
+
+        // 복귀 경로 추가
+        requestNodes.Insert(requestNodes.Count, port.GetPortPosition(key));
 
 
         // Finding route
@@ -495,7 +500,7 @@ public class DroneManager : SerializedMonoBehaviour
     /// 포메이션이 정의된 드론 그룹에 한해서 편대 비행 폼을 구축한다
     /// </summary>
     /// <param name="code">포메이션 코드</param>
-    public void BuildDroneFormation(int code)
+    public void BuildDroneFormation(int code, Action OnFinished = null)
     {
         if (!Formations[code].Commandable)
         {
@@ -503,23 +508,21 @@ public class DroneManager : SerializedMonoBehaviour
             return;
         }
         if (Formations[code].Routine != null) StopCoroutine(Formations[code].Routine);
-        Formations[code].Routine = StartCoroutine(BuildDroneFormationRoutine(code));
+        Formations[code].Routine = StartCoroutine(BuildDroneFormationRoutine(code, OnFinished));
     }
-    private IEnumerator BuildDroneFormationRoutine(int code)
+    private IEnumerator BuildDroneFormationRoutine(int code, Action OnFinished)
     {
         // 상태 정의
         UpdateFormationCondition(code, Formation.State.Building);
 
         // 변수 정의
-        Queue<Drone> q = new Queue<Drone>();
         int index = 0;
         int cnt = 0;
 
         // 비행 준비
         foreach (KeyValuePair<string, Drone> drone in Formations[code].Drones)
         {
-            q.Enqueue(drone.Value);
-            drone.Value.MoveUp(2 + (index * 1f), -1f, 200, () =>
+            drone.Value.MoveUp(2 + (index * .5f), -1f, 200, () =>
             {
                 cnt++;
             });
@@ -539,11 +542,11 @@ public class DroneManager : SerializedMonoBehaviour
 
         foreach (KeyValuePair<string, Drone> drone in Formations[code].Drones)
         {
-            drone.Value.DefineFormation(q, destination, () =>
+            drone.Value.BuildFormation(destination, () =>
             {
                 cnt++;
             });
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(0.4f);
         }
 
         // 드론 포메이션 구축 대기
@@ -557,6 +560,8 @@ public class DroneManager : SerializedMonoBehaviour
         // Finalize
         UpdateFormationCondition(code, Formation.State.Workable);
         MoveDroneFormation(code);
+
+        OnFinished?.Invoke();
         yield break;
     }
 
@@ -586,20 +591,24 @@ public class DroneManager : SerializedMonoBehaviour
 
         bool working = true;
         int index = 0;
-        foreach (Vector3 point in movePoints)
+        foreach(Vector3 destination in movePoints)
         {
-            head.MoveFormation(point, () =>
+            //재 정의
+            working = true;
+            head.MoveFormation(destination, () =>
             {
                 working = false;
             });
+
             while (working)
             {
                 yield return null;
             }
-            // 포인트 인덱스 증가
+
+            // 경로 인덱스 증가
             index++;
 
-            // 포인트를 지남
+            // 다음 경로
             UpdateFormationRouteIndex(code, index);
         }
 
@@ -638,11 +647,12 @@ public class DroneManager : SerializedMonoBehaviour
 
         foreach (KeyValuePair<string, Drone> drone in Formations[code].Drones)
         {
+            drone.Value.CloseFormation();
             drone.Value.Recall(() =>
             {
                 cnt++;
             });
-            yield return new WaitForSeconds(1f);
+            yield return new WaitForSeconds(0.6f);
         }
 
         // 드론 포메이션 정리 대기
@@ -651,8 +661,19 @@ public class DroneManager : SerializedMonoBehaviour
         // Dynamic A* 맵 Rebake
         AstarPathRequestManager.RequestUpdateGrid();
 
+        // 드론 반환
+        foreach (KeyValuePair<String, Drone> item in Formations[code].Drones)
+        {
+            item.Value.OnDroneClosed();
+            DronePool.PushToPool(item.Value);
+        }
+
+        // 키 반환
+        port.ReturnPort(Formations[code].PortKey);
+
         // 포메이션 해체
         Formations.RemoveAt(code);
+        OnFormationUpdated?.Invoke();
 
         // Finalize
         yield break;
@@ -874,8 +895,9 @@ public class Formation
 
     // 그룹 정보
     private List<AstarPath> routes = new List<AstarPath>();
+    private List<Vector3> pathPoints = new List<Vector3>();
+    [FoldoutGroup("Formation"), SerializeField, ReadOnly] private int currentPathPointsIndex = 0;
     [FoldoutGroup("Formation"), ReadOnly] public Dictionary<string, Drone> Drones = new Dictionary<string, Drone>();
-    [FoldoutGroup("Formation"), SerializeField, ReadOnly] private int currentRouteIndex = 0;
     [FoldoutGroup("Formation"), ReadOnly] public int PortKey = -1;
 
     // 포메이션 상태
@@ -924,21 +946,28 @@ public class Formation
     public void DefineRoutes(List<AstarPath> routes)
     {
         this.routes = routes;
+        foreach(AstarPath p in routes)
+        {
+            foreach(Vector3 v in p.LookPoints)
+            {
+                pathPoints.Add(v);
+            }
+        }
     }
 
 
     // Route and nodes
-    public void UpdateRouteIndex(int index)
+    public void UpdatePathPositionIndex(int index)
     {
-        currentRouteIndex = index;
+        currentPathPointsIndex = index;
     }
-    public int GetRouteIndex()
+    public int GetPathPosition()
     {
-        return currentRouteIndex;
+        return currentPathPointsIndex;
     }
-    public string GetRoutePositionString(int index, string prefix)
+    public string GetPathPositionString(int index, string prefix)
     {
-        if (index >= routes.Count)
+        if (index >= pathPoints.Count)
         {
             return prefix + "\n(CLOSING)";
         }
@@ -946,7 +975,7 @@ public class Formation
         {
             return prefix + "\n(OPENING)";
         }
-        return prefix + "\n" + routes[index].LookPoints[0].ToString("F0");
+        return prefix + "\n" + pathPoints[index].ToString("F0");
     }
     public List<Vector3> GetAllMovePoints()
     {
@@ -979,7 +1008,7 @@ public class Formation
     public void UpdateCondition(State state)
     {
         condition = state;
-        Debug.Log("[DRONE FORMATION] Formation [" + GetStateString() + "] 상태로 승격 요청 완료");
+        // Debug.Log("[DRONE FORMATION] Formation [" + GetStateString() + "] 상태로 승격 요청 완료");
     }
     public int GetConditionIndex()
     {
