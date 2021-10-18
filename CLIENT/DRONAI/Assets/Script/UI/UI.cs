@@ -65,7 +65,8 @@ public class UI : Singleton<UI>
     {
         get
         {
-            return isWindowEnabled || isOverviewWindowEnabled || isSelectionWindowEnabled;
+            if (isOverviewWindowEnabled) return false;
+            return isWindowEnabled || isSelectionWindowEnabled;
         }
     }
 

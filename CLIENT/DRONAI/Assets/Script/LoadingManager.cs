@@ -11,6 +11,7 @@ public class LoadingManager : Singleton<LoadingManager>
 
     // Coroutines
     private Coroutine loadSceneRoutine = default;
+    private string previousSceneName = default;
 
 
     private void OnEnable()
@@ -23,10 +24,34 @@ public class LoadingManager : Singleton<LoadingManager>
         SceneManager.sceneLoaded -= OnSceneLoaded;
     }
 
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.R))
+        {
+            LoadScene(SceneManager.GetActiveScene().name);
+        }
+    }
+
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
-        curtain.Stop();
-        curtain.Play("FadeOut_Canvas");
+        string current = SceneManager.GetActiveScene().name;
+        try
+        {
+            if (previousSceneName != current)
+            {
+                AnimationPlaySafe(curtain, "FadeOut_Canvas");
+            }
+            else
+            {
+                return;
+            }
+        }
+        catch
+        {
+            return;
+        }
+
+        previousSceneName = current;
     }
 
     private void LoadScene(string name)
@@ -36,11 +61,16 @@ public class LoadingManager : Singleton<LoadingManager>
             Debug.LogError("이미 로딩중인 씬이 있습니다. 작성 코드를 확인하고 수정하시오!!");
             return;
         }
+        else
+        {
+            loadSceneRoutine = StartCoroutine(LoadSceneRoutine(name));
+        }
     }
     private IEnumerator LoadSceneRoutine(string name)
     {
         // 커튼
-        AnimationPlaySafe(curtain, "FadeOut_Canvas");
+        AnimationPlaySafe(curtain, "FadeIn_Canvas");
+        yield return new WaitForSeconds(1f);
 
         // 씬 로더 정의
         AsyncOperation asyncOperation = SceneManager.LoadSceneAsync(name);
@@ -54,11 +84,15 @@ public class LoadingManager : Singleton<LoadingManager>
             yield return null;
         }
 
-        //커튼
-        AnimationPlaySafe(curtain, "FadeIn_Canvas");
-
         // Load the actual scene
         asyncOperation.allowSceneActivation = true;
+        yield return new WaitForSeconds(.4f);
+
+        //커튼
+        AnimationPlaySafe(curtain, "FadeOut_Canvas");
+
+        loadSceneRoutine = null;
+        yield break;
     }
 
     private void AnimationPlaySafe(Animation animation, string name)
