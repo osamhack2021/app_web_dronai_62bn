@@ -123,11 +123,11 @@
 <blockquote>회원가입, 로그인 기능이다.</blockquote>
 
 <h3 id="dashboard">대쉬보드 / DASHBOARD </h3>
-<blockquote>기본 페이지입니다.</blockquote>
+<blockquote>기본 페이지입니다. 드론 개수, 이벤트 수, 마지막 이벤트 발생 시각, 마지막 이벤트 발생 장소 등의 원하는 정보를 실시간으로 반영하여 나타나게 만들 수 있습니다. </blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/137323802-263094f6-170c-4533-9d57-c01515691cc8.PNG"></img>
 
 <h3 id="eventlist">이벤트 리스트 / EVENT LIST </h3>
-<blockquote>이벤트 리스트입니다.</blockquote>
+<blockquote>이벤트 리스트입니다. 리액트 특성 상 컴포넌트의 상태가 업데이트 될 때 렌더링을 다시 해줍니다. 따라서 서버에 새로운 이벤트를 입력하면 즉시 반영되어 웹 페이지 내 이벤트 리스트가 수정됩니다.</blockquote>
 
 
 <h2 id="techniques"> :electric_plug: 기술 스택 (Techniques Used)</h2>
