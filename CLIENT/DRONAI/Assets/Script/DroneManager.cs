@@ -1,11 +1,16 @@
-using UnityEngine;
+using Dronai.Data;
+using Dronai.Path;
+using Dronai.Network;
+using System;
+using System.Text;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
-using Dronai.Path;
 using Sirenix.OdinInspector;
 using Sirenix.Serialization;
-using System;
+using UnityEngine;
+
+
 
 public class DroneManager : SerializedMonoBehaviour
 {
@@ -68,7 +73,6 @@ public class DroneManager : SerializedMonoBehaviour
             poolList.Clear();
         }
     }
-
     public class Port
     {
         [SerializeField] private List<GameObject> portAreas = new List<GameObject>();
@@ -169,6 +173,9 @@ public class DroneManager : SerializedMonoBehaviour
         port.UpdatePort();
     }
 
+    // Drone Evnet
+    public List<DroneEvent> DroneEvents = new List<DroneEvent>();
+
 
     // Debug
     [SerializeField, BoxGroup("DEBUG")] private LineRenderer lineRendererPrefab = default;
@@ -208,6 +215,7 @@ public class DroneManager : SerializedMonoBehaviour
 
     // Events
     [HideInInspector] public Action OnFormationUpdated = default;
+    [HideInInspector] public Action OnDroneEventsUpdated = default;
 
 
     // Coroutines
@@ -297,7 +305,6 @@ public class DroneManager : SerializedMonoBehaviour
         // 드론 초기화 시작
         StartCoroutine(InitializeRoutine());
     }
-
     private IEnumerator InitializeRoutine()
     {
         // 월드 초기화
@@ -309,7 +316,13 @@ public class DroneManager : SerializedMonoBehaviour
 
         yield break;
     }
-
+    private void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.S))
+        {
+            AddEvent("Drone_0", GetDroneById("Drone_0").transform);
+        }
+    }
 
     #endregion
 
@@ -590,7 +603,7 @@ public class DroneManager : SerializedMonoBehaviour
 
         bool working = true;
         int index = 0;
-        foreach(Vector3 destination in movePoints)
+        foreach (Vector3 destination in movePoints)
         {
             //재 정의
             working = true;
@@ -679,7 +692,6 @@ public class DroneManager : SerializedMonoBehaviour
     }
     #endregion
 
-
     #region Path finding
 
     /// <summary>
@@ -758,6 +770,82 @@ public class DroneManager : SerializedMonoBehaviour
     }
     #endregion
 
+    #region Network
+    public void AddEvent(string droneId, Transform target)
+    {
+        StringBuilder sb = new StringBuilder();
+        sb.AppendFormat("발견자 : {0}\n발견 시각 : {1}\n발견 위치 : {2}", droneId, System.DateTime.Now.ToString("yyyy년 MM월 dd일 HH시 mm분 ss초"), target.position.ToString());
+        string detail = sb.ToString();
+        string imgPath = CameraManager.Instance.TakeScreenShot(target);
+        sb.Clear();
+
+        DroneEvent droneEvent = new DroneEvent(droneId, detail, imgPath);
+        DroneEvents.Add(droneEvent);
+
+        OnDroneEventsUpdated?.Invoke();
+        NetworkManager.Instance.AddEvent(droneEvent);
+
+        // Show alert
+        UI.Instance.ShowAlert("드론이 이상요소를 발견하였습니다!");
+    }
+    #endregion
+
+    #region Destory
+
+    /// <summary>
+    /// 드론 단일 객체를 강제로 폭파시키는 실험용 함수
+    /// </summary>
+    /// <param name="droneId">드론 아이디</param>
+    public void DestroyDrone(string droneId)
+    {
+        Drone target = DroneDic[droneId];
+        target.OnDroneCollapsed(gameObject);
+    }
+
+    public void OnDroneDestroy(string droneId)
+    {
+
+    }
+    #endregion
+
+    #region Getter and Setter
+    public Drone GetFirstDrone()
+    {
+        return DroneDic.First().Value;
+    }
+    public bool ContainsDrone(string id)
+    {
+        return DroneDic.ContainsKey(id);
+    }
+    public Drone GetDroneById(string id)
+    {
+        return DroneDic[id];
+    }
+    public Vector3 GetDronePositionById(string id)
+    {
+        return DroneDic[id].transform.position;
+    }
+    public List<string> GetDronesId()
+    {
+        List<string> result = new List<string>();
+        foreach (KeyValuePair<string, Drone> target in DroneDic)
+        {
+            result.Add(target.Value.GetID());
+        }
+        return result;
+    }
+    public string GetFormationNameById(string id)
+    {
+        for (int i = 0; i < Formations.Count; i++)
+        {
+            if (Formations[i].Drones.ContainsKey(id))
+            {
+                return "그룹 " + i;
+            }
+        }
+        return string.Empty;
+    }
+    #endregion
 
     #region Debug
     private void DrawLine(AstarPath path, bool clear = true)
@@ -832,65 +920,6 @@ public class DroneManager : SerializedMonoBehaviour
         linePoints.Clear();
     }
     #endregion
-
-
-    #region Getter and Setter
-    public Drone GetFirstDrone()
-    {
-        return DroneDic.First().Value;
-    }
-    public bool ContainsDrone(string id)
-    {
-        return DroneDic.ContainsKey(id);
-    }
-    public Drone GetDroneById(string id)
-    {
-        return DroneDic[id];
-    }
-    public Vector3 GetDronePositionById(string id)
-    {
-        return DroneDic[id].transform.position;
-    }
-    public List<string> GetDronesId()
-    {
-        List<string> result = new List<string>();
-        foreach (KeyValuePair<string, Drone> target in DroneDic)
-        {
-            result.Add(target.Value.GetID());
-        }
-        return result;
-    }
-    public string GetFormationNameById(string id)
-    {
-        for (int i = 0; i < Formations.Count; i++)
-        {
-            if (Formations[i].Drones.ContainsKey(id))
-            {
-                return "그룹 " + i;
-            }
-        }
-        return string.Empty;
-    }
-    #endregion
-
-
-    #region Destory
-
-    /// <summary>
-    /// 드론 단일 객체를 강제로 폭파시키는 실험용 함수
-    /// </summary>
-    /// <param name="droneId">드론 아이디</param>
-    public void DestroyDrone(string droneId)
-    {
-        Drone target = DroneDic[droneId];
-        target.OnDroneCollapsed(gameObject);
-    }
-
-    public void OnDroneDestroy(string droneId)
-    {
-
-    }
-    #endregion
 }
 public class Formation
 {
@@ -960,9 +989,9 @@ public class Formation
     public void DefineRoutes(List<AstarPath> routes)
     {
         this.routes = routes;
-        foreach(AstarPath p in routes)
+        foreach (AstarPath p in routes)
         {
-            foreach(Vector3 v in p.LookPoints)
+            foreach (Vector3 v in p.LookPoints)
             {
                 pathPoints.Add(v);
             }

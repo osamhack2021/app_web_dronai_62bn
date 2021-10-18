@@ -826,8 +826,6 @@ MonoBehaviour:
   currentPositionText: {fileID: 8458979915028661643}
   nextPositionText: {fileID: 8458979915057854070}
   actButton: {fileID: 8458979915886043850}
-  traceButton: {fileID: 8458979915700652140}
-  pathButton: {fileID: 0}
 --- !u!1 &8458979914441188667
 GameObject:
   m_ObjectHideFlags: 0

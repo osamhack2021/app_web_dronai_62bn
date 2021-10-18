@@ -19,8 +19,6 @@ namespace Dronai.Network
 
         // Resources
         [SerializeField] private string serverPath = "ds.linearjun.com";
-        [SerializeField] private string fileName = string.Empty;
-
 
         private void Awake()
         {
@@ -37,13 +35,6 @@ namespace Dronai.Network
             ws.Connect();
 
             onFinished?.Invoke();
-        }
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.U))
-            {
-                StartCoroutine(AddEvent("Drone_Test", "ADD API 테스트입니다", Application.dataPath + "/Design/Images/" + fileName));
-            }
         }
 
         public void TestConnection(Action<bool> success)
@@ -89,6 +80,11 @@ namespace Dronai.Network
             yield break;
         }
 
+
+        public void AddEvent(DroneEvent droneEvent)
+        {
+            StartCoroutine(AddEventRoutine(droneEvent.DroneId, droneEvent.Detail, droneEvent.ImgPath));
+        }
         /// <summary>
         /// 원격 데이터베이스에 이벤트를 추가해주는 함수
         /// </summary>
@@ -96,7 +92,7 @@ namespace Dronai.Network
         /// <param name="detail">이벤트 상세 설명</param>
         /// <param name="localImgPath">업로드 할 이미지 경로</param>
         /// <returns></returns>
-        private IEnumerator AddEvent(string droneId, string detail, string localImgPath)
+        private IEnumerator AddEventRoutine(string droneId, string detail, string localImgPath)
         {
             bool working = false;
             string remoteImgPath = string.Empty;

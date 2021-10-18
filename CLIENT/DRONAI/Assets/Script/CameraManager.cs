@@ -1,12 +1,15 @@
-using UnityEngine;
+using System.IO;
 using System.Collections;
 using Sirenix.OdinInspector;
+using UnityEngine;
 
 
 public class CameraManager : Singleton<CameraManager>
 {
     // Components
-    [BoxGroup("Components"), SerializeField] private Camera cam;
+    [BoxGroup("Components"), SerializeField] private Camera mainCamera = default;
+    [BoxGroup("Components"), SerializeField] private Camera captureCamera = default;
+    [BoxGroup("Components"), SerializeField] private UI uiManager = default;
 
     // Free camera variables
     private Transform targetTransform = default;
@@ -17,7 +20,7 @@ public class CameraManager : Singleton<CameraManager>
     {
         get
         {
-            if(isVector)
+            if (isVector)
             {
                 return targetPosition;
             }
@@ -28,11 +31,9 @@ public class CameraManager : Singleton<CameraManager>
         }
     }
     [BoxGroup("Property"), SerializeField, Range(4, 100)] private float distanceToTarget = 10;
-    private Vector3 previousPosition;
-
     [BoxGroup("Property"), SerializeField] private float followingSpeed = 4f;
     [BoxGroup("Property"), SerializeField] private float wheelSpeed = 20f;
-
+    private Vector3 previousPosition;
 
     public void Initialize(Transform target)
     {
@@ -42,6 +43,7 @@ public class CameraManager : Singleton<CameraManager>
     }
     private void Update()
     {
+        if(uiManager.Interacting) return;
         float scroll = -(Input.GetAxis("Mouse ScrollWheel") * wheelSpeed);
         if (Mathf.Abs(scroll) > 0)
         {
@@ -55,19 +57,19 @@ public class CameraManager : Singleton<CameraManager>
             }
             distanceToTarget += scroll;
 
-            previousPosition = cam.ScreenToViewportPoint(Input.mousePosition);
-            Vector3 newPosition = cam.ScreenToViewportPoint(Input.mousePosition);
+            previousPosition = mainCamera.ScreenToViewportPoint(Input.mousePosition);
+            Vector3 newPosition = mainCamera.ScreenToViewportPoint(Input.mousePosition);
             Vector3 direction = previousPosition - newPosition;
 
             float rotationAroundYAxis = -direction.x * 180; // camera moves horizontally
             float rotationAroundXAxis = direction.y * 180; // camera moves vertically
 
-            cam.transform.position = target;
+            mainCamera.transform.position = target;
 
-            cam.transform.Rotate(new Vector3(1, 0, 0), rotationAroundXAxis);
-            cam.transform.Rotate(new Vector3(0, 1, 0), rotationAroundYAxis, Space.World);
+            mainCamera.transform.Rotate(new Vector3(1, 0, 0), rotationAroundXAxis);
+            mainCamera.transform.Rotate(new Vector3(0, 1, 0), rotationAroundYAxis, Space.World);
 
-            cam.transform.Translate(new Vector3(0, 0, -distanceToTarget));
+            mainCamera.transform.Translate(new Vector3(0, 0, -distanceToTarget));
 
             previousPosition = newPosition;
         }
@@ -77,22 +79,22 @@ public class CameraManager : Singleton<CameraManager>
 
         if (Input.GetMouseButtonDown(1))
         {
-            previousPosition = cam.ScreenToViewportPoint(Input.mousePosition);
+            previousPosition = mainCamera.ScreenToViewportPoint(Input.mousePosition);
         }
         else if (Input.GetMouseButton(1))
         {
-            Vector3 newPosition = cam.ScreenToViewportPoint(Input.mousePosition);
+            Vector3 newPosition = mainCamera.ScreenToViewportPoint(Input.mousePosition);
             Vector3 direction = previousPosition - newPosition;
 
             float rotationAroundYAxis = -direction.x * 180; // camera moves horizontally
             float rotationAroundXAxis = direction.y * 180; // camera moves vertically
 
-            cam.transform.position = target;
+            mainCamera.transform.position = target;
 
-            cam.transform.Rotate(new Vector3(1, 0, 0), rotationAroundXAxis);
-            cam.transform.Rotate(new Vector3(0, 1, 0), rotationAroundYAxis, Space.World);
+            mainCamera.transform.Rotate(new Vector3(1, 0, 0), rotationAroundXAxis);
+            mainCamera.transform.Rotate(new Vector3(0, 1, 0), rotationAroundYAxis, Space.World);
 
-            cam.transform.Translate(new Vector3(0, 0, -distanceToTarget));
+            mainCamera.transform.Translate(new Vector3(0, 0, -distanceToTarget));
 
             previousPosition = newPosition;
         }
@@ -111,6 +113,48 @@ public class CameraManager : Singleton<CameraManager>
     public void SetToDefaultTarget()
     {
         ChangeTarget(defaultTargetTransform);
+    }
+
+    // Screenshot
+    public string TakeScreenShot(Transform target)
+    {
+        // 경로 정의
+        string path = Application.persistentDataPath + "/Capture/";
+        DirectoryInfo dir = new DirectoryInfo(path);
+        if (!dir.Exists)
+        {
+            Directory.CreateDirectory(path);
+        }
+
+        // 해상도 정의
+        int resWidth = Screen.width;
+        int resHeight = Screen.height;
+
+        // 저장 경로 정의
+        string destination;
+        destination = path + System.DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss") + ".png";
+
+        // 캡쳐
+        captureCamera.gameObject.SetActive(true);
+        Vector3 capturePos = target.position;
+        capturePos.z -= 4;
+        captureCamera.transform.localPosition = capturePos;
+
+        RenderTexture rt = new RenderTexture(resWidth, resHeight, 24);
+        captureCamera.targetTexture = rt;
+        Texture2D screenShot = new Texture2D(resWidth, resHeight, TextureFormat.RGB24, false);
+        Rect rec = new Rect(0, 0, screenShot.width, screenShot.height);
+        captureCamera.Render();
+        RenderTexture.active = rt;
+        screenShot.ReadPixels(new Rect(0, 0, resWidth, resHeight), 0, 0);
+        screenShot.Apply();
+
+        byte[] bytes = screenShot.EncodeToPNG();
+        File.WriteAllBytes(destination, bytes);
+        captureCamera.gameObject.SetActive(false);
+
+        // 사진 경로 반환
+        return destination;
     }
 
 }

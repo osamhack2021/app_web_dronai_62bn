@@ -1,16 +1,20 @@
 using TMPro;
-using System;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.UI;
-using Sirenix.OdinInspector;
+using Dronai.Data;
 using System.Text;
+using System.Collections;
+using System.Collections.Generic;
+using Sirenix.OdinInspector;
+using UnityEngine;
 
-public class UI : MonoBehaviour
+
+public class UI : Singleton<UI>
 {
     // Components
     [BoxGroup("Components"), SerializeField] private DroneManager droneManager = default;
     [BoxGroup("Components"), SerializeField] private Animation anim = default;
+
+    [BoxGroup("Alert"), SerializeField] private Animation alertAnimaion = default;
+    [BoxGroup("Alert"), SerializeField] private TMP_Text alertText = default;
 
 
     // Windows
@@ -24,6 +28,11 @@ public class UI : MonoBehaviour
     private List<Vector3> currentOverviewNodes = new List<Vector3>();
     int overviewIndex = 0; // 카메라 타겟 인덱스
 
+    // Events list variables
+    [BoxGroup("Events List"), SerializeField] private Transform eventsListParent = default;
+    [BoxGroup("Events List"), SerializeField] private GameObject eventsListElementPrefab = default;
+    [BoxGroup("Events List"), SerializeField] private GameObject eventsListInfoText = default;
+
 
     // Formation command variables
     [BoxGroup("Formation Command"), SerializeField] private TMP_Text droneFormationInfoHeader = default;
@@ -31,12 +40,12 @@ public class UI : MonoBehaviour
     [BoxGroup("Formation Command"), SerializeField] private TMP_Text droneFormationCheckResultText = default;
     [BoxGroup("Formation Command"), SerializeField] private TMP_InputField droneFormationPathInput = default;
     [BoxGroup("Formation Command"), SerializeField] private TMP_Text droneFormationLogText = default;
-    
-    
+
+
     // Formation list variables
-    [BoxGroup("Formation List"), SerializeField] private Transform listParent = default;
-    [BoxGroup("Formation List"), SerializeField] private GameObject listElementPrefab = default;
-    [BoxGroup("Formation List"), SerializeField] private GameObject listInfoText = default;
+    [BoxGroup("Formation List"), SerializeField] private Transform groupListParent = default;
+    [BoxGroup("Formation List"), SerializeField] private GameObject groupListElementPrefab = default;
+    [BoxGroup("Formation List"), SerializeField] private GameObject groupListInfoText = default;
 
 
     // Selection variables
@@ -52,21 +61,35 @@ public class UI : MonoBehaviour
     private bool isSelectionWindowEnabled = false;
 
 
+    public bool Interacting
+    {
+        get
+        {
+            return isWindowEnabled || isOverviewWindowEnabled || isSelectionWindowEnabled;
+        }
+    }
+
+    // Routines
+    private Coroutine showAlertRoutine = default;
+
 
     #region Life cycle
     private void OnEnable()
     {
         droneManager.OnFormationUpdated += OnFormationUpdated;
+        droneManager.OnDroneEventsUpdated += OnDroneEventsUpdated;
     }
 
     private void OnDisable()
     {
         droneManager.OnFormationUpdated -= OnFormationUpdated;
+        droneManager.OnDroneEventsUpdated -= OnDroneEventsUpdated;
     }
 
     public void Initialize()
     {
         OnFormationUpdated();
+        OnDroneEventsUpdated();
     }
 
     public void IntializeDroneSelection()
@@ -104,7 +127,7 @@ public class UI : MonoBehaviour
     #endregion
 
     #region Window
-    
+
     // Main windows
 
     /// <summary>
@@ -148,7 +171,7 @@ public class UI : MonoBehaviour
         if (currentWindow == code) return;
         else UpdateWindow(code);
     }
-    
+
     /// <summary>
     /// 윈도우를 표시하기 전 윈도우 요소들을 최신화 해주는 함수
     /// </summary>
@@ -183,8 +206,8 @@ public class UI : MonoBehaviour
         sb.Clear();
 
     }
-    
-    
+
+
     // Overview windows
     public void OpenOverviewWindow(int code)
     {
@@ -216,7 +239,7 @@ public class UI : MonoBehaviour
         // Play
         PlayAnimationSafe(anim, "UI_Seperate_Out");
     }
-    
+
 
     // Selection windows
     private void CallSelectionWindow(bool state)
@@ -235,7 +258,7 @@ public class UI : MonoBehaviour
         // Change the state
         isSelectionWindowEnabled = state;
     }
-    
+
     #endregion
 
     #region Overview UI
@@ -270,6 +293,38 @@ public class UI : MonoBehaviour
         }
     }
 
+    #endregion
+
+    #region Events UI
+    public void OnDroneEventsUpdated()
+    {
+        // Destroy previous
+        int cnt = 0;
+        if (eventsListParent.childCount > 0)
+        {
+            cnt = eventsListParent.childCount;
+            for (int i = 0; i < cnt; i++)
+            {
+                Destroy(eventsListParent.GetChild(i).gameObject);
+            }
+        }
+
+        // Instantiate
+        cnt = droneManager.DroneEvents.Count;
+        if (cnt > 0)
+        {
+            foreach (DroneEvent item in droneManager.DroneEvents)
+            {
+                DroneEventElementUI target = Instantiate(eventsListElementPrefab, eventsListParent).GetComponent<DroneEventElementUI>();
+                target.Initialize(item);
+            }
+            eventsListInfoText.SetActive(false);
+        }
+        else
+        {
+            eventsListInfoText.SetActive(true);
+        }
+    }
     #endregion
 
     #region Formation Build UI
@@ -384,7 +439,7 @@ public class UI : MonoBehaviour
             if (success)
             {
                 droneFormationLogText.text = "[<color=\"green\">편대 구성 성공</color>]";
-                
+
                 // Input 초기화
                 ClearFormationInput();
 
@@ -405,12 +460,12 @@ public class UI : MonoBehaviour
     public void OnFormationUpdated()
     {
         int cnt = 0;
-        if (listParent.childCount > 0)
+        if (groupListParent.childCount > 0)
         {
-            cnt = listParent.childCount;
+            cnt = groupListParent.childCount;
             for (int i = 0; i < cnt; i++)
             {
-                Destroy(listParent.GetChild(i).gameObject);
+                Destroy(groupListParent.GetChild(i).gameObject);
             }
         }
 
@@ -420,18 +475,18 @@ public class UI : MonoBehaviour
             for (int i = 0; i < cnt; i++)
             {
                 // Element 생성
-                FormationElementUI target = Instantiate(listElementPrefab, listParent).GetComponent<FormationElementUI>();
+                FormationElementUI target = Instantiate(groupListElementPrefab, groupListParent).GetComponent<FormationElementUI>();
 
                 // Code 할당
                 target.Initialize(i, droneManager, this);
 
                 // Empty info text 비활성화
-                listInfoText.SetActive(false);
+                groupListInfoText.SetActive(false);
             }
         }
         else
         {
-            listInfoText.SetActive(true);
+            groupListInfoText.SetActive(true);
         }
 
         // 드론 선택창 재 정렬
@@ -465,6 +520,21 @@ public class UI : MonoBehaviour
 
         // Process
         selectedDroneId = id;
+    }
+
+    public void ShowAlert(string text)
+    {
+        if (showAlertRoutine != null) StopCoroutine(showAlertRoutine);
+        showAlertRoutine = StartCoroutine(ShowAlertRoutine(text));
+    }
+    private IEnumerator ShowAlertRoutine(string text)
+    {
+        alertText.text = text;
+        PlayAnimationSafe(alertAnimaion, "Alert_Intro");
+
+        yield return new WaitForSeconds(2f);
+        PlayAnimationSafe(alertAnimaion, "Alert_Outro");
+        yield break;
     }
     #endregion
 }
