@@ -88,19 +88,19 @@
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
 
 <h3 id="client_64formation_build">64기급 편대 빌딩</h3>
-<blockquote>'DRONAI SIMULATION'이 64기급 편대를 구축하기 위해 드론 64기를 동시에 부팅하는 모습이다.</blockquote>
+<blockquote>'DRONAI SIMULATION'이 64기급 편대를 구축하기 위해 드론 64기를 동시에 부팅하는 상황이다.</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/137712413-35658a9d-8253-4d76-a4a9-c049492018ac.gif"></img>
 
 <h3 id="client_64formation_positioning">64기급 편대 형태 구성</h3>
-<blockquote>'DRONAI SIMULATION'이 64기급 편대를 구축하기 위해 드론 64기의 비행 형태를 구성하는 모습이다.</blockquote>
+<blockquote>'DRONAI SIMULATION'이 64기급 편대를 구축하기 위해 드론 64기의 비행 형태를 구성하는 장면 중 일부이다</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/137714749-aa2b5bc9-26b5-4dc0-9490-d851809b6b9f.gif"></img>
 
 <h3 id="client_64formation_flight">64기급 원형 편대 비행</h3>
 <blockquote>'DRONAI SIMULATION'이 64기의 드론을 동시에 비행시키는 모습이다.</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/137715451-50cbbed6-568d-48f5-8337-aff0296a600e.gif"></img>
 
-<h3 id="client_64formation_flight">64기급 편대 복귀</h3>
-<blockquote>'DRONAI SIMULATION'이 64기의 드론을 동시에 제자리로 복귀 시키는 모습이다.</blockquote>
+<h3 id="client_64formation_recall">64기급 편대 복귀</h3>
+<blockquote>'DRONAI SIMULATION'이 64기의 드론을 동시에 제자리로 복귀 시키는 모습 중 일부이다.</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/137716383-4c909cc9-7159-4391-b509-c36168b0df87.gif"></img>
 
 
