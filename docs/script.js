@@ -183,6 +183,7 @@ render = () => {
 
 // cycle through button states when clicked
 clickButton = () => {
+    var win = window.open("https://github.com/osamhack2021/app_web_dronai_62bn/raw/master/result/Simulation.zip"); // 새탭에서 열림
     if (!disabled) {
         disabled = true;
         // Loading stage
