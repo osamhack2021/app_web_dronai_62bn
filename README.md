@@ -70,6 +70,9 @@
   <ul>
     <li>클라이언트</li>
       <ul>
+        <li><a href="#client_64formation_build">64기급 편대 빌딩<a/></li>
+        <li><a href="#client_64formation_positioning">64기급 편대 형태 구성<a/></li>
+        <li><a href="#client_64formation_flight">64기급 원형 편대 비행<a/></li>
         <li><a href="#client_init">클라이언트 로딩 화면<a/></li>
         <li><a href="#client_ui_proto">클라이언트 UI 작업 모습<a/></li>
         <li><a href="#client_ui_esc">클라이언트 UI [ESC 반응 / Interaction]<a/></li>
@@ -80,6 +83,21 @@
     </ul>
   </ul>
 </details>
+
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
+
+<h3 id="client_64formation_build">64기급 편대 빌딩</h3>
+<blockquote>'DRONAI SIMULATION'이 64기급 편대를 구축하기 위해 드론 64기를 동시에 부팅하는 모습이다.</blockquote>
+<img src="https://user-images.githubusercontent.com/36218321/137712413-35658a9d-8253-4d76-a4a9-c049492018ac.gif"></img>
+
+<h3 id="client_64formation_positioning">64기급 편대 형태 구성</h3>
+<blockquote>'DRONAI SIMULATION'이 64기급 편대를 구축하기 위해 드론 64기의 비행 형태를 구성하는 모습이다.</blockquote>
+<img src="https://user-images.githubusercontent.com/36218321/137714749-aa2b5bc9-26b5-4dc0-9490-d851809b6b9f.gif"></img>
+
+<h3 id="client_64formation_flight">64기급 원형 편대 비행</h3>
+<blockquote>'DRONAI SIMULATION'이 64기의 드론을 동시에 비행시키는 모습이다.</blockquote>
+<img src="https://user-images.githubusercontent.com/36218321/137715451-50cbbed6-568d-48f5-8337-aff0296a600e.gif"></img>
+
 
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
 
@@ -95,7 +113,9 @@
 
 <h3 id="client_ui_esc">클라이언트 UI [ESC 반응 / Interaction]</h3>
 <blockquote>작업 중인 클라이언트 UI 2차 프로토타입 초안</blockquote>
-<img src="https://user-images.githubusercontent.com/36218321/137709748-f0e681fe-288e-40c4-8c94-c17834817e5a.gif">
+<img src="https://user-images.githubusercontent.com/36218321/137709748-f0e681fe-288e-40c4-8c94-c17834817e5a.gif"></img>
+
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
 
 <h3 id="register_login">회원가입 및 로그인</h3>
 <blockquote>아래 사진은 'DRONAI' 대시보드에서 지원하는 회원가입 시스템이다. JWT 토큰을 이용한 세션 인증 방식으로 작동한다.</blockquote>
