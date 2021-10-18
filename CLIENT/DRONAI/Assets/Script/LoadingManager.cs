@@ -1,17 +1,19 @@
 using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Events;
 using UnityEngine.SceneManagement;
 
 
 public class LoadingManager : Singleton<LoadingManager>
 {
-
     [SerializeField] private Animation curtain = default;
 
     // Coroutines
     private Coroutine loadSceneRoutine = default;
     private string previousSceneName = default;
+
+    // Events
+    [SerializeField] private UnityEvent OnSceneLoadedEvent = default;
 
 
     private void OnEnable()
@@ -34,6 +36,9 @@ public class LoadingManager : Singleton<LoadingManager>
 
     private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
     {
+        // Call unity event first
+        OnSceneLoadedEvent?.Invoke();
+
         string current = SceneManager.GetActiveScene().name;
         try
         {

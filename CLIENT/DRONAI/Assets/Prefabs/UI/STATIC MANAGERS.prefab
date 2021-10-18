@@ -10,8 +10,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1554817294889659908}
   - component: {fileID: 1554817294889659911}
-  - component: {fileID: 1554817294889659910}
   - component: {fileID: 1554817294889659913}
+  - component: {fileID: 1554817294889659910}
+  - component: {fileID: 7485619219663188899}
   m_Layer: 0
   m_Name: STATIC MANAGERS
   m_TagString: Untagged
@@ -46,28 +47,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c289ac89d24c9474d9c982769cd6555e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1554817294889659910
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1554817294889659912}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e563fba19387e9f42aef880b26d1c89f, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  serializationData:
-    SerializedFormat: 2
-    SerializedBytes: 
-    ReferencedUnityObjects: []
-    SerializedBytesString: 
-    Prefab: {fileID: 0}
-    PrefabModificationsReferencedUnityObjects: []
-    PrefabModifications: []
-    SerializationNodes: []
-  serverPath: ds.linearjun.com
 --- !u!114 &1554817294889659913
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -90,6 +69,64 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   curtain: {fileID: 1554817295098191353}
+  OnSceneLoadedEvent:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 7485619219663188899}
+        m_TargetAssemblyTypeName: Dronai.Path.AstarPathRequestManager, Assembly-CSharp
+        m_MethodName: Initialize
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+--- !u!114 &1554817294889659910
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1554817294889659912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e563fba19387e9f42aef880b26d1c89f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
+  serverPath: ds.linearjun.com
+--- !u!114 &7485619219663188899
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1554817294889659912}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3e2477bd16fbeb04a932ef99b32051d0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  serializationData:
+    SerializedFormat: 2
+    SerializedBytes: 
+    ReferencedUnityObjects: []
+    SerializedBytesString: 
+    Prefab: {fileID: 0}
+    PrefabModificationsReferencedUnityObjects: []
+    PrefabModifications: []
+    SerializationNodes: []
 --- !u!1 &1554817295098191355
 GameObject:
   m_ObjectHideFlags: 0

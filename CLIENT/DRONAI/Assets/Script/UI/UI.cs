@@ -11,6 +11,7 @@ public class UI : Singleton<UI>
 {
     // Components
     [BoxGroup("Components"), SerializeField] private DroneManager droneManager = default;
+    [BoxGroup("Components"), SerializeField] private CameraManager cameraManager = default;
     [BoxGroup("Components"), SerializeField] private Animation anim = default;
 
     [BoxGroup("Alert"), SerializeField] private Animation alertAnimaion = default;
@@ -235,7 +236,7 @@ public class UI : Singleton<UI>
         droneManager.ClearLine();
 
         // 카메라 원위치
-        CameraManager.Instance.SetToDefaultTarget();
+        cameraManager.SetToDefaultTarget();
 
         // Play
         PlayAnimationSafe(anim, "UI_Seperate_Out");
@@ -278,7 +279,7 @@ public class UI : Singleton<UI>
                 overviewIndex++;
 
                 // Change the actual target
-                CameraManager.Instance.ChangeTarget(currentOverviewNodes[overviewIndex]);
+                cameraManager.ChangeTarget(currentOverviewNodes[overviewIndex]);
             }
         }
         else
@@ -289,7 +290,7 @@ public class UI : Singleton<UI>
                 overviewIndex--;
 
                 // Change the actual target
-                CameraManager.Instance.ChangeTarget(currentOverviewNodes[overviewIndex]);
+                cameraManager.ChangeTarget(currentOverviewNodes[overviewIndex]);
             }
         }
     }
@@ -479,7 +480,7 @@ public class UI : Singleton<UI>
                 FormationElementUI target = Instantiate(groupListElementPrefab, groupListParent).GetComponent<FormationElementUI>();
 
                 // Code 할당
-                target.Initialize(i, droneManager, this);
+                target.Initialize(i, droneManager, cameraManager, this);
 
                 // Empty info text 비활성화
                 groupListInfoText.SetActive(false);
@@ -514,7 +515,7 @@ public class UI : Singleton<UI>
     public void OnDroneSelected(string id)
     {
         // Change camera position
-        CameraManager.Instance.ChangeTarget(droneManager.GetDroneById(id).transform);
+        cameraManager.ChangeTarget(droneManager.GetDroneById(id).transform);
 
         // Close th selection window when drone selected
         CallSelectionWindow(false);

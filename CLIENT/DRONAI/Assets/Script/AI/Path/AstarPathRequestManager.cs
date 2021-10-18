@@ -6,15 +6,19 @@ using UnityEngine;
 
 namespace Dronai.Path
 {
-    public class AstarPathRequestManager : Singleton<AstarPathRequestManager>
+    public class AstarPathRequestManager : MonoBehaviour
     {
-
+        public static AstarPathRequestManager Instance = default;
         private Queue<PathResult> results = new Queue<PathResult>();
         private AstarPathFinding pathfinding;
 
-        private void Awake()
+        private void Awake() {
+            if (AstarPathRequestManager.Instance != null) return;
+            Instance = this;
+        }
+        public void Initialize()
         {
-            pathfinding = GetComponent<AstarPathFinding>();
+            if (pathfinding == null) pathfinding = FindObjectOfType<AstarPathFinding>();
         }
         private void Update()
         {

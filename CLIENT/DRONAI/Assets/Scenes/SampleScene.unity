@@ -22554,6 +22554,7 @@ MonoBehaviour:
     - Name: OnDroneEventsUpdated
       Entry: 6
       Data: 
+  cameraManager: {fileID: 1195495345}
   dronePrefab: {fileID: 1165740686982719177, guid: 9938a292ff15a9743ba9187c38b8366f, type: 3}
   droneParent: {fileID: 165944573}
   droneSpeed: 1
@@ -51764,15 +51765,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ee8aa22b3ae992940902e63283419ba9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  serializationData:
-    SerializedFormat: 2
-    SerializedBytes: 
-    ReferencedUnityObjects: []
-    SerializedBytesString: 
-    Prefab: {fileID: 0}
-    PrefabModificationsReferencedUnityObjects: []
-    PrefabModifications: []
-    SerializationNodes: []
   mainCamera: {fileID: 963194227}
   captureCamera: {fileID: 1829701308}
   uiManager: {fileID: 1709741889}
@@ -72735,7 +72727,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1699721369}
   - component: {fileID: 1699721371}
-  - component: {fileID: 1699721372}
   - component: {fileID: 1699721370}
   m_Layer: 0
   m_Name: A*
@@ -72795,27 +72786,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   grid: {fileID: 1699721370}
---- !u!114 &1699721372
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1699721368}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3e2477bd16fbeb04a932ef99b32051d0, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  serializationData:
-    SerializedFormat: 2
-    SerializedBytes: 
-    ReferencedUnityObjects: []
-    SerializedBytesString: 
-    Prefab: {fileID: 0}
-    PrefabModificationsReferencedUnityObjects: []
-    PrefabModifications: []
-    SerializationNodes: []
 --- !u!1 &1705516292
 GameObject:
   m_ObjectHideFlags: 0
@@ -72985,6 +72955,7 @@ MonoBehaviour:
     PrefabModifications: []
     SerializationNodes: []
   droneManager: {fileID: 497071154}
+  cameraManager: {fileID: 1195495345}
   anim: {fileID: 1492424537}
   alertAnimaion: {fileID: 1025793347}
   alertText: {fileID: 926501962}
@@ -89197,10 +89168,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1554817294889659910, guid: 74e0759310b6c6c45a5b9a99183df8d5, type: 3}
-      propertyPath: fileName
-      value: imyoung.jpg
-      objectReference: {fileID: 0}
-    - target: {fileID: 1554817294889659910, guid: 74e0759310b6c6c45a5b9a99183df8d5, type: 3}
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 1554817294889659910, guid: 74e0759310b6c6c45a5b9a99183df8d5, type: 3}
@@ -89212,6 +89179,10 @@ PrefabInstance:
       propertyPath: serializationData.Prefab
       value: 
       objectReference: {fileID: 1554817294889659913, guid: 74e0759310b6c6c45a5b9a99183df8d5, type: 3}
+    - target: {fileID: 7485619219663188899, guid: 74e0759310b6c6c45a5b9a99183df8d5, type: 3}
+      propertyPath: serializationData.Prefab
+      value: 
+      objectReference: {fileID: 7485619219663188899, guid: 74e0759310b6c6c45a5b9a99183df8d5, type: 3}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 74e0759310b6c6c45a5b9a99183df8d5, type: 3}
 --- !u!4 &1700895444623640476

@@ -31,14 +31,16 @@ public class FormationElementUI : MonoBehaviour
 
     // Components
     private DroneManager droneManager = default;
+    private CameraManager cameraManager = default;
     private UI uiManager = default;
     private Formation formation = default;
 
-    public void Initialize(int code, DroneManager droneManager, UI uiManager)
+    public void Initialize(int code, DroneManager droneManager, CameraManager cameraManager, UI uiManager)
     {
         // 할당
         this.code = code;
         this.droneManager = droneManager;
+        this.cameraManager = cameraManager;
         this.uiManager = uiManager;
         formation = droneManager.Formations[code];
 
@@ -139,7 +141,7 @@ public class FormationElementUI : MonoBehaviour
     private void TraceTarget()
     {
         uiManager.OpenWindow(false);
-        CameraManager.Instance.ChangeTarget(formation.HeadDrone.transform);
+        cameraManager.ChangeTarget(formation.HeadDrone.transform);
     }
 
 }

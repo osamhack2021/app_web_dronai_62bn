@@ -143,6 +143,7 @@ public class DroneManager : SerializedMonoBehaviour
     #endregion
 
     #region Variable
+    [SerializeField, BoxGroup("Components")] private CameraManager cameraManager = default;
 
     // Instantiate
     [SerializeField, BoxGroup("SPAWN SETTING")] private GameObject dronePrefab = default;
@@ -776,7 +777,7 @@ public class DroneManager : SerializedMonoBehaviour
         StringBuilder sb = new StringBuilder();
         sb.AppendFormat("발견자 : {0}\n발견 시각 : {1}\n발견 위치 : {2}", droneId, System.DateTime.Now.ToString("yyyy년 MM월 dd일 HH시 mm분 ss초"), target.position.ToString());
         string detail = sb.ToString();
-        string imgPath = CameraManager.Instance.TakeScreenShot(target);
+        string imgPath = cameraManager.TakeScreenShot(target);
         sb.Clear();
 
         DroneEvent droneEvent = new DroneEvent(droneId, detail, imgPath);
