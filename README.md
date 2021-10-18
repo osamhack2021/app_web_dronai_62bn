@@ -52,7 +52,9 @@
         <li><a href="#back_end"> Back-end (Api & Socket)</a></li>
         <li><a href="#server"> Server (Linux)</a></li>
       </ul>
-    <li><a href="#technique_explanation"> 기술 설명 (Technique Explanation)</a></li>
+    <li><a href="#client_technique_explanation"> 클라이언트 기술 설명 (Client Technique Explanation)</a></li>
+    <li><a href="#web_technique_explanation"> 웹 및 서버 기술 설명 (Web and Server Technique Explanation)</a></li>
+    <li><a href="algo_explanation"> 알고리즘 설명 (Algorithm Explanation)</a></li>
     <li><a href="#prerequisites"> 컴퓨터 구성 / 필수 조건 안내 (Prequisites)</a></li>
     <li><a href="#installation"> 설치 안내 (Installation Process)</a></li>
     <li><a href="#team"> 팀 정보 (Team Information)</a></li>
@@ -64,16 +66,41 @@
 <blockquote>드론 전투체계를 통합적으로 관리하는 플랫폼이다.</blockquote>
 <img src="https://media.wired.com/photos/59327007a312645844994da4/master/w_1600,c_limit/shadows2.gif" height="100%" width="100%"></img>
 
+<details open="open">
+  <ul>
+    <li>클라이언트</li>
+      <ul>
+        <li><a href="#client_init">클라이언트 로딩 화면<a/></li>
+        <li><a href="#client_ui_proto">클라이언트 UI 작업 모습<a/></li>
+        <li><a href="#client_ui_esc">클라이언트 UI [ESC 반응 / Interaction]<a/></li>
+      </ul>
+    <li>웹 대시보드</li>
+      <ul>
+        <li><a href="#register_login">회원가입 및 로그인<a/></li>
+    </ul>
+  </ul>
+</details>
+
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
 
-<h3>클라이언트 UI 프로토타입</h3>
+<h3 id="client_init">클라이언트 로딩 화면</h3>
+<blockquote>'DRONAI SIMULATION'을 구동할시 볼 수 있는 로딩화면이다.</blockquote>
+<img src="https://user-images.githubusercontent.com/36218321/137708873-62e785f9-c480-4c55-bd6d-3212af6346b6.gif"></img>
+
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
+
+<h3 id="client_ui_proto">클라이언트 UI</h3>
 <blockquote>작업 중인 클라이언트 UI 2차 프로토타입 초안</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/136693588-115e3798-1b5e-4690-8711-85e736728e16.png">
 
-<h3>데모 페이지</h3>
-<blockquote>회원가입</blockquote>
+<h3 id="client_ui_esc">클라이언트 UI [ESC 반응 / Interaction]</h3>
+<blockquote>작업 중인 클라이언트 UI 2차 프로토타입 초안</blockquote>
+<img src="https://user-images.githubusercontent.com/36218321/137709748-f0e681fe-288e-40c4-8c94-c17834817e5a.gif">
+
+<h3 id="register_login">회원가입 및 로그인</h3>
+<blockquote>아래 사진은 'DRONAI' 대시보드에서 지원하는 회원가입 시스템이다. JWT 토큰을 이용한 세션 인증 방식으로 작동한다.</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/137323586-d659536d-c1b9-417c-b542-8c6a7fb0162d.gif"></img>
-<blockquote>로그인</blockquote>
+<blockquote>아래 사진은 'DRONAI' 대시보드에서 지원하는 로그인 시스템이다. 로그인 역시 회원가입과 비슷하게 JWT 토큰을 이용한 세션 인증 방식으로 작동한다.</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/137323452-e29a1641-f478-4679-baa0-d4b1352eba6b.gif"></img>
 
 <h2 id="features"> :mag: 기능 설명</h2>
@@ -154,7 +181,11 @@
  - Tools: [Docker](https://www.docker.com/), [Maria DB](https://mariadb.org/)
  - Technique: SSL, HSTS, Reverse Proxy, Proxied, Virtual Host
 
-<h2 id="technique_explanation"> :floppy_disk: 기술 설명 (Technique Explanation)</h2>
+
+<h2 id="client_technique_explanation"> :floppy_disk: 클라이언트 기술 설명 (Client Technique Explanation)</h2>
+
+<h2 id="web_technique_explanation"> :earth_asia: 웹 및 서버 기술 설명 (Web and Server Technique Explanation)</h2>
+
 
 <h3>REVERSE PROXY</h2>
 <blockquote>리버스 프록시(reverse proxy)는 컴퓨터 네트워크에서 클라이언트를 대신해서 한 대 이상의 서버로부터 자원을 추출하는 프록시 서버의 일종이다. 그런 다음 이러한 자원들이 마치 웹 서버 자체에서 기원한 것처럼 해당 클라이언트로 반환된다.</blockquote>
@@ -166,6 +197,10 @@
 <blockquote>HTTP 엄격한 전송 보안 (HSTS)는 다운 그레이드 공격 및 쿠키 하이재킹으로부터 HTTPS 웹 사이트를 보호하도록 설계된 웹 보안 정책 메커니즘입니다. HSTS를 사용하도록 구성된 웹 서버는 웹 브라우저 (또는 기타 클라이언트 소프트웨어)에 HTTPS 연결 만 사용하도록 지시하고 HTTP 프로토콜 사용을 허용하지 않습니다.</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/136226998-648fbe9a-40d0-4bbd-80ab-0272d777f738.png" height="100%" width="100%"/>
 <p>DRONAI DASHBOARD에 엄격히 적용된 기술입니다.</p>
+
+
+<h2 id="algo_explanation"> :pencil2: 알고리즘 설명 (Algorithm Explanation)</h2>
+
 
 
 <h2 id="prerequisites"> :computer: 컴퓨터 구성 / 필수 조건 안내 (Prerequisites)</h2>
