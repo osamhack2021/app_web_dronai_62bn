@@ -73,6 +73,7 @@
         <li><a href="#client_64formation_build">64기급 편대 빌딩<a/></li>
         <li><a href="#client_64formation_positioning">64기급 편대 형태 구성<a/></li>
         <li><a href="#client_64formation_flight">64기급 원형 편대 비행<a/></li>
+          <li><a href="#client_64formation_recall">64기급 편대 복귀<a/></li>
         <li><a href="#client_init">클라이언트 로딩 화면<a/></li>
         <li><a href="#client_ui_proto">클라이언트 UI 작업 모습<a/></li>
         <li><a href="#client_ui_esc">클라이언트 UI [ESC 반응 / Interaction]<a/></li>
@@ -98,8 +99,13 @@
 <blockquote>'DRONAI SIMULATION'이 64기의 드론을 동시에 비행시키는 모습이다.</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/137715451-50cbbed6-568d-48f5-8337-aff0296a600e.gif"></img>
 
+<h3 id="client_64formation_flight">64기급 편대 복귀</h3>
+<blockquote>'DRONAI SIMULATION'이 64기의 드론을 동시에 제자리로 복귀 시키는 모습이다.</blockquote>
+<img src="https://user-images.githubusercontent.com/36218321/137716383-4c909cc9-7159-4391-b509-c36168b0df87.gif"></img>
+
 
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
+
 
 <h3 id="client_init">클라이언트 로딩 화면</h3>
 <blockquote>'DRONAI SIMULATION'을 구동할시 볼 수 있는 로딩화면이다.</blockquote>
