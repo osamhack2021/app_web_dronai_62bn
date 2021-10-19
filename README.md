@@ -64,6 +64,7 @@
 
 <h2 id="about"> :grey_question: 프로젝트 소개</h2>
 <blockquote>드론 전투체계를 통합적으로 관리하는 플랫폼이다.</blockquote>
+<h3><a href="https://youtu.be/ji8bJF0EvwM">소개영상</a></h3>
 <img src="https://media.wired.com/photos/59327007a312645844994da4/master/w_1600,c_limit/shadows2.gif" height="100%" width="100%"></img>
 
 <details open="open">
