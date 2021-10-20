@@ -288,7 +288,7 @@
         <li><a href="#editor">에디터<a/></li>
         <li><a href="#runtime">런타임<a/></li>
         <li><a href="#drone_auto_locate">드론 자동배치 기능 (EDITOR)</a></li>
-        <li><a href="#drone_auto_avoid">드론 자동회피 기능 (EDITOR)</a></li>
+        <li><a href="#drone_auto_avoid">드론 자동회피 기능 (RUNTIME)</a></li>
       </ul>
     <li>웹 대시보드</li>
       <ul>
@@ -373,7 +373,7 @@
 <img src="https://user-images.githubusercontent.com/36218321/138098339-1379ec34-f391-4cf2-a208-8df1dc63263a.png" height="100%" width="100%"/>
 <p>이 알고리즘은 <a href="#astar">A* 3차원 알고리즘</a>과 Sebastian Lague의 A* 프로젝트[MIT]를 응용하여 탄생한 자체 개발 알고리즘이다. 이 알고리즘은 동적으로 움직이는 오브젝트들까지 경로 탐색 과정에 반영하여 피해갈 수 있도록 해준다. 핵심되는 내용은 일정 주기에 맵을 Rebake 하는 쓰레드가 도는 것이며 그 소스는 아래와 같다</p>
 
-```
+```c#
 public void UpdateGrid()
 {
     if(Time.time - previousUpdateGridTime < .4f)
@@ -463,7 +463,7 @@ EX) 이 상황의 경우 0번 작업 실행 후 이어서 12 -> 16 -> ... -> 256
 <p>기본적으로 A star 알고리즘은 2차원에서 동작한다. 하지만 이 프로젝트에서는 3차원급 탐색을 요구하기에 A* 알고리즘의 핵심적인 부분을 변경할 필요가 있었다.
   다행이 이번 프로젝트를 진행하면서 이 부분을 해결하는데에 성공했다. <b>62BN 팀에서 자체적으로 개발한</b> A* 응용 알고리즘이며 그 핵심소스는 아래와 같다</p>
 
-```
+```c#
 public int GetDistance(AstarNode nodeA, AstarNode nodeB)
 {
     int dx = (int)Math.Abs(nodeA.GridX - nodeB.GridX);
@@ -528,6 +528,27 @@ public int GetDistance(AstarNode nodeA, AstarNode nodeB)
 
 <h2 id="installation"> :information_source: 설치 안내 (Installation Process)</h2>
 
+-  DRONAI SIMULATION 실행
+```
+========== 들어가기 전에 ==========
+시뮬레이션은 기본전으로 dronai.linearjun.com 서버에 연결이 된다. 서버 주소는 RUNTIME내에서는 변경 불가능하다.
+
+
+========== 실행 방법 ==========
+1. 프로젝트를 클론 받거나 [다운로드 페이지](https://osamhack2021.github.io/app_web_dronai_62bn)에서 클라이언트를 다운 받는다.
+
+2. Simulation.zip 의 압축을 푼다
+   L 프로젝트를 클론 받았다면 result 폴더 안에서 Simulation.zip 을 찾을 수 있다.
+
+3. DRONAI.exe를 실행시킨다
+
+
+========== 조작 방법 ==========
+- 마우스 우클릭을 통해 카메라를 회전 시킬 수 있다. 
+- 마우스 휠을 통해 카메라 줌 인아웃이 가능하다
+- ESC 키를 통해 UI에 접근이 가능하다. (ESC를 다시 누르면 꺼진다)
+- TAB 키를 통해 Camera Focus Change UI에 접근할 수 있다. (TAB을 다시 누르면 꺼진다)
+```
 -  API 서버 실행
 ```bash
 $ cd ./WEB\(BE\)/
