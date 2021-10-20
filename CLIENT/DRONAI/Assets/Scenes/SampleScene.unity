@@ -51770,7 +51770,7 @@ MonoBehaviour:
   uiManager: {fileID: 1709741889}
   distanceToTarget: 16
   followingSpeed: 4
-  wheelSpeed: 40
+  wheelSpeed: 20
 --- !u!1 &1201517955
 GameObject:
   m_ObjectHideFlags: 0
