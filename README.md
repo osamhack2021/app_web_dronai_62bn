@@ -1,7 +1,9 @@
 <!-- PROJECT LOGO -->
 <div align="center">
   <a href="https://github.com/osamhack2021/app_web_dronai_62bn">
-    <img src="https://github.com/osamhack2021/app_web_dronai_62bn/blob/master/resources/logo-images/logo_only_impact.png" alt="Logo" width="256px" height="256px">
+    <img
+      src="https://github.com/osamhack2021/app_web_dronai_62bn/blob/master/resources/logo-images/logo_only_impact.png"
+      alt="Logo" width="256px" height="256px">
   </a>
 
   <h3 align="center">DRONAI</h3>
@@ -20,67 +22,71 @@
     <br />
     <br />
     <a href="https://github.com/osamhack2021/app_web_dronai_62bn/graphs/contributors">
-      <img src="https://img.shields.io/github/contributors/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge"/>
+      <img src="https://img.shields.io/github/contributors/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge" />
     </a>
     <a href="https://github.com/osamhack2021/app_web_dronai_62bn/network/members">
-      <img src="https://img.shields.io/github/forks/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge"/>
+      <img src="https://img.shields.io/github/forks/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge" />
     </a>
     <a href="https://github.com/osamhack2021/app_web_dronai_62bn/stargazers">
-      <img src="https://img.shields.io/github/stars/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge"/>
+      <img src="https://img.shields.io/github/stars/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge" />
     </a>
     <a href="https://github.com/osamhack2021/app_web_dronai_62bn/issues">
-      <img src="https://img.shields.io/github/issues/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge"/>
+      <img src="https://img.shields.io/github/issues/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge" />
     </a>
     <a href="https://github.com/osamhack2021/app_web_dronai_62bn/blob/master/license.md">
-      <img src="https://img.shields.io/github/license/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge"/>
+      <img src="https://img.shields.io/github/license/osamhack2021/app_web_dronai_62bn.svg?style=for-the-badge" />
     </a>
   </p>
 </div>
 
 <h2> :robot: DRONAI QUICK VIEW</h2>
 <table align="center">
-	<tr>
-		<td>
+  <tr>
+    <td>
       <a href="https://youtu.be/ji8bJF0EvwM" target="_blank">
-			  <img style="width:460px;" src="https://user-images.githubusercontent.com/36218321/138032867-20674515-90bc-4f58-b00a-6882bbe49fa5.png">
-      <a/>
-		</td>
-		<td>
+        <img style="width:460px;"
+          src="https://user-images.githubusercontent.com/36218321/138032867-20674515-90bc-4f58-b00a-6882bbe49fa5.png">
+        <a />
+    </td>
+    <td>
       <a href="https://osamhack2021.github.io/app_web_dronai_62bn" target="_blank">
-			  <img style="width:460px;" src="https://user-images.githubusercontent.com/36218321/138033821-38e43702-bba5-4492-9aa7-adf58115fd9a.png">
+        <img style="width:460px;"
+          src="https://user-images.githubusercontent.com/36218321/138033821-38e43702-bba5-4492-9aa7-adf58115fd9a.png">
       </a>
-		</td>
-	</tr>
-	<tr>
-		<td align="center">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
       <a href="https://youtu.be/ji8bJF0EvwM"><b>소개 영상 보기</b></a>
-		</td>
-		<td align="center">
+    </td>
+    <td align="center">
       <a href="https://osamhack2021.github.io/app_web_dronai_62bn"><b>시뮬레이션 다운로드</b></a>
-		</td>
-	</tr>
+    </td>
+  </tr>
 </table>
 <table align="center">
-	<tr>
-		<td>
+  <tr>
+    <td>
       <a href="https://dronai.linearjun.com" target="_blank">
-			  <img style="width:460px;" src="https://user-images.githubusercontent.com/36218321/138034337-7e0a0319-71eb-4e20-aa50-75cad2f66ece.png">
-      <a/>
-		</td>
-		<td>
+        <img style="width:460px;"
+          src="https://user-images.githubusercontent.com/36218321/138034337-7e0a0319-71eb-4e20-aa50-75cad2f66ece.png">
+        <a />
+    </td>
+    <td>
       <a href="https://dronai.notion.site/FINAL-REPORT-afb579ec87384cbda0c0b6cc2534e861" target="_blank">
-			  <img style="width:460px;" src="https://user-images.githubusercontent.com/36218321/138034632-c377467c-8f7a-4344-92a7-76c18b1ef872.png">
+        <img style="width:460px;"
+          src="https://user-images.githubusercontent.com/36218321/138034632-c377467c-8f7a-4344-92a7-76c18b1ef872.png">
       </a>
-		</td>
-	</tr>
-	<tr>
-		<td align="center">
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
       <a href="https://dronai.linearjun.com"><b>웹 대시보드 접속하기</b></a>
-		</td>
-		<td align="center">
+    </td>
+    <td align="center">
       <a href="https://dronai.notion.site/FINAL-REPORT-afb579ec87384cbda0c0b6cc2534e861"><b>프로젝트 보고서 보기</b></a>
-		</td>
-	</tr>
+    </td>
+  </tr>
 </table>
 
 
