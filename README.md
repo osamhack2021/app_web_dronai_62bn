@@ -117,11 +117,10 @@
 
 
 
-
-
 <h2> :books: 목차</h2>
 <details open="open">
   <ol>
+    <li><a href="#why"> 왜 사용해야 하는가? (Why?)</a></li>
     <li><a href="#about"> 프로젝트 소개 (About)</a></li>
     <li><a href="#features"> 기능 설명 (Features)</a></li>
     <li><a href="#techniques"> 기술 스택 (Techniques)</a></li>
@@ -141,9 +140,56 @@
   </ol>
 </details>
 
-<h2 id="about"> :grey_question: 프로젝트 소개</h2>
+<h2 id="why"> :grey_question: 왜 사용해야 하는가?</h2>
+<blockquote>DRONAI는 현 체제에서 어떠한 변화를 줄 수 있는가? 그에대한 설명을 기술하였다.</blockquote>
+
+<table align="center">
+  <tr>
+    <td>
+      <img style="width:360px;" src="https://user-images.githubusercontent.com/36218321/138038851-d566cf68-1289-4902-9696-4388e73bd222.jpg">
+    </td>
+    <td width=560 style="word-break:break-all" >
+      현재 군에서는 '드론 운용 정비병'과 '해당 간부'가 팀을 이뤄 하나의 드론을 정비하고 조작한다. 현재와 같이 소수의 드론만을 전투에 활용한다면 이러한 체제로 운용이 가능할 수 있다. 그러나 다가오는 미래의 워리어 플랫폼에서 계속 소수의 드론만을 고집할지는 의문이며 만약 그렇다 한들 이는 심각한 문제로 제기 될 것이다.</br></br>드론 군집비행의 사례를 조사해본 결과 이미 해외에서는 어느정도 연구를 했거나 결과가 나온 경우가 많다. 대표적으로 <a href="https://www.intel.co.kr/content/www/kr/ko/technology-innovation/aerial-technology-light-show.html"> 인텔의 빛의 드론 프로젝트</a>나 중국 드론쇼 등이 있다. 물론 지금은 사람의 눈을 즐겁게하는 정도이지만 이 기술은 군사력 증진에 얼마든지 응용될 수 있다고 본다. 기존에 드론 군집 비행 개발 노하우가 있던 나라와 노하우가 없던 나라가 동시에 군용 드론 군집 비행 기술 개발을 시작한다면 당연히 전자가 후자보다 유리할 것이다.
+    </td>
+  </tr>
+</table>
+
+<table align="center">
+  <tr>
+    <td width=560 style="word-break:break-all">
+      드론으로 표적을 <a href="https://www.ytn.co.kr/_ln/0134_202108290842384491">암살에 성공한 사례</a>가 있는 지금, 드론의 가능성과 능력은 증명 되었다고 본다. 그렇기에 다수에 드론을 동시에 제어할 수 있는 시스템의 존재는 필수적이라 본다. 사람이 언제까지 드론을 1대 1로 조종할 수 는 없으며 조종해야 될 개체수가 많아질 수록 더더욱 그렇다. 또한, 드론 군집 비행을 개발하고 연구한 노하우가 있어야, 반대로 드론 군집 비행으로부터의 공격을 막아낼 수 있는 안목이 생길 수 있다고 확신한다.
+    </td>
+    <td>
+      <img style="width:360px;" src="https://user-images.githubusercontent.com/36218321/138042213-61c81089-1779-4e5b-abfa-5c58371125ce.jpg">
+    </td>
+  </tr>
+</table>
+
+<table align="center">
+  <tr>
+    <td>
+      <img style="width:360px;" src="https://user-images.githubusercontent.com/36218321/138043752-c3db3223-7cde-482a-be2c-3d303dfb8329.png">
+    </td>
+    <td width=560 style="word-break:break-all">
+      위와 같은 이유를 토대로 'DRONAI' 프로젝트는 기획되었다. 기획단계에서 한계점이 없었던 것은 아니다. 군 내에서 드론 군집 비행 시스템을 개발해 보인다는 것은 기술적으로 어려운 것은 둘째치고 여건이나 환경적으로 사실상 불가능 했다. 때문에 한계점을 명확히 인지하되 현실 상황에 빗된 시뮬레이션을 개발하여 프로젝트를 진행해 나가기로 결정했다. 이번 프로젝트의 목적은 실사용 가능한 드론 군집비행 시스템을 개발하는 것이 아니다. 드론 군집 비행의 뼈대를 잡고 응용 가능성을 테스트 해보며 이를 발전시켜 나아갈 수 있는지를 보는 것이 첫째이며, 추후 실제 상황에 투입할 드론 군집비행 개발을 위한 하나의 길잡이가 되는 것이 둘째 목표이다.
+    </td>
+  </tr>
+</table>
+
+<table align="center">
+  <tr>
+    <td width=560 style="word-break:break-all">
+      그래서 'DRONAI'가 성공적으로 길잡이가 되어 주었는가를 뭍는다면 답은 '그렇다' 이다. 'DRONAI'는 동적으로 3차원 공간에서 경로를 탐색할 수 있는 능력을 가졌으며, 테스트 결과 동시에 64대까지 <b>98.2%</b> (바람이나 드론끼리의 고속 충돌 등 물리적인 예외는 존재) 의 확률로 안전한 경로를 탐색해 준다. 따라서 앞으로의 드론 군집 비행을 개발하는데에 있어 충분히 활용가능하다고 생각하며 만약 그렇지 못하더라도 전반적인 시스템으로부터 프로토타입이나 아이디어는 얻을 수 있다고 본다.
+    </td>
+    <td>
+      <img style="width:360px;" src="https://user-images.githubusercontent.com/36218321/138046453-bff79953-dee8-4476-9ac1-13da69c194ff.png">
+    </td>
+  </tr>
+</table>
+
+
+<h2 id="about"> :exclamation: 프로젝트 소개</h2>
 <blockquote>드론 전투체계를 통합적으로 관리하는 플랫폼이다.</blockquote>
-<h3><a href="https://youtu.be/ji8bJF0EvwM">소개영상</a></h3>
 <img src="https://media.wired.com/photos/59327007a312645844994da4/master/w_1600,c_limit/shadows2.gif" height="100%" width="100%"></img>
 
 <details open="open">
