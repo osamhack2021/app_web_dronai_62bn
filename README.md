@@ -64,6 +64,7 @@
     </td>
   </tr>
 </table>
+
 <table align="center">
   <tr>
     <td>
@@ -75,7 +76,7 @@
     <td>
       <a href="https://dronai.notion.site/FINAL-REPORT-afb579ec87384cbda0c0b6cc2534e861" target="_blank">
         <img style="width:460px;"
-          src="https://user-images.githubusercontent.com/36218321/138034632-c377467c-8f7a-4344-92a7-76c18b1ef872.png">
+          src="https://user-images.githubusercontent.com/36218321/138035698-ed096fd1-1a88-484c-a76e-fd7d7ee706e2.png">
       </a>
     </td>
   </tr>
@@ -88,6 +89,34 @@
     </td>
   </tr>
 </table>
+
+<table align="center">
+  <tr>
+    <td>
+      <a href="https://dronai.gitbook.io/dronai/" target="_blank">
+        <img style="width:460px;"
+          src="https://user-images.githubusercontent.com/36218321/138036256-594e9b36-6fd7-4fae-b875-14bdc7d4dab5.png">
+        <a />
+    </td>
+    <td>
+      <a href="https://dronai.notion.site/dronai/DRONAI-44534bc31aac4efaa2b24e3480d71581" target="_blank">
+        <img style="width:460px;"
+          src="https://user-images.githubusercontent.com/36218321/138034632-c377467c-8f7a-4344-92a7-76c18b1ef872.png">
+      </a>
+    </td>
+  </tr>
+  <tr>
+    <td align="center">
+      <a href="https://dronai.gitbook.io/dronai/"><b>프로젝트 Documentation 보기</b></a>
+    </td>
+    <td align="center">
+      <a href="https://dronai.notion.site/dronai/DRONAI-44534bc31aac4efaa2b24e3480d71581"><b>협업 기록 및 전체 작업 보기</b></a>
+    </td>
+  </tr>
+</table>
+
+
+
 
 
 <h2> :books: 목차</h2>
