@@ -331,6 +331,15 @@
 <img width="100%" src="https://user-images.githubusercontent.com/36218321/138048470-0b33f597-c969-430f-a78f-338594b71f70.gif"></img>
 
 
+<!--라인 효과-->
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
+
+
+<h3>시스템 UML</h3>
+<blockquote>DRONAI 시스템 UML 프로토타입 (간략화 버전)</blockquote>
+<img width="100%" src="https://user-images.githubusercontent.com/36218321/138081308-3e559495-7ce7-484f-8a3d-b990da9d0b51.png"></img>
+
+
 <h2 id="techniques"> :electric_plug: 기술 스택 (Techniques Used)</h2>
 <h3 id="front_end">Front-end (Dashboard)</h2>
 
@@ -357,19 +366,22 @@
 
 
 <h2 id="client_technique_explanation"> :floppy_disk: 클라이언트 기술 설명 (Client Technique Explanation)</h2>
-
 <h3>드론 작업 스케줄러</h3>
 <blockquote>DRONAI에서 드론 TASK를 관리 시스템</blockquote>
 <p>DRONAI에서 존재하는 모든 드론은 Priorit Queue를 기반으로한 TASK 시스템을 갖고 있다. 이는 CPU 작업 스케줄러와 비슷하다고 보면 된다.</p>
 
 
-<h2 id="web_technique_explanation"> :earth_asia: 웹 및 서버 기술 설명 (Web and Server Technique Explanation)</h2>
 
+<h2 id="web_technique_explanation"> :earth_asia: 웹 및 서버 기술 설명 (Web and Server Technique Explanation)</h2>
 
 <h3>REVERSE PROXY</h2>
 <blockquote>리버스 프록시(reverse proxy)는 컴퓨터 네트워크에서 클라이언트를 대신해서 한 대 이상의 서버로부터 자원을 추출하는 프록시 서버의 일종이다. 그런 다음 이러한 자원들이 마치 웹 서버 자체에서 기원한 것처럼 해당 클라이언트로 반환된다.</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/136226162-65b7fff8-1f40-4a69-afd2-c201fac5b46a.jpg" height="100%" width="100%"/>
 <p>DRONAI DASHBOARD및 API 서버, 백엔드 서버에 적용된 기술입니다.</p>
+
+
+<!--라인 효과-->
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
 
 
 <h3>HSTS</h2>
