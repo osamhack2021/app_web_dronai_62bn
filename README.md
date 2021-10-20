@@ -247,13 +247,34 @@
 <blockquote>작업 중인 클라이언트 UI 2차 프로토타입 초안</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/137709748-f0e681fe-288e-40c4-8c94-c17834817e5a.gif"></img>
 
+
+<!--라인 효과-->
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
+
 
 <h3 id="register_login">회원가입 및 로그인</h3>
 <blockquote>아래 사진은 'DRONAI' 대시보드에서 지원하는 회원가입 시스템이다. JWT 토큰을 이용한 세션 인증 방식으로 작동한다.</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/137323586-d659536d-c1b9-417c-b542-8c6a7fb0162d.gif"></img>
 <blockquote>아래 사진은 'DRONAI' 대시보드에서 지원하는 로그인 시스템이다. 로그인 역시 회원가입과 비슷하게 JWT 토큰을 이용한 세션 인증 방식으로 작동한다.</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/137323452-e29a1641-f478-4679-baa0-d4b1352eba6b.gif"></img>
+
+
+<!--라인 효과-->
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
+
+
+<h3 id="dashboard">대쉬보드 / DASHBOARD </h3>
+<blockquote>기본 페이지입니다. 드론 개수, 이벤트 수, 마지막 이벤트 발생 시각, 마지막 이벤트 발생 장소 등의 원하는 정보를 실시간으로 반영하여 나타나게 만들 수 있습니다. </blockquote>
+<img src="https://user-images.githubusercontent.com/36218321/137323802-263094f6-170c-4533-9d57-c01515691cc8.PNG"></img>
+
+
+<!--라인 효과-->
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
+
+
+<h3 id="eventlist">이벤트 리스트 / EVENT LIST </h3>
+<blockquote>이벤트 리스트입니다. 리액트 특성 상 컴포넌트의 상태가 업데이트 될 때 렌더링을 다시 해줍니다. 따라서 서버에 새로운 이벤트를 입력하면 즉시 반영되어 웹 페이지 내 이벤트 리스트가 수정됩니다.</blockquote>
+<img src="https://user-images.githubusercontent.com/36218321/138047954-19bba013-00d1-43cd-8a7b-d59130128f7c.PNG"></img>
 
 <h2 id="features"> :mag: 기능 설명</h2>
 <blockquote>DRONAI에서 제공하는 기능에 대해 기술하는 영역</blockquote>
@@ -298,15 +319,14 @@
 <blockquote>원하는 사이즈와 높이, 생성 빈도에 맞추어 초기 드론 그룹을 자동으로 생성해 준다</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/136124125-f10d4fd4-4b9d-434a-b224-375c17981f74.gif"></img>
 
-<h3 id="login">로그인 기능 / LOGIN </h3>
-<blockquote>회원가입, 로그인 기능이다.</blockquote>
 
-<h3 id="dashboard">대쉬보드 / DASHBOARD </h3>
-<blockquote>기본 페이지입니다. 드론 개수, 이벤트 수, 마지막 이벤트 발생 시각, 마지막 이벤트 발생 장소 등의 원하는 정보를 실시간으로 반영하여 나타나게 만들 수 있습니다. </blockquote>
-<img src="https://user-images.githubusercontent.com/36218321/137323802-263094f6-170c-4533-9d57-c01515691cc8.PNG"></img>
+<!--라인 효과-->
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
 
-<h3 id="eventlist">이벤트 리스트 / EVENT LIST </h3>
-<blockquote>이벤트 리스트입니다. 리액트 특성 상 컴포넌트의 상태가 업데이트 될 때 렌더링을 다시 해줍니다. 따라서 서버에 새로운 이벤트를 입력하면 즉시 반영되어 웹 페이지 내 이벤트 리스트가 수정됩니다.</blockquote>
+
+<h3 id="drone_auto_locate">드론 자동회피 기능 (EDITOR)</h3>
+<blockquote>드론에 부착된 센서 기능으로 근방 1m 이내에 장애물이 감지되면 그와 반대 방향 벡터로 이동함</blockquote>
+<img width="100%" src="https://user-images.githubusercontent.com/36218321/138048470-0b33f597-c969-430f-a78f-338594b71f70.gif"></img>
 
 
 <h2 id="techniques"> :electric_plug: 기술 스택 (Techniques Used)</h2>
