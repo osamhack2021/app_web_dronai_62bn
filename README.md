@@ -103,7 +103,7 @@
     <td>
       <a href="https://dronai.notion.site/dronai/DRONAI-44534bc31aac4efaa2b24e3480d71581" target="_blank">
         <img style="width:460px;"
-          src="https://user-images.githubusercontent.com/36218321/138034632-c377467c-8f7a-4344-92a7-76c18b1ef872.png">
+          src="https://user-images.githubusercontent.com/36218321/138101447-1e259756-77e9-41f5-ad68-48a0c331d284.png">
       </a>
     </td>
   </tr>
