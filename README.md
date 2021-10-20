@@ -19,6 +19,8 @@
     <a href="https://dronai.notion.site/dronai/DRONAI-44534bc31aac4efaa2b24e3480d71581">Notion</a>
     ·
     <a href="https://dronai.gitbook.io/dronai/">Documents</a>
+    ·
+    <a href="https://docs.google.com/presentation/d/1gOtEuXTCLChtCmJZqL4Rpi08TlMlSRpf/edit?usp=sharing&ouid=118304770497693886763&rtpof=true&sd=true">Presentation</a>
     <br />
     <br />
     <a href="https://github.com/osamhack2021/app_web_dronai_62bn/graphs/contributors">
@@ -132,7 +134,7 @@
       </ul>
     <li><a href="#client_technique_explanation"> 클라이언트 기술 설명 (Client Technique Explanation)</a></li>
     <li><a href="#web_technique_explanation"> 웹 및 서버 기술 설명 (Web and Server Technique Explanation)</a></li>
-    <li><a href="algo_explanation"> 알고리즘 설명 (Algorithm Explanation)</a></li>
+    <li><a href="used_algo"> 알고리즘 설명 (Algorithm Explanation)</a></li>
     <li><a href="#prerequisites"> 컴퓨터 구성 / 필수 조건 안내 (Prequisites)</a></li>
     <li><a href="#installation"> 설치 안내 (Installation Process)</a></li>
     <li><a href="#team"> 팀 정보 (Team Information)</a></li>
@@ -324,7 +326,7 @@
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
 
 
-<h3 id="drone_auto_locate">드론 자동회피 기능 (EDITOR)</h3>
+<h3 id="drone_auto_locate">드론 자동회피 기능 (RUNTIME)</h3>
 <blockquote>드론에 부착된 센서 기능으로 근방 1m 이내에 장애물이 감지되면 그와 반대 방향 벡터로 이동함</blockquote>
 <img width="100%" src="https://user-images.githubusercontent.com/36218321/138048470-0b33f597-c969-430f-a78f-338594b71f70.gif"></img>
 
@@ -356,6 +358,11 @@
 
 <h2 id="client_technique_explanation"> :floppy_disk: 클라이언트 기술 설명 (Client Technique Explanation)</h2>
 
+<h3>드론 작업 스케줄러</h3>
+<blockquote>DRONAI에서 드론 TASK를 관리 시스템</blockquote>
+<p>DRONAI에서 존재하는 모든 드론은 Priorit Queue를 기반으로한 TASK 시스템을 갖고 있다. 이는 CPU 작업 스케줄러와 비슷하다고 보면 된다.</p>
+
+
 <h2 id="web_technique_explanation"> :earth_asia: 웹 및 서버 기술 설명 (Web and Server Technique Explanation)</h2>
 
 
@@ -371,8 +378,61 @@
 <p>DRONAI DASHBOARD에 엄격히 적용된 기술입니다.</p>
 
 
-<h2 id="algo_explanation"> :pencil2: 알고리즘 설명 (Algorithm Explanation)</h2>
+<h2 id="used_algo"> :pencil2: 사용된 알고리즘 (Used Algorithm)</h2>
 
+<h3>A*</h3>
+<blockquote>DRONAI에서 드론의 경로를 찾을 때 핵심적으로 사용된 알고리즘이다</blockquote>
+<img src="https://user-images.githubusercontent.com/36218321/138076333-8dbc935f-1544-4e6f-b7ad-3edc54e1e407.gif" height="100%" width="100%"/>
+<p>기본적으로 A star 알고리즘은 2차원에서 동작한다. 하지만 이 프로젝트에서는 3차원급 탐색을 요구하기에 A* 알고리즘의 핵심적인 부분을 변경할 필요가 있었다.
+  다행이 이번 프로젝트를 진행하면서 이 부분을 해결하는데에 성공했다. <b>62BN 팀에서 자체적으로 개발한</b> A* 응용 알고리즘이며 그 핵심소스는 아래와 같다</p>
+
+```
+public int GetDistance(AstarNode nodeA, AstarNode nodeB)
+{
+    int dx = (int)Math.Abs(nodeA.GridX - nodeB.GridX);
+    int dy = (int)Math.Abs(nodeA.GridY - nodeB.GridY);
+    int dz = (int)Math.Abs(nodeA.GridZ - nodeB.GridZ);
+
+    // make (dx, dy, dz) to (dx > dy > dz)
+    if (dx < dy) Swap(ref dx, ref dy);
+    if (dx < dz) Swap(ref dx, ref dz);
+    if (dy < dz) Swap(ref dy, ref dz);
+
+    // sqrt(3) = 1.7xxx, sqrt(2) = 1.4xxx
+    // dz, dy - dz, (dx - dz) - (dy - dz)
+    return 17 * dz + 14 * (dy - dz) + 10 * (dx - dy);
+}
+```
+
+</br><hr></br>
+
+<h3>Priority Queue</h3>
+<blockquote>DRONAI에서 드론 TASK를 관리할 때 핵심적으로 사용된 알고리즘</blockquote>
+<img src="https://user-images.githubusercontent.com/36218321/138077855-3fb73196-24a9-4c08-8077-832b00cb50b0.gif" height="100%" width="100%"/>
+<p>어떠한 자료구조 및 Queue 혹은 Generic에서 최대한 빠르게 최소값에 접근하기 위해 이 알고리즘을 채택하였다.</p>
+
+</br><hr></br>
+
+<h3>Theta star and Lazy Theta star</h3>
+<blockquote>DRONAI에서 smooth pathing을 위해 사용된 알고리즘</blockquote>
+<img src="https://user-images.githubusercontent.com/36218321/138078469-9d07dfe2-a275-4786-a011-34e9aa8d97b8.PNG" height="100%" width="100%"/>
+<p>ASCANE이 작성한 논문에서 발취한 알고리즘이다. 딱딱하게 나온 드론 경로를 조금 더 부드럽게 처리할 때 유용하여 부분적으로 채택하였다. 아래는 위 알고리즘의 의사소통 코드이다.</p>
+
+
+<table align="center">
+  <tr>
+    <td>Theta star</td>
+    <td>Lazy theta star</td>
+  </tr>
+  <tr>
+    <td>
+      <img style="width:460px;" src="https://user-images.githubusercontent.com/36218321/138079388-bdeb86e6-e74d-4c63-a314-82b34da899e7.PNG">
+    </td>
+    <td>
+      <img style="width:460px;" src="https://user-images.githubusercontent.com/36218321/138079412-3aabfb2a-64d4-46e9-bb57-df4eca1d87d0.PNG">
+    </td>
+  </tr>
+</table>
 
 
 <h2 id="prerequisites"> :computer: 컴퓨터 구성 / 필수 조건 안내 (Prerequisites)</h2>
