@@ -288,14 +288,15 @@
         <li><a href="#editor">에디터<a/></li>
         <li><a href="#runtime">런타임<a/></li>
         <li><a href="#drone_auto_locate">드론 자동배치 기능 (EDITOR)</a></li>
-        <li>etc...</li>
+        <li><a href="#drone_auto_avoid">드론 자동회피 기능 (EDITOR)</a></li>
       </ul>
     <li>웹 대시보드</li>
       <ul>
         <li><a href="#login">로그인 기능<a/></li>
         <li><a href="#dashboard">대시보드<a/></li>
         <li><a href="#eventlist">이벤트 리스트<a/></li>
-    </ul>
+      </ul>
+    <li><a href="#dronai-uml">시스템 UML</a></li>
   </ul>
 </details>
 
@@ -326,7 +327,7 @@
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
 
 
-<h3 id="drone_auto_locate">드론 자동회피 기능 (RUNTIME)</h3>
+<h3 id="drone_auto_avoid">드론 자동회피 기능 (RUNTIME)</h3>
 <blockquote>드론에 부착된 센서 기능으로 근방 1m 이내에 장애물이 감지되면 그와 반대 방향 벡터로 이동함</blockquote>
 <img width="100%" src="https://user-images.githubusercontent.com/36218321/138048470-0b33f597-c969-430f-a78f-338594b71f70.gif"></img>
 
@@ -335,7 +336,7 @@
 <img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
 
 
-<h3>시스템 UML</h3>
+<h3 id="dronai_uml">시스템 UML</h3>
 <blockquote>DRONAI 시스템 UML 프로토타입 (간략화 버전)</blockquote>
 <img width="100%" src="https://user-images.githubusercontent.com/36218321/138081308-3e559495-7ce7-484f-8a3d-b990da9d0b51.png"></img>
 
@@ -356,7 +357,7 @@
 
  - Language: C#
  - Tools: [Unity3d](https://unity.com)
- - Library: [Priority Queue - MIT](https://github.com/BlueRaja/High-Speed-Priority-Queue-for-C-Sharp)
+ - References: [Priority Queue - MIT](https://github.com/BlueRaja/High-Speed-Priority-Queue-for-C-Sharp), [A* PATH - MIT](https://github.com/supercontact/PathFindingEnhanced)
 
 <h3 id="server">Server (Linux)</h2>
 
@@ -366,9 +367,73 @@
 
 
 <h2 id="client_technique_explanation"> :floppy_disk: 클라이언트 기술 설명 (Client Technique Explanation)</h2>
+
+<h3>A* Dynamic</h3>
+<blockquote>실시간 동적으로 경로 탐색이 가능한 자제 개발 알고리즘</blockquote>
+<img src="https://user-images.githubusercontent.com/36218321/138098339-1379ec34-f391-4cf2-a208-8df1dc63263a.png" height="100%" width="100%"/>
+<p>이 알고리즘은 <a href="#astar">A* 3차원 알고리즘</a>과 Sebastian Lague의 A* 프로젝트[MIT]를 응용하여 탄생한 자체 개발 알고리즘이다. 이 알고리즘은 동적으로 움직이는 오브젝트들까지 경로 탐색 과정에 반영하여 피해갈 수 있도록 해준다. 핵심되는 내용은 일정 주기에 맵을 Rebake 하는 쓰레드가 도는 것이며 그 소스는 아래와 같다</p>
+
+```
+public void UpdateGrid()
+{
+    if(Time.time - previousUpdateGridTime < .4f)
+    {
+        // print("[A* Dynamic] Request denied : Grid 최신화 주기가 잦음!");
+        return;
+    }
+    previousUpdateGridTime = Time.time;
+
+    Vector3 worldBottomLeft = transform.position - Vector3.right * gridWorldSize.x / 2 - Vector3.up * gridWorldSize.y / 2 - Vector3.forward * gridWorldSize.z / 2;
+    for (int x = 0; x < gridSizeX; x++)
+    {
+        for (int y = 0; y < gridSizeY; y++)
+        {
+            for (int z = 0; z < gridSizeZ; z++)
+            {
+                Vector3 worldPoint = worldBottomLeft + Vector3.right * (x * nodeDiameter + nodeRadius) + Vector3.up * (y * nodeDiameter + nodeRadius) + Vector3.forward * (z * nodeDiameter + nodeRadius);
+                bool walkable = !(Physics.CheckSphere(worldPoint, nodeRadius, unwalkableMask));
+
+                int movementPenalty = 0;
+
+
+                Ray ray = new Ray(worldPoint + Vector3.up * 50, Vector3.down);
+                RaycastHit hit;
+                if (Physics.Raycast(ray, out hit, 100, walkableMask))
+                {
+                    walkableRegionsDictionary.TryGetValue(hit.collider.gameObject.layer, out movementPenalty);
+                }
+
+                if (!walkable)
+                {
+                    movementPenalty += obstacleProximityPenalty;
+                }
+
+                grid[x, y, z] = new AstarNode(walkable, worldPoint, x, y, z, movementPenalty);
+            }
+        }
+    }
+}
+```
+
+<!--라인 효과-->
+<img src="https://user-images.githubusercontent.com/73097560/115834477-dbab4500-a447-11eb-908a-139a6edaec5c.gif"></a>
+
 <h3>드론 작업 스케줄러</h3>
 <blockquote>DRONAI에서 드론 TASK를 관리 시스템</blockquote>
-<p>DRONAI에서 존재하는 모든 드론은 Priorit Queue를 기반으로한 TASK 시스템을 갖고 있다. 이는 CPU 작업 스케줄러와 비슷하다고 보면 된다.</p>
+
+```
+Priority Code 가 낮을수록 더 높은 작업 우선순위를 갖게 된다.
+
+EX) 이 상황의 경우 0번 작업 실행 후 이어서 12 -> 16 -> ... -> 256까지 실행하고 난 뒤 드론 작업이 모두 종료된다.
+[Priority Code : 0] > [Priority Code : 12] > [Priority Code : 16] > ... > [Priority Code : 256]
+
+만약 위의 작업 스케줄에서 Priority Code : 14를 갖는 작업이 추가 된다면 아래와 같이 작업 우선순위 구성이 바뀐다.
+[Priority Code : 0] > [Priority Code : 12] > [Priority Code : 14] > [Priority Code : 16] > ... > [Priority Code : 256]
+
+여기서 Priority Code : 0의 작업이 종료 된다면 단순하게 First Element가 Pop 되므로 결과는 아래와 같다.
+[Priority Code : 12] > [Priority Code : 14] > [Priority Code : 16] > ... > [Priority Code : 256]
+```
+<p>DRONAI에서 존재하는 모든 드론은 Priority Queue를 기반으로한 TASK 시스템을 갖고 있다. 이는 CPU 작업 스케줄러와 비슷하다고 보면 된다. 위의 작업 스케줄러 시스템은 <a href="#priority_queue">Priority Queue 알고리즘 (Heap and some more)</a>으로 작성되었다.</p>
 
 
 
@@ -392,7 +457,7 @@
 
 <h2 id="used_algo"> :pencil2: 사용된 알고리즘 (Used Algorithm)</h2>
 
-<h3>A*</h3>
+<h3 id="astar">A* 3rd Dimension</h3>
 <blockquote>DRONAI에서 드론의 경로를 찾을 때 핵심적으로 사용된 알고리즘이다</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/138076333-8dbc935f-1544-4e6f-b7ad-3edc54e1e407.gif" height="100%" width="100%"/>
 <p>기본적으로 A star 알고리즘은 2차원에서 동작한다. 하지만 이 프로젝트에서는 3차원급 탐색을 요구하기에 A* 알고리즘의 핵심적인 부분을 변경할 필요가 있었다.
@@ -418,7 +483,7 @@ public int GetDistance(AstarNode nodeA, AstarNode nodeB)
 
 </br><hr>
 
-<h3>Priority Queue</h3>
+<h3 id="priority_queue">Priority Queue</h3>
 <blockquote>DRONAI에서 드론 TASK를 관리할 때 핵심적으로 사용된 알고리즘</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/138077855-3fb73196-24a9-4c08-8077-832b00cb50b0.gif" height="100%" width="100%"/>
 <p>어떠한 자료구조 및 Queue 혹은 Generic에서 최대한 빠르게 최소값에 접근하기 위해 이 알고리즘을 채택하였다.</p>
