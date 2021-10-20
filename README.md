@@ -357,7 +357,7 @@
 
  - Language: C#
  - Tools: [Unity3d](https://unity.com)
- - References: [Priority Queue - MIT](https://github.com/BlueRaja/High-Speed-Priority-Queue-for-C-Sharp), [A* PATH - MIT](https://github.com/supercontact/PathFindingEnhanced)
+ - References: [Priority Queue - MIT](https://github.com/BlueRaja/High-Speed-Priority-Queue-for-C-Sharp), [Theta* PATH by ASCANE - MIT](https://github.com/supercontact/PathFindingEnhanced), [A* PATH by Sebastian - MIT](https://github.com/SebLague/Pathfinding)
 
 <h3 id="server">Server (Linux)</h2>
 
