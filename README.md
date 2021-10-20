@@ -134,7 +134,7 @@
       </ul>
     <li><a href="#client_technique_explanation"> 클라이언트 기술 설명 (Client Technique Explanation)</a></li>
     <li><a href="#web_technique_explanation"> 웹 및 서버 기술 설명 (Web and Server Technique Explanation)</a></li>
-    <li><a href="#used_algo"> 알고리즘 설명 (Algorithm Explanation)</a></li>
+    <li><a href="#used_algo"> 사용된 알고리즘 (Used Algorithm)</a></li>
     <li><a href="#prerequisites"> 컴퓨터 구성 / 필수 조건 안내 (Prequisites)</a></li>
     <li><a href="#installation"> 설치 안내 (Installation Process)</a></li>
     <li><a href="#team"> 팀 정보 (Team Information)</a></li>
