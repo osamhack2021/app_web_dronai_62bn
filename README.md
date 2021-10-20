@@ -404,14 +404,14 @@ public int GetDistance(AstarNode nodeA, AstarNode nodeB)
 }
 ```
 
-</br><hr></br>
+</br><hr>
 
 <h3>Priority Queue</h3>
 <blockquote>DRONAI에서 드론 TASK를 관리할 때 핵심적으로 사용된 알고리즘</blockquote>
 <img src="https://user-images.githubusercontent.com/36218321/138077855-3fb73196-24a9-4c08-8077-832b00cb50b0.gif" height="100%" width="100%"/>
 <p>어떠한 자료구조 및 Queue 혹은 Generic에서 최대한 빠르게 최소값에 접근하기 위해 이 알고리즘을 채택하였다.</p>
 
-</br><hr></br>
+</br><hr>
 
 <h3>Theta star and Lazy Theta star</h3>
 <blockquote>DRONAI에서 smooth pathing을 위해 사용된 알고리즘</blockquote>
