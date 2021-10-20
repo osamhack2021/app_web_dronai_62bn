@@ -553,7 +553,7 @@ public int GetDistance(AstarNode nodeA, AstarNode nodeB)
 ```bash
 $ cd ./WEB\(BE\)/
 $ yarn
-$ yarn typeorm migration:run
+$ yarn typeorm migration:run    #DB를 생성하는 명령어, 최초 구동시 한번만 실행하면 된다.
 $ yarn dev
 ```
 -  DASHBOARD FRONTEND 실행
